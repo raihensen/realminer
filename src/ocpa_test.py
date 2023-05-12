@@ -3,8 +3,23 @@ import pandas as pd
 from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
 from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
 from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
+from pathlib import Path
 
-filename = "../data/datasets/github_pm4py.jsonocel"
+# example dataset from celonis
+DATASET_CELONIS = "celonis"
+
+# from https://ocel-standard.org
+DATASET_GITHUB = "github_pm4py.jsonocel"
+DATASET_O2C = "o2c.jsonocel" # SAP
+DATASET_P2P = "p2p.jsonocel" # SAP
+DATASET_TRANSFER = "transfer_order.jsonocel" # SAP
+DATASET_RECRUITING = "recruiting.jsonocel"
+DATASET_ORDER = "running-example.jsonocel"
+DATASET_WINDOWS = "windows_events.jsonocel"
+
+ocel_standard_datasets = [DATASET_GITHUB, DATASET_O2C, DATASET_P2P, DATASET_TRANSFER, DATASET_RECRUITING, DATASET_ORDER, DATASET_WINDOWS]
+
+filename = Path("../data/datasets") / DATASET_WINDOWS
 ocel = ocel_import_factory.apply(filename, parameters={"execution_extraction": LEAD_TYPE,
                                                        "leading_type": "case:concept:name",
                                                        "variant_calculation": TWO_PHASE,

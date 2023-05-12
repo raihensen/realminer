@@ -1,0 +1,23 @@
+
+
+ocpa issues
+
+
+C:\Users\RH\anaconda3\envs\pads-x-celonis-ocpm\Lib\site-packages\ocpa\objects\log\converter\versions\jsonocel_to_csv.py
+event has no objects of a certain type: results in np.nan which is tried to iterate
+Line 23:
+
+new_omap = {}
+        for obj in events[ev].omap:
+            typ = obj_type[obj]
+            if not typ in new_omap:
+                new_omap[typ] = set()
+            new_omap[typ].add(obj)
+
+->
+
+new_omap = {ot: set() for ot in ocel.meta.obj_types}
+for obj in events[ev].omap:
+    new_omap[obj_type[obj]].add(obj)
+
+
