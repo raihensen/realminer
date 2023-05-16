@@ -5,27 +5,27 @@ from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
 from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
 from pathlib import Path
 
-# example dataset from celonis
-DATASET_CELONIS = "celonis"
-
 # from https://ocel-standard.org
-DATASET_GITHUB = "github_pm4py.jsonocel"
-DATASET_O2C = "o2c.jsonocel" # SAP
-DATASET_P2P = "p2p.jsonocel" # SAP
-DATASET_TRANSFER = "transfer_order.jsonocel" # SAP
-DATASET_RECRUITING = "recruiting.jsonocel"
-DATASET_ORDER = "running-example.jsonocel"
-DATASET_WINDOWS = "windows_events.jsonocel"
+DATASET_GITHUB = {"dataset": "github_pm4py.jsonocel", "leading_type": "case:concept:name"}
+DATASET_O2C = {"dataset": "o2c.jsonocel", "leading_type": "xxx"} # SAP
+DATASET_P2P = {"dataset": "p2p.jsonocel", "leading_type": "xxx"} # SAP
+DATASET_TRANSFER = {"dataset": "transfer_order.jsonocel", "leading_type": "xxx"} # SAP
+DATASET_RECRUITING = {"dataset": "recruiting.jsonocel", "leading_type": "xxx"}
+DATASET_ORDER = {"dataset": "running-example.jsonocel", "leading_type": "xxx"}
+DATASET_WINDOWS = {"dataset": "windows_events.jsonocel", "leading_type": "eventIdentifier"}
 
-ocel_standard_datasets = [DATASET_GITHUB, DATASET_O2C, DATASET_P2P, DATASET_TRANSFER, DATASET_RECRUITING, DATASET_ORDER, DATASET_WINDOWS]
+# example dataset from celonis
+DATASET_CELONIS = {"dataset": "celonis", "leading_type": "xxx"}
 
-filename = Path("../data/datasets") / DATASET_WINDOWS
-ocel = ocel_import_factory.apply(filename, parameters={"execution_extraction": LEAD_TYPE,
-                                                       "leading_type": "case:concept:name",
-                                                       "variant_calculation": TWO_PHASE,
-                                                       "exact_variant_calculation": False})
+dataset = DATASET_O2C
 
+filename = Path("../data/datasets") / dataset["dataset"]
 # https://ocpa.readthedocs.io/en/latest/eventlogmanagement.html
+ocel = ocel_import_factory.apply(filename, parameters={"execution_extraction": dataset.get("execution_extraction", LEAD_TYPE),
+                                                       "leading_type": dataset.get("leading_type", None),
+                                                       "variant_calculation": dataset.get("variant_calculation", TWO_PHASE),
+                                                       "exact_variant_calculation": dataset.get("exact_variant_calculation", False)})
+
 num_exec = len(ocel.process_executions)
 
 print(f"Object types: {ocel.object_types}")
