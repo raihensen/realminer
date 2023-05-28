@@ -1,5 +1,6 @@
 
 from abc import ABC, abstractmethod
+from builtins import property
 from pprint import pprint
 from pathlib import Path
 # import pandas as pd
@@ -27,6 +28,10 @@ class OCEL(ABC):
     def get_object_types(self):
         print("get OTs")
         pass
+
+    @property
+    def object_types(self):
+        return self.get_object_types()
 
 
 class LocalOCEL(OCEL):

@@ -1,18 +1,13 @@
 
-from src.model.ocel import OCEL, LocalOCEL
-import random
+# from src.model.ocel import OCEL, LocalOCEL
 
 
 class Model:
-    ocel: OCEL
+    # ocel: OCEL
 
     def __init__(self):
         pass
 
     def init_ocel(self, dataset):
-        self.ocel = LocalOCEL(**dataset)
-
-    def random_number(self):
-        return random.randint(1, 10)
-
-
+        # self.ocel = LocalOCEL(**dataset)
+        print("OCEL loaded successfully")
