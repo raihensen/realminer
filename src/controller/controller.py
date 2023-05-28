@@ -9,5 +9,5 @@ class Controller:
         self.model = model
 
     def test_action(self):
-        self.view.test_set_label(self.model.random_number())
+        self.view.test_set_label(self.model.ocel.get_object_types())
 
