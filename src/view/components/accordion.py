@@ -6,7 +6,7 @@ Compliant with Python 2.5-2.7
 Author: @ifthisthenbreak
 '''
 
-from tkinter import Tk, Frame, PhotoImage, Label
+import tkinter as tk
 from tkfontawesome import icon_to_image as fontawesome
 
 DEFAULT_STYLE = {
@@ -26,19 +26,19 @@ def get_icon(name, fill="black", height=15):
     return icons[key]
 
 
-class Chord(Frame):
+class Chord(tk.Frame):
     '''Tkinter Frame with title argument'''
 
     def __init__(self, parent, title='', expanded=False, *args, **kw):
-        Frame.__init__(self, parent, *args, **kw)
+        tk.Frame.__init__(self, parent, *args, **kw)
         self.title = title
         self.expanded = expanded
         self.icon = None
 
 
-class Accordion(Frame):
+class Accordion(tk.Frame):
     def __init__(self, parent, **kwargs):
-        Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent)
         self.style = {k: kwargs.get(k, default) for k, default in DEFAULT_STYLE.items()}
         self.columnconfigure(0, weight=1)
 
@@ -56,30 +56,30 @@ class Accordion(Frame):
         # row = 0
         # width = max([c.winfo_reqwidth() for c in chords])
 
-        wrapper = Frame(self)
+        wrapper = tk.Frame(self)
         c = Chord(wrapper, title, expanded, **kwargs)
 
         # for c, wrapper in zip(chords, wrappers):
-        title = Frame(wrapper,
+        title = tk.Frame(wrapper,
                       # compound='center',
                       # width=width,
                       height=self.style.get("title_height", None),
                       bg=self.style['title_bg'],
                       bd=2)
-        c.icon = Label(title, width=20,
+        c.icon = tk.Label(title, width=20,
                        bg=self.style['title_bg'],
                        image=self.icon_expanded if c.expanded else self.icon_collapsed)
-        label = Label(title, text=c.title,
+        label = tk.Label(title, text=c.title,
                       bg=self.style['title_bg'],
                       fg=self.style['title_fg'])
 
-        c.icon.pack(side="left")
-        label.pack(side="left")
+        c.icon.pack(side=tk.LEFT)
+        label.pack(side=tk.LEFT)
 
-        title.pack(side="top", fill="x", expand=True)
+        title.pack(side=tk.TOP, fill=tk.X, expand=True)
         if c.expanded:
-            c.pack(side="top", fill="x", expand=True)
-        wrapper.pack(side="top", fill="x")
+            c.pack(side=tk.TOP, fill=tk.X, expand=True)
+        wrapper.pack(side=tk.TOP, fill=tk.X)
 
         # title.grid(row=row, column=0, sticky="EW")
         # c.grid(row=row + 1, column=0, sticky='EW')
@@ -102,7 +102,7 @@ class Accordion(Frame):
             chord.icon.config(image=self.icon_expanded)
             chord.icon.image = self.icon_expanded
             # chord.grid()
-            chord.pack(side="top", fill="x", expand=True)
+            chord.pack(side=tk.TOP, fill=tk.X, expand=True)
         else:
             chord.expanded = False
             chord.icon.config(image=self.icon_collapsed)
@@ -114,14 +114,14 @@ class Accordion(Frame):
 if __name__ == '__main__':
     from tkinter import Entry, Button, Text
 
-    root = Tk()
+    root = tk.Tk()
 
     # create the Accordion
     acc = Accordion(root)
 
     # first chord
     first_chord = Chord(acc, title='First Chord', bg='white')
-    Label(first_chord, text='hello world', bg='white').pack()
+    tk.Label(first_chord, text='hello world', bg='white').pack()
 
     # second chord
     second_chord = Chord(acc, title='Second Chord', bg='white')

@@ -27,6 +27,7 @@ class App:
 
         dataset = DATASET_RECRUITING
         self.model.init_ocel(dataset)
+        self.controller.init_view()
 
 
 app = App()
