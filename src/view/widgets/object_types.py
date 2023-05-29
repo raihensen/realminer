@@ -1,9 +1,7 @@
-
 import tkinter as tk
-from tkinter.dnd import dnd_start, DndHandler, test as dnd_test
+import tkinter.dnd as tkdnd
 from tkfontawesome import icon_to_image as fontawesome
 import random
-
 
 DRAG_HANDLE_ICON = None
 
@@ -17,12 +15,38 @@ class ObjectTypeWidget(tk.Frame):
             r = lambda: random.randint(0, 255)
             colors = {ot: '#{:02x}{:02x}{:02x}'.format(r(), r(), r()) for ot in object_types}
 
-        entries = [ObjectTypeEntryWidget(master=self,
-                                         name=ot,
-                                         count=counts[ot],
-                                         color=colors[ot]) for ot in object_types]
-        for w in entries:
+        self.entries = [ObjectTypeEntryWidget(master=self,
+                                              name=ot,
+                                              count=counts[ot],
+                                              color=colors[ot]) for ot in object_types]
+        for w in self.entries:
             w.pack(side=tk.TOP, fill=tk.X)
+
+    def dnd_accept(self, source, event):
+        return self
+
+    def dnd_enter(self, source, event):
+        print("enter")
+
+    def dnd_motion(self, source, event):
+        # print("motion")
+        # get geometries of source and all children
+        source_index = self.entries.index(source)
+        bounds = [w.winfo_y() for w in self.entries]
+        bounds += [self.entries[-1].winfo_y() + self.entries[-1].winfo_height()]
+        centers = [(bounds[i] + bounds[i + 1]) // 2 for i in range(len(bounds) - 1)]
+        print(event.y, centers)
+        # target_indices = {y: i for i, y in enumerate(centers) if }
+        target_index = max(i for i, c in enumerate(centers) if event.y > c)
+        print(target_index)
+
+
+    def dnd_leave(self, source, event):
+        print("leave")
+
+    def dnd_commit(self, source, event):
+        # Dropped
+        print("commit")
 
 
 class ObjectTypeEntryWidget(tk.Frame):
@@ -35,7 +59,7 @@ class ObjectTypeEntryWidget(tk.Frame):
         if DRAG_HANDLE_ICON is None:
             DRAG_HANDLE_ICON = fontawesome("grip-lines", fill="grey", scale_to_height=15)
         drag_handle = tk.Label(master=self, image=DRAG_HANDLE_ICON, cursor="fleur")
-        drag_handle.bind("<Button-1>", lambda e: print("Hi"))
+        drag_handle.bind("<Button-1>", lambda e: tkdnd.dnd_start(self, e))
         drag_handle.pack(side=tk.LEFT, padx=5)
 
         # checkbox
@@ -56,12 +80,12 @@ class ObjectTypeEntryWidget(tk.Frame):
         color_border.pack(side=tk.RIGHT, padx=10)
         # TODO color picker
 
+    def dnd_end(self, target, event):
+        print("end")
+
     def update_checkbox(self, toggle=False):
         if toggle:
             self.checkbox.toggle()
         selected = bool(self.checkbox_var.get())
         self.label.config(fg="black" if selected else "grey")
 
-
-if __name__ == "__main__":
-    dnd_test()
