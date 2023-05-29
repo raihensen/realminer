@@ -1,13 +1,15 @@
 
-# from src.model.ocel import OCEL, LocalOCEL
+from src.model.ocel.base import OCEL, DummyEventLog
+# from src.model.ocel.ocpa import OcpaEventLog
 
 
 class Model:
-    # ocel: OCEL
+    ocel: OCEL
 
     def __init__(self):
         pass
 
     def init_ocel(self, dataset):
-        # self.ocel = LocalOCEL(**dataset)
+        # self.ocel = OcpaEventLog(**dataset)
+        self.ocel = DummyEventLog()
         print("OCEL loaded successfully")

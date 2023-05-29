@@ -1,13 +1,14 @@
 
-from abc import ABC, abstractmethod
-from builtins import property
-from pprint import pprint
-from pathlib import Path
-# import pandas as pd
+from src.model.ocel.base import OCEL
+
+from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
 from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
 from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
 from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
-from ocpa.objects.log.ocel import OCEL as OCPA_OCEL
+
+# import pandas as pd
+from pathlib import Path
+from pprint import pprint
 
 
 OCPA_DEFAULT_SETTINGS = {
@@ -18,24 +19,12 @@ OCPA_DEFAULT_SETTINGS = {
 }
 
 
-class OCEL(ABC):
+class OcpaEventLog(OCEL):
+    """
+    Event log wrapper using the ocpa module
+    """
 
-    @abstractmethod
-    def __init__(self, **kwargs):
-        print(f"OCEL instantiation with params {kwargs}")
-
-    @abstractmethod
-    def get_object_types(self):
-        print("get OTs")
-        pass
-
-    @property
-    def object_types(self):
-        return self.get_object_types()
-
-
-class LocalOCEL(OCEL):
-    ocel: OCPA_OCEL
+    ocel: OcpaEventLogObject
 
     def __init__(self, dataset, **kwargs):
         super().__init__(ocel_type="ocpa", **kwargs)
@@ -47,7 +36,9 @@ class LocalOCEL(OCEL):
 
         self.ocel = ocel_import_factory.apply(filename, parameters=params)
 
-    def get_object_types(self):
+    def _get_object_types(self):
         return self.ocel.object_types
 
+    def _get_activities(self):
+        return self.ocel.obj.activities
 
