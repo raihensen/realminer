@@ -1,6 +1,11 @@
 
 import tkinter as tk
+from tkinter.dnd import dnd_start, DndHandler, test as dnd_test
+from tkfontawesome import icon_to_image as fontawesome
 import random
+
+
+DRAG_HANDLE_ICON = None
 
 
 class ObjectTypeWidget(tk.Frame):
@@ -12,20 +17,37 @@ class ObjectTypeWidget(tk.Frame):
             r = lambda: random.randint(0, 255)
             colors = {ot: '#{:02x}{:02x}{:02x}'.format(r(), r(), r()) for ot in object_types}
 
-        entries = [ObjectTypeEntryWidget(master=self, name=ot, count=counts[ot], color=colors[ot]) for ot in object_types]
+        entries = [ObjectTypeEntryWidget(master=self,
+                                         name=ot,
+                                         count=counts[ot],
+                                         color=colors[ot]) for ot in object_types]
         for w in entries:
             w.pack(side=tk.TOP, fill=tk.X)
 
 
 class ObjectTypeEntryWidget(tk.Frame):
     def __init__(self, master, name, count, color, **kwargs):
+        global DRAG_HANDLE_ICON
         super().__init__(master, **kwargs)
 
         # drag handle
         # TODO
+        if DRAG_HANDLE_ICON is None:
+            DRAG_HANDLE_ICON = fontawesome("grip-lines", fill="grey", scale_to_height=15)
+        drag_handle = tk.Label(master=self, image=DRAG_HANDLE_ICON, cursor="fleur")
+        drag_handle.bind("<Button-1>", lambda e: print("Hi"))
+        drag_handle.pack(side=tk.LEFT, padx=5)
+
+        # checkbox
+        self.checkbox_var = tk.IntVar()
+        self.checkbox = tk.Checkbutton(master=self, command=self.update_checkbox, variable=self.checkbox_var)
+        self.checkbox.select()
+        self.checkbox.pack(side=tk.LEFT)
 
         # name
-        tk.Label(master=self, text=f"{name} ({count})").pack(side=tk.LEFT)
+        self.label = tk.Label(master=self, text=f"{name} ({count})")
+        self.label.bind("<Button-1>", lambda e: self.update_checkbox(toggle=True))
+        self.label.pack(side=tk.LEFT)
 
         # color display / color picker
         color_border = tk.LabelFrame(master=self, bg="black", width=12, height=12, bd=1)
@@ -34,4 +56,12 @@ class ObjectTypeEntryWidget(tk.Frame):
         color_border.pack(side=tk.RIGHT, padx=10)
         # TODO color picker
 
+    def update_checkbox(self, toggle=False):
+        if toggle:
+            self.checkbox.toggle()
+        selected = bool(self.checkbox_var.get())
+        self.label.config(fg="black" if selected else "grey")
 
+
+if __name__ == "__main__":
+    dnd_test()

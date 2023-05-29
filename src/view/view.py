@@ -52,10 +52,6 @@ class View:
         tk.Label(master=self.toolbar, text="[Toolbar]", bg="#303030", fg="#a0a0a0").pack(side=tk.LEFT)
 
         # Sidebar contents
-        # sidebar_scroll = tk.Scrollbar(self.sidebar)
-        # self.sidebar.config(yscrollcommand=sidebar_scroll.set)
-        # sidebar_scroll.config(command=self.sidebar.yview)
-        # sidebar_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         acc = Accordion(self.sidebar.interior, title_height=50)
         # Object types
         self.ot_container = acc.add_chord(title='Object types', expanded=True)
