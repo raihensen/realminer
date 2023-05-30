@@ -22,32 +22,6 @@ class ObjectTypeWidget(tk.Frame):
         for w in self.entries:
             w.pack(side=tk.TOP, fill=tk.X)
 
-    def dnd_accept(self, source, event):
-        return self
-
-    def dnd_enter(self, source, event):
-        print("enter")
-
-    def dnd_motion(self, source, event):
-        # print("motion")
-        # get geometries of source and all children
-        source_index = self.entries.index(source)
-        bounds = [w.winfo_y() for w in self.entries]
-        bounds += [self.entries[-1].winfo_y() + self.entries[-1].winfo_height()]
-        centers = [(bounds[i] + bounds[i + 1]) // 2 for i in range(len(bounds) - 1)]
-        print(event.y, centers)
-        # target_indices = {y: i for i, y in enumerate(centers) if }
-        target_index = max(i for i, c in enumerate(centers) if event.y > c)
-        print(target_index)
-
-
-    def dnd_leave(self, source, event):
-        print("leave")
-
-    def dnd_commit(self, source, event):
-        # Dropped
-        print("commit")
-
 
 class ObjectTypeEntryWidget(tk.Frame):
     def __init__(self, master, name, count, color, **kwargs):
