@@ -45,9 +45,11 @@ class ObjectTypeEntryWidget(DndListItem):
 
         # color display / color picker
         # color_border = ttk.Frame(master=self.interior, bg="black")
-        ot_bg_style = f"Colorbox:{ot}.TLabel"
-        ttk.style.Style.instance.configure(ot_bg_style, background=color, width=2, height=2)
-        ttk.Label(master=self.interior, image=tk.PhotoImage(), style=ot_bg_style).pack(side=RIGHT, padx=10)
+        # ot_bg_style = f"Colorbox:{ot}.TLabel"
+        # ttk.style.Style.instance.configure(ot_bg_style, background=color, width=2, height=2)
+        print(ot, color)
+        tk.Label(master=self.interior, image=tk.PhotoImage(), autostyle=False,
+                 width=10, height=10, bg=color).pack(side=RIGHT, padx=20)
         # color_border.pack(side=RIGHT, padx=10)
         # TODO color picker
 

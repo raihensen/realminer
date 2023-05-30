@@ -12,7 +12,7 @@ from src.view.widgets.object_types import ObjectTypeWidget
 WINDOW_TITLE = "Object-centric Business App"
 MAXIMIZED = True
 SIDEBAR_WIDTH_RATIO = 0.2
-SIDEBAR_MIN_WIDTH = 200
+SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
 
 
@@ -34,7 +34,7 @@ class View:
         self.window.rowconfigure(0, minsize=TOOLBAR_HEIGHT)
         self.window.rowconfigure(1, weight=1)
         self.window.columnconfigure(0, minsize=SIDEBAR_MIN_WIDTH, weight=1)
-        self.window.columnconfigure(1, minsize=SIDEBAR_MIN_WIDTH, weight=int(round(1 / SIDEBAR_WIDTH_RATIO, 0)) - 1)
+        self.window.columnconfigure(1, minsize=SIDEBAR_MIN_WIDTH/SIDEBAR_WIDTH_RATIO, weight=int(round(1 / SIDEBAR_WIDTH_RATIO, 0)) - 1)
 
         # Basic layout
         style = ttk.Style(theme)
