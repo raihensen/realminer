@@ -11,7 +11,7 @@ class DndList(tk.Frame):
 
     drag_handle_icon = None
 
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, on_swap=None, **kwargs):
         super().__init__(master=master, **kwargs)
         if DndList.drag_handle_icon is None:
             DndList.drag_handle_icon = fontawesome("grip-lines", fill="grey", scale_to_height=15)
@@ -21,11 +21,13 @@ class DndList(tk.Frame):
         self.source_index = None
         self.target_index = None
 
+        self.on_swap = on_swap
+
     def add_item(self, item=None, child=None) -> tk.Frame:
-        if child is None:
-            child = DndListItem(master=self, item=item)
         if item is None:
             item = len(self._children)
+        if child is None:
+            child = DndListItem(master=self, item=item)
 
         child.item = item
         self._children.append(child)
@@ -62,6 +64,31 @@ class DndList(tk.Frame):
             self.target_index = target_index
             self.repaint_children()
 
+    def dnd_commit(self, source, event=None):
+        # Dropped
+        s, t = self.source_index, self.target_index
+        if t - s not in [0, 1]:
+            # print(f"commit {s} -> {t}")
+
+            before = [c for c in self._children[:t] if c is not source]
+            after = [c for c in self._children[t:] if c is not source]
+            new_order = before + [source] + after
+            success = True
+            if self.on_swap is not None and callable(self.on_swap):
+                response = self.on_swap([c.item for c in new_order])
+                if response is False:
+                    success = False
+            if success:
+                self._children = new_order
+
+        self.source_index = None
+        self.target_index = None
+        self.repaint_children()
+
+    def dnd_end(self, event=None):
+        if self.target_index is not None and self.source_index is not None:
+            self.dnd_commit(self._children[self.source_index])
+
     def repaint_children(self):
         s, t = self.source_index, self.target_index
         preview_index = t
@@ -81,25 +108,6 @@ class DndList(tk.Frame):
             for c in self._children:
                 c.pack(side=TOP, fill=X)
 
-    def dnd_commit(self, source, event=None):
-        # Dropped
-        s, t = self.source_index, self.target_index
-        if t - s in [0, 1]:
-            print("commit (no swap)")
-        else:
-            print(f"commit {s} -> {t}")
-            before = [c for c in self._children[:t] if c is not source]
-            after = [c for c in self._children[t:] if c is not source]
-            self._children = before + [source] + after
-
-        self.source_index = None
-        self.target_index = None
-        self.repaint_children()
-
-    def dnd_end(self, event=None):
-        if self.target_index is not None and self.source_index is not None:
-            self.dnd_commit(self._children[self.source_index])
-
 
 class DndListItem(tk.Frame):
     def __init__(self, master: DndList, item, **kwargs):
@@ -111,7 +119,7 @@ class DndListItem(tk.Frame):
         self.handle.pack(side=LEFT, padx=5)
 
         self.interior = tk.Frame(master=self)
-        self.interior.pack(side=LEFT, fill=X)
+        self.interior.pack(side=LEFT, fill=X, expand=True)
 
         self.drag_offset = None
 
