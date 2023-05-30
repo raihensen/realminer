@@ -1,8 +1,9 @@
 
 import tkinter as tk
-import tkinter.dnd as tkdnd
-from tkinter.constants import *
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 from tkfontawesome import icon_to_image as fontawesome
+import tkinter.dnd as tkdnd
 
 import numpy as np
 
@@ -17,7 +18,8 @@ class DndList(tk.Frame):
             DndList.drag_handle_icon = fontawesome("grip-lines", fill="grey", scale_to_height=15)
 
         self._children = []
-        self.preview_line = tk.Label(master=self, image=tk.PhotoImage(), bg="grey")
+        # self.preview_line = tk.Label(master=self, image=tk.PhotoImage(), bg="grey")
+        self.preview_line = ttk.Separator(master=self)
         self.source_index = None
         self.target_index = None
 

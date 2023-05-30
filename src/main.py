@@ -22,7 +22,7 @@ class App:
     def __init__(self):
         self.model = Model()
         self.controller = Controller(self.model)
-        self.view = View(self.controller)
+        self.view = View(self.controller, theme="litera")
         self.controller.view = self.view
 
         dataset = DATASET_RECRUITING

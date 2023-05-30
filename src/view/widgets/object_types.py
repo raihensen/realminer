@@ -1,7 +1,7 @@
+
 import tkinter as tk
-from tkinter.constants import *
-# import tkinter.dnd as tkdnd
-# from tkfontawesome import icon_to_image as fontawesome
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 import random
 
 from src.view.components.dnd_list import DndList, DndListItem
@@ -21,6 +21,7 @@ class ObjectTypeWidget(DndList):
         for ot in object_types:
             self.add_item(item=ot, child=ObjectTypeEntryWidget(master=self,
                                                                ot=ot,
+                                                               enabled=True,
                                                                count=counts[ot],
                                                                color=colors[ot]))
 
@@ -30,30 +31,30 @@ class ObjectTypeWidget(DndList):
 
 
 class ObjectTypeEntryWidget(DndListItem):
-    def __init__(self, master, ot, count, color, **kwargs):
+    def __init__(self, master, ot: str, enabled: bool, count: int, color: str, **kwargs):
         super().__init__(master=master, item=ot, **kwargs)
 
-        # checkbox
-        self.checkbox_var = tk.IntVar()
-        self.checkbox = tk.Checkbutton(master=self.interior, command=self.update_checkbox, variable=self.checkbox_var)
-        self.checkbox.select()
+        # checkbox and name
+        self.checkbox_var = tk.IntVar(value=int(enabled))
+        self.checkbox = ttk.Checkbutton(master=self.interior,
+                                        text=f"{ot} ({count})",
+                                        command=self.update_checkbox,
+                                        variable=self.checkbox_var,
+                                        bootstyle="round-toggle")
         self.checkbox.pack(side=LEFT)
 
-        # name
-        self.label = tk.Label(master=self.interior, text=f"{ot} ({count})")
-        self.label.bind("<Button-1>", lambda e: self.update_checkbox(toggle=True))
-        self.label.pack(side=LEFT)
-
         # color display / color picker
-        color_border = tk.LabelFrame(master=self.interior, bg="black")
-        img = tk.PhotoImage()
-        tk.Label(master=color_border, image=img, width=10, height=10, bg=color).pack()
-        color_border.pack(side=RIGHT, padx=10)
+        # color_border = ttk.Frame(master=self.interior, bg="black")
+        ot_bg_style = f"Colorbox:{ot}.TLabel"
+        ttk.style.Style.instance.configure(ot_bg_style, background=color, width=2, height=2)
+        ttk.Label(master=self.interior, image=tk.PhotoImage(), style=ot_bg_style).pack(side=RIGHT, padx=10)
+        # color_border.pack(side=RIGHT, padx=10)
         # TODO color picker
 
     def update_checkbox(self, toggle=False):
         if toggle:
-            self.checkbox.toggle()
+            self.checkbox_var.set(1 - self.checkbox_var.get())
         selected = bool(self.checkbox_var.get())
-        self.label.config(fg="black" if selected else "grey")
+        # self.label.config()
+        # self.label.config(fg="black" if selected else "grey")
 

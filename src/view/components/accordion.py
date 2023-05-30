@@ -7,7 +7,10 @@ Author: @ifthisthenbreak
 '''
 
 import tkinter as tk
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 from tkfontawesome import icon_to_image as fontawesome
+
 
 DEFAULT_STYLE = {
     'title_bg': 'ghost white',
@@ -19,7 +22,9 @@ DEFAULT_STYLE = {
 icons = {}
 
 
-def get_icon(name, fill="black", height=15):
+def get_icon(name, fill=None, bootstyle=None, height=15):
+    if bootstyle is not None and fill is None:
+        fill = "red"
     key = f"{name}-{fill}-{height}"
     if key not in icons:
         icons[key] = fontawesome(name, fill=fill, scale_to_height=height)
@@ -29,16 +34,17 @@ def get_icon(name, fill="black", height=15):
 class Chord(tk.Frame):
     '''Tkinter Frame with title argument'''
 
-    def __init__(self, parent, title='', expanded=False, *args, **kw):
-        tk.Frame.__init__(self, parent, *args, **kw)
+    def __init__(self, parent, title='', expanded=False, bootstyle=None, *args, **kw):
+        ttk.Frame.__init__(self, parent, *args, **kw)
         self.title = title
         self.expanded = expanded
         self.icon = None
 
 
-class Accordion(tk.Frame):
-    def __init__(self, parent, **kwargs):
-        tk.Frame.__init__(self, parent)
+class Accordion(ttk.Frame):
+    def __init__(self, parent, bootstyle=None, **kwargs):
+        ttk.Frame.__init__(self, parent)
+        self.bootstyle = bootstyle
         self.style = {k: kwargs.get(k, default) for k, default in DEFAULT_STYLE.items()}
         self.columnconfigure(0, weight=1)
 
@@ -57,29 +63,29 @@ class Accordion(tk.Frame):
         # width = max([c.winfo_reqwidth() for c in chords])
 
         wrapper = tk.Frame(self)
-        c = Chord(wrapper, title, expanded, **kwargs)
+        c = Chord(wrapper, title, expanded, bootstyle=self.bootstyle, **kwargs)
 
         # for c, wrapper in zip(chords, wrappers):
         title = tk.Frame(wrapper,
-                      # compound='center',
-                      # width=width,
-                      height=self.style.get("title_height", None),
-                      bg=self.style['title_bg'],
-                      bd=2)
-        c.icon = tk.Label(title, width=20,
-                       bg=self.style['title_bg'],
-                       image=self.icon_expanded if c.expanded else self.icon_collapsed)
-        label = tk.Label(title, text=c.title,
-                      bg=self.style['title_bg'],
-                      fg=self.style['title_fg'])
+                         # compound='center',
+                         # width=width,
+                         # height=self.style.get("title_height", None),
+                         # bg=self.style['title_bg'],
+                         )
+        c.icon = ttk.Label(title,
+                           width=20,
+                           bootstyle=self.bootstyle,
+                           # bg=self.style['title_bg'],
+                           image=self.icon_expanded if c.expanded else self.icon_collapsed)
+        label = ttk.Label(title, text=c.title, bootstyle=self.bootstyle)
 
-        c.icon.pack(side=tk.LEFT)
-        label.pack(side=tk.LEFT)
+        c.icon.pack(side=LEFT)
+        label.pack(side=LEFT)
 
-        title.pack(side=tk.TOP, fill=tk.X, expand=True)
+        title.pack(side=TOP, fill=X, expand=True)
         if c.expanded:
-            c.pack(side=tk.TOP, fill=tk.X, expand=True)
-        wrapper.pack(side=tk.TOP, fill=tk.X)
+            c.pack(side=TOP, fill=X, expand=True)
+        wrapper.pack(side=TOP, fill=X)
 
         # title.grid(row=row, column=0, sticky="EW")
         # c.grid(row=row + 1, column=0, sticky='EW')
@@ -90,8 +96,8 @@ class Accordion(tk.Frame):
         widgets = [title, label, c.icon]
         for w in widgets:
             w.bind('<Button-1>', lambda e, c=c: self._click_handler(c))
-        title.bind('<Enter>', lambda e, widgets=widgets: [w.config(bg=self.style['highlight']) for w in widgets])
-        title.bind('<Leave>', lambda e, widgets=widgets: [w.config(bg=self.style['title_bg']) for w in widgets])
+        # title.bind('<Enter>', lambda e, widgets=widgets: [w.config(bg=self.style['highlight']) for w in widgets])
+        # title.bind('<Leave>', lambda e, widgets=widgets: [w.config(bg=self.style['title_bg']) for w in widgets])
 
         return c
 
@@ -102,7 +108,7 @@ class Accordion(tk.Frame):
             chord.icon.config(image=self.icon_expanded)
             chord.icon.image = self.icon_expanded
             # chord.grid()
-            chord.pack(side=tk.TOP, fill=tk.X, expand=True)
+            chord.pack(side=TOP, fill=X, expand=True)
         else:
             chord.expanded = False
             chord.icon.config(image=self.icon_collapsed)
@@ -134,6 +140,6 @@ if __name__ == '__main__':
 
     # append list of chords to Accordion instance
     acc.append_chords([first_chord, second_chord, third_chord])
-    acc.pack(fill='both', expand=1)
+    acc.pack(fill=BOTH, expand=1)
 
     root.mainloop()

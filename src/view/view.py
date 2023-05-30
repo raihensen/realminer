@@ -1,9 +1,10 @@
 
 import tkinter as tk
-import tkinter.ttk as ttk
-from tkinter.constants import *
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
+from ttkbootstrap.scrolled import ScrolledFrame
 
-from src.view.components.scrollable_frame import VerticalScrolledFrame
+# from src.view.components.scrollable_frame import VerticalScrolledFrame
 from src.view.components.accordion import Accordion
 from src.view.widgets.object_types import ObjectTypeWidget
 # from src.controller.controller import *
@@ -24,9 +25,11 @@ class Window(tk.Tk):
 
 
 class View:
-    def __init__(self, controller):
+    def __init__(self, controller, theme):
         self.controller = controller
         self.window = Window()
+
+        self.theme = theme
 
         self.window.rowconfigure(0, minsize=TOOLBAR_HEIGHT)
         self.window.rowconfigure(1, weight=1)
@@ -34,13 +37,14 @@ class View:
         self.window.columnconfigure(1, minsize=SIDEBAR_MIN_WIDTH, weight=int(round(1 / SIDEBAR_WIDTH_RATIO, 0)) - 1)
 
         # Basic layout
-        style = ttk.Style()
-        self.toolbar = tk.Frame(master=self.window, bg="#303030")
+        style = ttk.Style(theme)
+        self.toolbar = ttk.Frame(master=self.window, bootstyle=DARK)
         self.toolbar.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         style.configure("sidebar.TFrame", background="#e0e0e0")
-        self.sidebar = VerticalScrolledFrame(master=self.window, style="sidebar.TFrame")
+        # self.sidebar = VerticalScrolledFrame(master=self.window, style="sidebar.TFrame")
+        self.sidebar = ScrolledFrame(master=self.window)
         self.sidebar.grid(row=1, column=0, sticky=NSEW)
-        self.main = tk.Frame(master=self.window, bg="#ffffff")
+        self.main = tk.Frame(master=self.window)
         self.main.grid(row=1, column=1, sticky=NSEW)
 
         # Create test button to demonstrate MVC event propagation
@@ -52,8 +56,19 @@ class View:
         # Toolbar contents
         tk.Label(master=self.toolbar, text="[Toolbar]", bg="#303030", fg="#a0a0a0").pack(side=LEFT)
 
+        # Theme selection
+        theme_menubutton = ttk.Menubutton(master=self.toolbar, text="Change theme")
+        theme_menubutton.pack(side=RIGHT, padx=10, pady=10, fill=Y)
+        theme_menu = ttk.Menu(theme_menubutton)
+        theme_var = tk.StringVar(value=self.theme)
+        for theme in ttk.style.STANDARD_THEMES:
+            theme_menu.add_radiobutton(label=theme,
+                                       variable=theme_var,
+                                       command=lambda t=theme: self.change_theme(t))
+        theme_menubutton["menu"] = theme_menu
+
         # Sidebar contents
-        acc = Accordion(self.sidebar.interior, title_height=50)
+        acc = Accordion(self.sidebar, title_height=50)
         # Object types
         self.ot_container = acc.add_chord(title='Object types', expanded=True)
         self.ot_widget = None
@@ -71,14 +86,13 @@ class View:
     def init_activities(self, activities):
         pass
 
+    def change_theme(self, theme):
+        print(f"Change to theme '{theme}'")
+        ttk.style.Style.instance.theme_use(theme)
+
     def test_set_label(self, x):
         self.test_label.config(text=str(x))
 
     def start(self):
         self.window.mainloop()
-
-
-if __name__ == "__main__":
-    View().start()
-
 
