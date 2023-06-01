@@ -54,10 +54,10 @@ class View:
         self.test_btn.pack()
 
         # Toolbar contents
-        tk.Label(master=self.toolbar, text="[Toolbar]", bg="#303030", fg="#a0a0a0").pack(side=LEFT)
+        ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
 
         # Theme selection
-        theme_menubutton = ttk.Menubutton(master=self.toolbar, text="Change theme")
+        theme_menubutton = ttk.Menubutton(master=self.toolbar, text="Change theme", bootstyle=DARK)
         theme_menubutton.pack(side=RIGHT, padx=10, pady=10, fill=Y)
         theme_menu = ttk.Menu(theme_menubutton)
         theme_var = tk.StringVar(value=self.theme)
@@ -88,10 +88,14 @@ class View:
 
     def change_theme(self, theme):
         print(f"Change to theme '{theme}'")
-        ttk.style.Style.instance.theme_use(theme)
+        self.style.theme_use(theme)
 
     def test_set_label(self, x):
         self.test_label.config(text=str(x))
+
+    @property
+    def style(self):
+        return ttk.style.Style.instance
 
     def start(self):
         self.window.mainloop()
