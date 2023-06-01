@@ -68,7 +68,7 @@ class View:
         theme_menubutton["menu"] = theme_menu
 
         # Sidebar contents
-        acc = Accordion(self.sidebar, title_height=50)
+        acc = Accordion(self.sidebar, title_height=50, bootstyle=SECONDARY)
         # Object types
         self.ot_container = acc.add_chord(title='Object types', expanded=True)
         self.ot_widget = None

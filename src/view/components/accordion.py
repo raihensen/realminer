@@ -11,7 +11,6 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkfontawesome import icon_to_image as fontawesome
 
-
 DEFAULT_STYLE = {
     'title_bg': 'ghost white',
     'title_fg': 'black',
@@ -32,13 +31,40 @@ def get_icon(name, fill=None, bootstyle=None, height=15):
 
 
 class Chord(tk.Frame):
-    '''Tkinter Frame with title argument'''
-
-    def __init__(self, parent, title='', expanded=False, bootstyle=None, *args, **kw):
-        ttk.Frame.__init__(self, parent, *args, **kw)
+    def __init__(self, wrapper, accordion, title='', expanded=False, bootstyle=None, *args, **kw):
+        ttk.Frame.__init__(self, master=wrapper, *args, **kw)
+        self.accordion = accordion
         self.title = title
         self.expanded = expanded
         self.icon = None
+
+        self.title_button = ttk.Button(wrapper,
+                                       bootstyle=bootstyle,
+                                       image=self.accordion.icon_expanded if self.expanded else self.accordion.icon_collapsed,
+                                       text=self.title,
+                                       compound=LEFT)
+        self.title_button.bind('<Button-1>', lambda e: self._click_handler())
+        self.title_button.pack(side=TOP, fill=X, expand=True)
+        # c.icon = ttk.Button(title,
+        #                     width=20,
+        #                     bootstyle=self.bootstyle,
+        #                     # bg=self.style['title_bg'],
+        #                     image=self.icon_expanded if c.expanded else self.icon_collapsed)
+        # label = ttk.Button(title, bootstyle=self.bootstyle, text=c.title)
+
+        # c.icon.pack(side=LEFT)
+        # label.pack(side=LEFT)
+
+    def _click_handler(self):
+        print(self.title)
+        if not self.expanded:
+            self.expanded = True
+            self.title_button.config(image=self.accordion.icon_expanded)
+            self.pack(side=TOP, fill=X, expand=True)
+        else:
+            self.expanded = False
+            self.title_button.config(image=self.accordion.icon_collapsed)
+            self.pack_forget()
 
 
 class Accordion(ttk.Frame):
@@ -48,14 +74,10 @@ class Accordion(ttk.Frame):
         self.style = {k: kwargs.get(k, default) for k, default in DEFAULT_STYLE.items()}
         self.columnconfigure(0, weight=1)
 
-        self.icon_expanded = get_icon("caret-down", self.style['title_fg'], self.style['font_size'])
-        self.icon_collapsed = get_icon("caret-right", self.style['title_fg'], self.style['font_size'])
-
-        # self.wrappers = [Frame(self) for _ in range(n)]
-        # self.chords = [Chord()]
-
-    # def append_chords(self, chords=[]):
-    #     '''pass a [list] of Chords to the Accordion object'''
+        # TODO get bootstyle text color
+        fg = ttk.Style.instance.colors.selectfg
+        self.icon_expanded = get_icon("caret-down", fg, self.style['font_size'])
+        self.icon_collapsed = get_icon("caret-right", fg, self.style['font_size'])
 
     def add_chord(self, title='', expanded=False, **kwargs) -> Chord:
         self.update_idletasks()
@@ -63,58 +85,11 @@ class Accordion(ttk.Frame):
         # width = max([c.winfo_reqwidth() for c in chords])
 
         wrapper = tk.Frame(self)
-        c = Chord(wrapper, title, expanded, bootstyle=self.bootstyle, **kwargs)
-
-        # for c, wrapper in zip(chords, wrappers):
-        title = tk.Frame(wrapper,
-                         # compound='center',
-                         # width=width,
-                         # height=self.style.get("title_height", None),
-                         # bg=self.style['title_bg'],
-                         )
-        c.icon = ttk.Label(title,
-                           width=20,
-                           bootstyle=self.bootstyle,
-                           # bg=self.style['title_bg'],
-                           image=self.icon_expanded if c.expanded else self.icon_collapsed)
-        label = ttk.Label(title, text=c.title, bootstyle=self.bootstyle)
-
-        c.icon.pack(side=LEFT)
-        label.pack(side=LEFT)
-
-        title.pack(side=TOP, fill=X, expand=True)
+        c = Chord(wrapper, self, title, expanded, bootstyle=self.bootstyle, **kwargs)
         if c.expanded:
             c.pack(side=TOP, fill=X, expand=True)
         wrapper.pack(side=TOP, fill=X)
-
-        # title.grid(row=row, column=0, sticky="EW")
-        # c.grid(row=row + 1, column=0, sticky='EW')
-        # if not c.expanded:
-        #     c.grid_remove()
-        # row += 2
-
-        widgets = [title, label, c.icon]
-        for w in widgets:
-            w.bind('<Button-1>', lambda e, c=c: self._click_handler(c))
-        # title.bind('<Enter>', lambda e, widgets=widgets: [w.config(bg=self.style['highlight']) for w in widgets])
-        # title.bind('<Leave>', lambda e, widgets=widgets: [w.config(bg=self.style['title_bg']) for w in widgets])
-
         return c
-
-    def _click_handler(self, chord):
-        # if len(chord.grid_info()) == 0:
-        if not chord.expanded:
-            chord.expanded = True
-            chord.icon.config(image=self.icon_expanded)
-            chord.icon.image = self.icon_expanded
-            # chord.grid()
-            chord.pack(side=TOP, fill=X, expand=True)
-        else:
-            chord.expanded = False
-            chord.icon.config(image=self.icon_collapsed)
-            chord.icon.image = self.icon_collapsed
-            # chord.grid_remove()
-            chord.pack_forget()
 
 
 if __name__ == '__main__':
