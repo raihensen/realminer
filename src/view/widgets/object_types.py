@@ -6,12 +6,56 @@ import random
 
 from src.view.components.dnd_list import DndList, DndListItem
 
-# DRAG_HANDLE_ICON = None
 
-
-class ObjectTypeWidget(DndList):
+class ObjectTypeWidget(ttk.Frame):
     def __init__(self, master, object_types, counts, colors=None, **kwargs):
-        super().__init__(master, on_swap=self.on_swap, **kwargs)
+        super().__init__(master=master, **kwargs)
+
+        self.list_widget = ObjectTypeListWidget(master=self, object_types=object_types, counts=counts, colors=None, on_swap=self.on_swap)
+        self.list_widget.pack(side=TOP, fill=X)
+
+        btn_frame = ttk.Frame(master=self)
+        btn_frame.pack(side=TOP, fill=X, padx=20, pady=10)
+
+        self.btn_apply = ttk.Button(master=btn_frame, text="Apply", bootstyle=PRIMARY, command=self.apply)
+        self.btn_reset = ttk.Button(master=btn_frame, text="Reset", bootstyle=SECONDARY, command=self.reset)
+
+        self.btn_reset.pack(side=RIGHT)
+        self.btn_apply.pack(side=RIGHT, padx=10)
+
+    def on_swap(self, order):
+        # print(f"object types reordered: {order}")
+        self.update_buttons()
+
+    def on_check(self, list_item):
+        # print(f"checkbox '{list_item.item}'")
+        self.update_buttons()
+
+    def update_buttons(self):
+        if self.has_changes():
+            self.btn_reset.pack(side=RIGHT)
+            self.btn_apply.pack(side=RIGHT, padx=10)
+        else:
+            self.btn_reset.pack_forget()
+            self.btn_apply.pack_forget()
+
+    def has_changes(self):
+        active_ots = [w.item for w in self.list_widget.items if w.is_checked()]
+
+        # compare to model
+
+        return True
+
+    def apply(self):
+        print("Apply")
+
+    def reset(self):
+        print("Reset")
+
+
+class ObjectTypeListWidget(DndList):
+    def __init__(self, master, object_types, counts, colors=None, on_swap=None, **kwargs):
+        super().__init__(master, on_swap=on_swap, **kwargs)
 
         # TODO random color assignment, use nice color palette
         if colors is None:
@@ -23,15 +67,12 @@ class ObjectTypeWidget(DndList):
                                                                ot=ot,
                                                                enabled=True,
                                                                count=counts[ot],
-                                                               color=colors[ot]))
-
-    def on_swap(self, order):
-        print(f"object types reordered: {order}")
-        return True
+                                                               color=colors[ot],
+                                                               on_change=master.on_check))
 
 
 class ObjectTypeEntryWidget(DndListItem):
-    def __init__(self, master, ot: str, enabled: bool, count: int, color: str, **kwargs):
+    def __init__(self, master, ot: str, enabled: bool, count: int, color: str, on_change: callable=None, **kwargs):
         super().__init__(master=master, item=ot, **kwargs)
 
         # checkbox and name
@@ -42,7 +83,7 @@ class ObjectTypeEntryWidget(DndListItem):
                                         variable=self.checkbox_var,
                                         bootstyle="round-toggle")
         self.checkbox.pack(side=LEFT)
-
+        self.on_change = on_change
         # color display / color picker
         # color_border = ttk.Frame(master=self.interior, bg="black")
         # ot_bg_style = f"Colorbox:{ot}.TLabel"
@@ -54,9 +95,11 @@ class ObjectTypeEntryWidget(DndListItem):
         # TODO color picker
 
     def update_checkbox(self, toggle=False):
-        if toggle:
-            self.checkbox_var.set(1 - self.checkbox_var.get())
-        selected = bool(self.checkbox_var.get())
-        # self.label.config()
-        # self.label.config(fg="black" if selected else "grey")
+        self.on_change(self)
+        # if toggle:
+        #     self.checkbox_var.set(1 - self.checkbox_var.get())
+        # selected = bool(self.checkbox_var.get())
+        # self.checkbox.config(bootstyle=PRIMARY if selected else SECONDARY)
 
+    def is_checked(self):
+        return bool(self.checkbox_var.get())

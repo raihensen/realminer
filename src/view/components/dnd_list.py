@@ -12,7 +12,7 @@ class DndList(tk.Frame):
 
     drag_handle_icon = None
 
-    def __init__(self, master, on_swap=None, **kwargs):
+    def __init__(self, master, accept_swap=None, on_swap=None, **kwargs):
         super().__init__(master=master, **kwargs)
         if DndList.drag_handle_icon is None:
             DndList.drag_handle_icon = fontawesome("grip-lines", fill="grey", scale_to_height=15)
@@ -23,6 +23,7 @@ class DndList(tk.Frame):
         self.source_index = None
         self.target_index = None
 
+        self.accept_swap = accept_swap
         self.on_swap = on_swap
 
     def add_item(self, item=None, child=None) -> tk.Frame:
@@ -36,6 +37,10 @@ class DndList(tk.Frame):
 
         child.pack(side=TOP, fill=X)
         return child.interior
+
+    @property
+    def items(self):
+        return self._children
 
     def dnd_accept(self, source, event):
         if isinstance(source, DndListItem):
@@ -76,12 +81,14 @@ class DndList(tk.Frame):
             after = [c for c in self._children[t:] if c is not source]
             new_order = before + [source] + after
             success = True
-            if self.on_swap is not None and callable(self.on_swap):
-                response = self.on_swap([c.item for c in new_order])
+            if self.accept_swap is not None and callable(self.accept_swap):
+                response = self.accept_swap([c.item for c in new_order])
                 if response is False:
                     success = False
             if success:
                 self._children = new_order
+                if self.on_swap is not None and callable(self.on_swap):
+                    self.on_swap([c.item for c in new_order])
 
         self.source_index = None
         self.target_index = None
