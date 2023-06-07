@@ -17,6 +17,8 @@ class OCEL(ABC):
     object_types_cache: list = None
     object_type_counts_cache: dict = None
     activity_cache: list = None
+    case_cache: list = None
+    variant_cache: dict = None
 
     @abstractmethod
     def __init__(self, **kwargs):
@@ -33,6 +35,14 @@ class OCEL(ABC):
     @abstractmethod
     def _get_activities(self) -> List[str]:
         """ Returns the list of activity names within the event log """
+
+    @abstractmethod
+    def _get_cases(self) -> List[str]:
+        """ Returns the list of cases """
+
+    @abstractmethod
+    def _get_variants(self) -> List[str]:
+        """ Returns the list of case variants """
 
     @property
     @final
@@ -52,8 +62,22 @@ class OCEL(ABC):
     @final
     def activities(self) -> List[str]:
         if self.activity_cache is None:
-            self.activity_cache = self.get_activities()
+            self.activity_cache = self._get_activities()
         return self.activity_cache
+
+    @property
+    @final
+    def cases(self) -> List[str]:
+        if self.case_cache is None:
+            self.case_cache = self._get_cases()
+        return self.case_cache
+
+    @property
+    @final
+    def variants(self) -> List[str]:
+        if self.variant_cache is None:
+            self.variant_cache = self._get_variants()
+        return self.variant_cache
 
     def reset_cache(self) -> None:
         """
@@ -62,6 +86,8 @@ class OCEL(ABC):
         self.object_types_cache = None
         self.object_type_counts_cache = None
         self.activity_cache = None
+        self.case_cache = None
+        self.variant_cache = None
 
 
 class DummyEventLog(OCEL):
@@ -80,3 +106,10 @@ class DummyEventLog(OCEL):
     def _get_activities(self):
         return ["Place Order", "Pack Items", "Send Invoice", "Start Delivery", "Receive Payment", "Request Refund"]
 
+    def _get_cases(self):
+        freqs = [30, 18, 8, 7, 1, 1, 1]
+        return list(zip(range(sum(freqs)), sum((x * [i] for i, x in enumerate(sorted(freqs, reverse=True))), [])))
+
+    def _get_variants(self) -> Dict[int, int]:
+        # TODO decide how to represent a variant
+        return {i: i for i in range(7)}

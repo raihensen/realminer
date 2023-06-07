@@ -1,5 +1,5 @@
 
-from src.model.ocel.base import OCEL
+from model.ocel.base import OCEL
 
 from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
 from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
@@ -39,6 +39,15 @@ class OcpaEventLog(OCEL):
     def _get_object_types(self):
         return self.ocel.object_types
 
+    def _get_object_type_counts(self):
+        return {ot: len(self.ocel.obj.ot_objects(ot)) for ot in self.object_types}
+
     def _get_activities(self):
         return self.ocel.obj.activities
+
+    def _get_cases(self):
+        return []
+
+    def _get_variants(self):
+        return {}
 

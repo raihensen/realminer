@@ -4,10 +4,10 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledFrame
 
-# from src.view.components.scrollable_frame import VerticalScrolledFrame
-from src.view.components.accordion import Accordion
-from src.view.widgets.object_types import ObjectTypeWidget
-# from src.controller.controller import *
+# from view.components.scrollable_frame import VerticalScrolledFrame
+from view.components.accordion import Accordion
+from view.widgets.object_types import ObjectTypeWidget
+# from controller.controller import *
 
 WINDOW_TITLE = "Object-centric Business App"
 MAXIMIZED = True

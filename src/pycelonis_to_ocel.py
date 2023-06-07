@@ -5,13 +5,63 @@ import json
 import pandas as pd
 from pycelonis import get_celonis
 from pycelonis.pql import PQL, PQLColumn, PQLFilter
-from dotenv import load_dotenv, find_dotenv
+# from dotenv import load_dotenv, find_dotenv
 
 import json
 import os
 import pickle
 import hashlib
 
+DATA_MODEL_NAME = "accounts_receivable"
+
+ALL_OBJECT_TYPES = {
+    "original": ["SalesOrder", "SalesOrderItem", "o_celonis_Delivery", "DeliveryItem", "CustomerInvoice"],
+    "accounts_payable": ['PurchaseOrder',
+                         'IncomingMaterialDocumentItem',
+                         'ReverseVendorInvoiceItem',
+                         'VendorInvoiceItem',
+                         'VendorAccountCreditItemBlock',
+                         'VendorAccountCreditItem',
+                         'VendorInvoice',
+                         'PurchaseOrderItem',
+                         'VendorAccountClearingAssignment',
+                         'VendorAccountDebitItem'],
+    "accounts_receivable": ['CustomerAccountClearingAssignment',
+                            'CustomerAccountCreditItem',
+                            'CustomerInvoice',
+                            'CustomerAccountDebitItem',
+                            'CustomerAccountDebitItemBlocks',
+                            'CustomerMasterCreditManagement']
+}
+
+ALL_EVENT_TYPES = {
+    "accounts_payable": ['PostVendorAccountCreditItem',
+                         'PostGoodsReceipt',
+                         'ClearVendorCreditMemo',
+                         'ChangePurchaseOrderItem',
+                         'ChangeVendorInvoice',
+                         'ReverseVendorInvoice',
+                         'CreateVendorInvoice',
+                         'RemovePaymentBlock',
+                         'ChangeVendorAccountCreditItem',
+                         'SetPaymentBlock',
+                         'PostVendorAccountDebitItem',
+                         'CreatePurchaseOrderItem',
+                         'CreatePurchaseOrderHeader',
+                         'ClearVendorInvoice'],
+    "accounts_receivable": [
+        'CreateDunningNoticesLevel1',
+        'SetDunningBlock',
+        'CreateDunningNoticesLevel3',
+        'RemoveDunningBlock',
+        'ChangeCustomerMasterCreditManagement',
+        'ChangeCustomerAccountDebitItem',
+        'PerformCreditReview',
+        'CreateDunningNoticesLevel2']
+}
+
+OBJECT_TYPES = ALL_OBJECT_TYPES[DATA_MODEL_NAME]
+EVENT_TYPES = ALL_EVENT_TYPES[DATA_MODEL_NAME]
 
 def _make_hash(o: dict) -> str:
     """Make a hash of a dictionary"""
@@ -188,12 +238,29 @@ def construct_ocel(events_dict, objects_dict, attributes, object_types):
 def extract_tables():
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
+    # load_dotenv(find_dotenv())
+    #
+    # celonis = get_celonis()
 
-    celonis = get_celonis()
-    datapool = celonis.data_integration.get_data_pool("35259d9c-893e-48eb-a361-bbb998ff46ec")
+    EMS_API_TOKEN_FILE = "../ems_apikey"
+    DATA_POOL_ID = "3f9e0c7b-a9d5-4e51-a322-b38e6b10d8b1"
+    DATA_MODEL_IDS = {
+        "accounts_payable": "77da2001-dcf7-4699-b5d3-ce89dc2234d3",
+        "accounts_receivable": "524481f7-ed83-4f3b-8452-a6e7897afacb",
+        "inventory_management": "a1cd3a04-fbec-4e6e-9fec-65c2fc79ed77",
+        "order_management": "213ab550-b1cf-4abc-ad05-23be6a2fd1b8",
+        "procurement": "535e9505-0662-432c-b18a-af07edb6137d"
+    }
+
+    celonis = get_celonis(
+        base_url="https://pads-x-celonis-group-1.try.celonis.cloud/",
+        api_token=open(EMS_API_TOKEN_FILE).read(),
+        key_type="APP_KEY"
+    )
+
+    datapool = celonis.data_integration.get_data_pool(DATA_POOL_ID)
     # the test data model (copy)
-    datamodel = datapool.get_data_model('cb89b25c-32dc-42d2-bfc1-86026a100ce2')
+    datamodel = datapool.get_data_model(DATA_MODEL_IDS["accounts_receivable"])
     # the original data model
     # datamodel = datapool.get_data_model('a6f71ae3-ba37-4387-9f9b-5686d7a6e18e')
 
@@ -267,13 +334,7 @@ def extract_tables():
     if 'object_df' not in cache:
         print('Extracting objects...')
         default_object_columns = ["ID", "Type"]
-        object_table_names = [
-            ("o_celonis_SalesOrder", default_object_columns),
-            ("o_celonis_SalesOrderItem", default_object_columns),
-            ("o_celonis_Delivery", default_object_columns),
-            ("o_celonis_DeliveryItem", default_object_columns),
-            ("o_celonis_CustomerInvoice", default_object_columns),
-        ]
+        object_table_names = [(f"o_celonis_{ot}", default_object_columns) for ot in OBJECT_TYPES]
 
         object_tables = []
         for table, cols in object_table_names:

@@ -4,7 +4,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import random
 
-from src.view.components.dnd_list import DndList, DndListItem
+from view.components.dnd_list import DndList, DndListItem
 
 
 class ObjectTypeWidget(ttk.Frame):

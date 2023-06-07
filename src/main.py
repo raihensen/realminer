@@ -1,6 +1,7 @@
 
 from view.view import View
 from model.model import *
+from model.constants import *
 from controller.controller import *
 
 # Startup code of our app, initializing the main classes
@@ -15,7 +16,7 @@ DATASET_ORDER = {"dataset": "running-example.jsonocel", "leading_type": "xxx"}
 DATASET_WINDOWS = {"dataset": "windows_events.jsonocel", "leading_type": "eventIdentifier"}
 
 # example dataset from celonis
-DATASET_CELONIS = {"dataset": "celonis", "leading_type": "xxx"}
+DATASET_CELONIS = {"dataset": "celonis.jsonocel", "leading_type": "xxx"}
 
 
 class App:
@@ -26,7 +27,7 @@ class App:
         self.controller.view = self.view
 
         dataset = DATASET_RECRUITING
-        self.model.init_ocel(dataset)
+        self.model.init_ocel(dataset, backend=BACKEND_OCPA)
         self.controller.init_view()
 
 
