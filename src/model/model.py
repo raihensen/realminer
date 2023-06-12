@@ -19,7 +19,7 @@ class Model:
     def __init__(self):
         pass
 
-    def init_ocel(self, dataset, backend=BACKEND_OCPA):
+    def init_ocel(self, dataset, backend=BACKEND_PM4PY):
         event_log_constructor = backends[backend]
         self.ocel = event_log_constructor(**dataset)
         logger.info("OCEL loaded successfully")
