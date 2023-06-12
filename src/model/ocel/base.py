@@ -1,4 +1,4 @@
-
+import logging
 from abc import ABC, abstractmethod
 from typing import final
 from builtins import property
@@ -7,6 +7,7 @@ from pathlib import Path
 # import pandas as pd
 from typing import List, Dict
 
+logger = logging.getLogger("app_logger")
 
 class OCEL(ABC):
     """
@@ -22,7 +23,7 @@ class OCEL(ABC):
 
     @abstractmethod
     def __init__(self, **kwargs):
-        print(f"OCEL instantiation with params {kwargs}")
+        logger.info(f"OCEL instantiation with params {kwargs}")
 
     @abstractmethod
     def _get_object_types(self) -> List[str]:

@@ -1,4 +1,4 @@
-
+import logging
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -15,6 +15,7 @@ SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
 
+logger = logging.getLogger("app_logger")
 
 class Window(tk.Tk):
     def __init__(self):
@@ -87,7 +88,7 @@ class View:
         pass
 
     def change_theme(self, theme):
-        print(f"Change to theme '{theme}'")
+        logger.info(f"Change to theme '{theme}'")
         self.style.theme_use(theme)
 
     def test_set_label(self, x):

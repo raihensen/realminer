@@ -1,3 +1,4 @@
+import logging
 
 from model.ocel.base import OCEL, DummyEventLog
 from model.ocel.ocpa import OcpaEventLog
@@ -10,6 +11,7 @@ backends = {
     BACKEND_DUMMY: DummyEventLog
 }
 
+logger = logging.getLogger("app_logger")
 
 class Model:
     ocel: OCEL
@@ -20,4 +22,4 @@ class Model:
     def init_ocel(self, dataset, backend=BACKEND_OCPA):
         event_log_constructor = backends[backend]
         self.ocel = event_log_constructor(**dataset)
-        print("OCEL loaded successfully")
+        logger.info("OCEL loaded successfully")

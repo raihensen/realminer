@@ -1,8 +1,11 @@
 import pm4py
+import logging
 
 from ocpa.objects.log.ocel import OCEL as Pm4pyEventLogObject
 from model.ocel.base import OCEL
 from pathlib import Path
+
+logger = logging.getLogger("app_logger")
 
 class Pm4pyEventLog(OCEL):
     """
@@ -15,7 +18,7 @@ class Pm4pyEventLog(OCEL):
         super().__init__(ocel_type="pm4py", **kwargs)
 
         filename = str(Path("../data/datasets") / dataset)
-        print(f"Importing dataset {filename}")
+        logger.info(f"Importing dataset {filename}")
 
         # https://pm4py.fit.fraunhofer.de/documentation#object-centric-event-logs
         self.ocel = pm4py.read_ocel(filename)

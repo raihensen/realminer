@@ -1,4 +1,4 @@
-
+import logging
 from model.ocel.base import OCEL
 
 from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
@@ -18,6 +18,7 @@ OCPA_DEFAULT_SETTINGS = {
     "exact_variant_calculation": False
 }
 
+logger = logging.getLogger("app_logger")
 
 class OcpaEventLog(OCEL):
     """
@@ -30,7 +31,7 @@ class OcpaEventLog(OCEL):
         super().__init__(ocel_type="ocpa", **kwargs)
 
         filename = Path("../data/datasets") / dataset
-        print(f"Importing dataset {filename}")
+        logger.info(f"Importing dataset {filename}")
         # https://ocpa.readthedocs.io/en/latest/eventlogmanagement.html
         params = {k: kwargs.get(k, default) for k, default in OCPA_DEFAULT_SETTINGS.items()}
 

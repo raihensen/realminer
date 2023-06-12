@@ -1,4 +1,4 @@
-
+import logging
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -6,6 +6,7 @@ import random
 
 from view.components.dnd_list import DndList, DndListItem
 
+logger = logging.getLogger("app_logger")
 
 class ObjectTypeWidget(ttk.Frame):
     def __init__(self, master, object_types, counts, colors=None, **kwargs):
@@ -24,11 +25,11 @@ class ObjectTypeWidget(ttk.Frame):
         self.btn_apply.pack(side=RIGHT, padx=10)
 
     def on_swap(self, order):
-        # print(f"object types reordered: {order}")
+        logger.info(f"object types reordered: {order}")
         self.update_buttons()
 
     def on_check(self, list_item):
-        # print(f"checkbox '{list_item.item}'")
+        logger.info(f"checkbox '{list_item.item}'")
         self.update_buttons()
 
     def update_buttons(self):
@@ -47,10 +48,10 @@ class ObjectTypeWidget(ttk.Frame):
         return True
 
     def apply(self):
-        print("Apply")
+        logger.debug("Apply")
 
     def reset(self):
-        print("Reset")
+        logger.debug("Reset")
 
 
 class ObjectTypeListWidget(DndList):
@@ -88,7 +89,7 @@ class ObjectTypeEntryWidget(DndListItem):
         # color_border = ttk.Frame(master=self.interior, bg="black")
         # ot_bg_style = f"Colorbox:{ot}.TLabel"
         # ttk.style.Style.instance.configure(ot_bg_style, background=color, width=2, height=2)
-        print(ot, color)
+        logger.info(str(ot) + " : " + str(color))
         tk.Label(master=self.interior, image=tk.PhotoImage(), autostyle=False,
                  width=10, height=10, bg=color).pack(side=RIGHT, padx=20)
         # color_border.pack(side=RIGHT, padx=10)
