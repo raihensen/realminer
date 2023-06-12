@@ -3,6 +3,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledFrame
+from PIL import Image, ImageTk
 
 # from view.components.scrollable_frame import VerticalScrolledFrame
 from view.components.accordion import Accordion
@@ -10,7 +11,7 @@ from view.widgets.object_types import ObjectTypeWidget
 # from controller.controller import *
 
 WINDOW_TITLE = "Object-centric Business App"
-MAXIMIZED = True
+MAXIMIZED = False
 SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
@@ -48,11 +49,15 @@ class View:
         self.main = tk.Frame(master=self.window)
         self.main.grid(row=1, column=1, sticky=NSEW)
 
-        # Create test button to demonstrate MVC event propagation
-        self.test_label = tk.Label(master=self.main, text="---")
-        self.test_btn = tk.Button(master=self.main, text="MVC Test", command=self.controller.test_action)
-        self.test_label.pack()
-        self.test_btn.pack()
+        # # Create test button to demonstrate MVC event propagation
+        # self.test_label = tk.Label(master=self.main, text="---")
+        # self.test_btn = tk.Button(master=self.main, text="MVC Test", command=self.controller.test_action)
+        # self.test_label.pack()
+        # self.test_btn.pack()
+
+        # Petri Net Discovery
+        self.pn_button = tk.Button(master=self.main, text="Discover Petri Net", command=self.display_petri_net)
+        self.pn_button.pack()
 
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
@@ -79,6 +84,16 @@ class View:
         tk.Label(self.act_container, text='hello world', bg='white').pack()
 
         acc.pack(side=TOP, fill=X)
+
+
+    def display_petri_net(self):
+        logger.info("Discovering petri net")
+        self.controller.model.ocel.discover_petri_net()
+        ocpn_image = Image.open('static/img/ocpn.png')
+        image_tk = ImageTk.PhotoImage(ocpn_image)
+        # label = ttk.Label(self.window, text="Petri Net", image=image_tk)
+        # label.grid(row=2, column=0, sticky='nsew')
+        # label.pack()
 
     def init_object_types(self, object_types, counts, colors=None):
         self.ot_widget = ObjectTypeWidget(self.ot_container, object_types, counts, colors)

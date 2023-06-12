@@ -20,6 +20,7 @@ class OCEL(ABC):
     activity_cache: list = None
     case_cache: list = None
     variant_cache: dict = None
+    ocpn_cache = None
 
     @abstractmethod
     def __init__(self, **kwargs):
@@ -44,6 +45,10 @@ class OCEL(ABC):
     @abstractmethod
     def _get_variants(self) -> List[str]:
         """ Returns the list of case variants """
+
+    @abstractmethod
+    def _discover_petri_net(self):
+        """Discovers an object-centric Petri net from the provided object-centric event log"""
 
     @property
     @final
@@ -79,6 +84,13 @@ class OCEL(ABC):
         if self.variant_cache is None:
             self.variant_cache = self._get_variants()
         return self.variant_cache
+
+
+    def discover_petri_net(self):
+        if self.ocpn_cache is None:
+            self.ocpn_cache = self._discover_petri_net()
+        return self.ocpn_cache
+
 
     def reset_cache(self) -> None:
         """

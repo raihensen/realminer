@@ -41,4 +41,7 @@ class Pm4pyEventLog(OCEL):
         return {}
 
     def _discover_petri_net(self):
-        return pm4py.discover_oc_petri_net(self.ocel)
+        logger.info("Beggining the discovery of a petri net")
+        ocpn = pm4py.discover_oc_petri_net(self.ocel)
+        pm4py.save_vis_ocpn(ocpn, 'static/img/ocpn.png')
+        return ocpn
