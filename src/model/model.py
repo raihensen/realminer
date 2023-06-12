@@ -1,11 +1,12 @@
 
 from model.ocel.base import OCEL, DummyEventLog
 from model.ocel.ocpa import OcpaEventLog
+from model.ocel.pm4py import Pm4pyEventLog
 from model.constants import *
 
 backends = {
     BACKEND_OCPA: OcpaEventLog,
-    # BACKEND_PM4PY: Pm4pyEventLog,
+    BACKEND_PM4PY: Pm4pyEventLog,
     BACKEND_DUMMY: DummyEventLog
 }
 

@@ -27,7 +27,8 @@ class App:
         self.controller.view = self.view
 
         dataset = DATASET_RECRUITING
-        self.model.init_ocel(dataset, backend=BACKEND_OCPA)
+        self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
+        # self.model.init_ocel(dataset, backend=BACKEND_OCPA)
         self.controller.init_view()
 
 
