@@ -131,6 +131,10 @@ class View:
         self.tab2 = PetriNetTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab2)
 
+        # get ocpa ocel 
+        self.pn_button = tk.Button(master=self.main, text="Get ocpa ocel", command=self.controller.model.get_opca_ocel)
+        self.pn_button.pack()
+
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
 
