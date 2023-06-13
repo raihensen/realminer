@@ -1,3 +1,4 @@
+import logging
 
 from view.view import View
 from model.model import *
@@ -18,6 +19,14 @@ DATASET_WINDOWS = {"dataset": "windows_events.jsonocel", "leading_type": "eventI
 # example dataset from celonis
 DATASET_CELONIS = {"dataset": "celonis.jsonocel", "leading_type": "xxx"}
 
+# instantiate logger
+logger = logging.getLogger("app_logger")
+logger.setLevel(logging.DEBUG)
+# define handler and formatter
+file_handler = logging.FileHandler(r'../logs/app.log', mode='w')
+file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(message)s")
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
 
 class App:
     def __init__(self):
@@ -27,9 +36,12 @@ class App:
         self.controller.view = self.view
 
         dataset = DATASET_RECRUITING
-        self.model.init_ocel(dataset, backend=BACKEND_OCPA)
+        self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
+        # self.model.init_ocel(dataset, backend=BACKEND_OCPA)
         self.controller.init_view()
 
-
-app = App()
-app.view.start()
+if __name__ == "__main__":
+    logger.info("Program started")
+    app = App()
+    app.view.start()
+    logger.info("Program exited")

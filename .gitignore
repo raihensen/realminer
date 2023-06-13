@@ -1,7 +1,7 @@
 # Custom stuff
 ems_apikey
 data/datasets
-
+logs/*
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
@@ -110,6 +110,9 @@ pip-selfcheck.json
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+.idea/
+.idea/misc.xml
+.idea/pads-x-celonis-ocpm.iml
 
 # User-specific stuff
 .idea/**/workspace.xml

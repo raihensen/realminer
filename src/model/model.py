@@ -1,14 +1,17 @@
+import logging
 
 from model.ocel.base import OCEL, DummyEventLog
 from model.ocel.ocpa import OcpaEventLog
+from model.ocel.pm4py import Pm4pyEventLog
 from model.constants import *
 
 backends = {
     BACKEND_OCPA: OcpaEventLog,
-    # BACKEND_PM4PY: Pm4pyEventLog,
+    BACKEND_PM4PY: Pm4pyEventLog,
     BACKEND_DUMMY: DummyEventLog
 }
 
+logger = logging.getLogger("app_logger")
 
 class Model:
     ocel: OCEL
@@ -16,7 +19,13 @@ class Model:
     def __init__(self):
         pass
 
-    def init_ocel(self, dataset, backend=BACKEND_OCPA):
+    def init_ocel(self, dataset, backend=BACKEND_PM4PY):
         event_log_constructor = backends[backend]
         self.ocel = event_log_constructor(**dataset)
-        print("OCEL loaded successfully")
+        logger.info("OCEL loaded successfully")
+
+    def update_active_ot_in_model(self, active_ot):
+        self.ocel.active_ot = active_ot
+        self.ocel.filter_ocel_by_active_ot()
+
+

@@ -2,3 +2,4 @@ pycelonis==2.0.1
 ocpa
 tkfontawesome
 ttkbootstrap
+pillow

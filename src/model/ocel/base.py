@@ -1,4 +1,4 @@
-
+import logging
 from abc import ABC, abstractmethod
 from typing import final
 from builtins import property
@@ -7,6 +7,7 @@ from pathlib import Path
 # import pandas as pd
 from typing import List, Dict
 
+logger = logging.getLogger("app_logger")
 
 class OCEL(ABC):
     """
@@ -19,10 +20,11 @@ class OCEL(ABC):
     activity_cache: list = None
     case_cache: list = None
     variant_cache: dict = None
+    active_ot = None
 
     @abstractmethod
     def __init__(self, **kwargs):
-        print(f"OCEL instantiation with params {kwargs}")
+        logger.info(f"OCEL instantiation with params {kwargs}")
 
     @abstractmethod
     def _get_object_types(self) -> List[str]:
@@ -43,6 +45,10 @@ class OCEL(ABC):
     @abstractmethod
     def _get_variants(self) -> List[str]:
         """ Returns the list of case variants """
+
+    @abstractmethod
+    def _discover_petri_net(self):
+        """Discovers an object-centric Petri net from the provided object-centric event log"""
 
     @property
     @final
@@ -78,6 +84,11 @@ class OCEL(ABC):
         if self.variant_cache is None:
             self.variant_cache = self._get_variants()
         return self.variant_cache
+
+
+    def discover_petri_net(self):
+        return self._discover_petri_net()
+
 
     def reset_cache(self) -> None:
         """
