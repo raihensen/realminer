@@ -52,14 +52,9 @@ class FilterTab(SidebarTab):
     def __init__(self, master):
         super().__init__(master=master, title="Filters and Settings")
 
-        # # Create test button to demonstrate MVC event propagation
-        # self.test_label = tk.Label(master=self.main, text="---")
-        # self.test_btn = tk.Button(master=self.main, text="MVC Test", command=self.controller.test_action)
-        # self.test_label.pack()
-        # self.test_btn.pack()
-
         # Sidebar contents
         acc = Accordion(self.sidebar, title_height=50, bootstyle=SECONDARY)
+        acc.pack(side=TOP, fill=X)
         # Object types
         self.ot_container = acc.add_chord(title='Object types', expanded=True)
         self.ot_widget = None
@@ -68,7 +63,9 @@ class FilterTab(SidebarTab):
         self.act_widget = None
         tk.Label(self.act_container, text='hello world', bg='white').pack()
 
-        acc.pack(side=TOP, fill=X)
+        # get ocpa ocel
+        self.ocpa_button = tk.Button(master=self.main, text="Get ocpa ocel", command=view().controller.model.get_opca_ocel)
+        self.ocpa_button.pack()
 
     def on_open(self):
        pass
@@ -130,10 +127,6 @@ class View:
         self.tab_widget.add_tab(self.tab1)
         self.tab2 = PetriNetTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab2)
-
-        # get ocpa ocel 
-        self.pn_button = tk.Button(master=self.main, text="Get ocpa ocel", command=self.controller.model.get_opca_ocel)
-        self.pn_button.pack()
 
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)

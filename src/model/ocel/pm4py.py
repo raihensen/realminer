@@ -45,9 +45,11 @@ class Pm4pyEventLog(OCEL):
         return {}
 
     def _discover_petri_net(self):
-        logger.info("Beggining the discovery of a petri net")
+        logger.info("Beggining the discovery of a petri net using pm4py")
         ocpn = pm4py.discover_oc_petri_net(self.filtered_ocel)
-        pm4py.save_vis_ocpn(ocpn, 'static/img/ocpn.png')
+        filename = 'static/img/ocpn.png'
+        pm4py.save_vis_ocpn(ocpn, filename)
+        logger.info(f"Petri net saved to {filename}")
         return ocpn
 
     def filter_ocel_by_active_ot(self):
