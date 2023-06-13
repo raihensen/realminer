@@ -7,6 +7,7 @@ from pathlib import Path
 
 logger = logging.getLogger("app_logger")
 
+
 class Pm4pyEventLog(OCEL):
     """
     Event log wrapper using the pm4py module

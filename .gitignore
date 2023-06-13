@@ -2,6 +2,7 @@
 ems_apikey
 data/datasets
 logs/*
+src/static/img/ocpn.png
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

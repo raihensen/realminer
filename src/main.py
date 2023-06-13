@@ -4,6 +4,7 @@ from view.view import View
 from model.model import *
 from model.constants import *
 from controller.controller import *
+import os
 
 # Startup code of our app, initializing the main classes
 
@@ -23,10 +24,13 @@ DATASET_CELONIS = {"dataset": "celonis.jsonocel", "leading_type": "xxx"}
 logger = logging.getLogger("app_logger")
 logger.setLevel(logging.DEBUG)
 # define handler and formatter
+if not os.path.exists("../logs/"):
+   os.makedirs("../logs")
 file_handler = logging.FileHandler(r'../logs/app.log', mode='w')
 file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(message)s")
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
+
 
 class App:
     def __init__(self):

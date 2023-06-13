@@ -33,20 +33,32 @@ class View:
 
         self.theme = theme
 
-        self.window.rowconfigure(0, minsize=TOOLBAR_HEIGHT)
-        self.window.rowconfigure(1, weight=1)
-        self.window.columnconfigure(0, minsize=SIDEBAR_MIN_WIDTH, weight=1)
-        self.window.columnconfigure(1, minsize=SIDEBAR_MIN_WIDTH/SIDEBAR_WIDTH_RATIO, weight=int(round(1 / SIDEBAR_WIDTH_RATIO, 0)) - 1)
-
         # Basic layout
         style = ttk.Style(theme)
         self.toolbar = ttk.Frame(master=self.window, bootstyle=DARK)
-        self.toolbar.grid(row=0, column=0, columnspan=2, sticky=NSEW)
+        # self.toolbar.grid(row=0, column=0, columnspan=2, sticky=NSEW)
+        self.toolbar.pack(side=TOP, fill=X)
+
+        # Tabs
+        self.tabs = {}
+        self.tab_widget = ttk.Notebook(master=self.window)
+        self.tab_widget.pack(side=TOP, fill=BOTH)
+
+        # create a new frame
+        tab1 = self.add_tab(key="filters", title="Filters and Settings")
+        tab2 = self.add_tab(key="petri_net", title="Petri Net")
+
+        tab1.rowconfigure(0, minsize=TOOLBAR_HEIGHT)
+        tab1.rowconfigure(1, weight=1)
+        tab1.columnconfigure(0, minsize=SIDEBAR_MIN_WIDTH, weight=1)
+        tab1.columnconfigure(1, minsize=SIDEBAR_MIN_WIDTH / SIDEBAR_WIDTH_RATIO,
+                             weight=int(round(1 / SIDEBAR_WIDTH_RATIO, 0)) - 1)
+
         style.configure("sidebar.TFrame", background="#e0e0e0")
         # self.sidebar = VerticalScrolledFrame(master=self.window, style="sidebar.TFrame")
-        self.sidebar = ScrolledFrame(master=self.window)
+        self.sidebar = ScrolledFrame(master=tab1)
         self.sidebar.grid(row=1, column=0, sticky=NSEW)
-        self.main = tk.Frame(master=self.window)
+        self.main = tk.Frame(master=tab1)
         self.main.grid(row=1, column=1, sticky=NSEW)
 
         # # Create test button to demonstrate MVC event propagation
@@ -56,7 +68,7 @@ class View:
         # self.test_btn.pack()
 
         # Petri Net Discovery
-        self.pn_button = tk.Button(master=self.main, text="Discover Petri Net", command=self.display_petri_net)
+        self.pn_button = tk.Button(master=tab2, text="Discover Petri Net", command=self.display_petri_net)
         self.pn_button.pack()
 
         # Toolbar contents
@@ -85,8 +97,18 @@ class View:
 
         acc.pack(side=TOP, fill=X)
 
+    def add_tab(self, key, title, callback_open=None, callback_close=None):
+        self.tabs[key] = ttk.Frame(self.tab_widget)
+        self.tab_widget.add(self.tabs[key], text=title)
+        return self.tabs[key]
+
+    def on_open_tab_petri_net(self):
+        # TODO create Tab class, automatically calling event listener on opening
+        logger.info("Opened tab 'petri net'")
 
     def display_petri_net(self):
+        # TODO move to controller, with callback
+        # TODO display in window
         logger.info("Discovering petri net")
         self.controller.model.ocel.discover_petri_net()
         ocpn_image = Image.open('static/img/ocpn.png')
