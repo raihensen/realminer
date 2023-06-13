@@ -71,6 +71,10 @@ class View:
         self.pn_button = tk.Button(master=tab2, text="Discover Petri Net", command=self.display_petri_net)
         self.pn_button.pack()
 
+        # get ocpa ocel 
+        self.pn_button = tk.Button(master=self.main, text="Get ocpa ocel", command=self.controller.model.get_opca_ocel)
+        self.pn_button.pack()
+
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
 

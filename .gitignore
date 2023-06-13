@@ -2,7 +2,8 @@
 ems_apikey
 data/datasets
 logs/*
-src/static/img/ocpn.png
+src/static/img/*.png
+.vscode/
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

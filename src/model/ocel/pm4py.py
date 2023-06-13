@@ -53,3 +53,6 @@ class Pm4pyEventLog(OCEL):
     def filter_ocel_by_active_ot(self):
         # TODO: Once we add filtering by activities it will require an additional adjustment
         self.filtered_ocel = pm4py.filter_ocel_object_types(self.ocel, self.active_ot)
+
+    def export_json_ocel(self, target_path):
+        pm4py.objects.ocel.exporter.jsonocel.exporter.apply(self.filtered_ocel, target_path)
