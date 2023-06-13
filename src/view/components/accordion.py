@@ -6,6 +6,7 @@ Compliant with Python 2.5-2.7
 Author: @ifthisthenbreak
 '''
 
+import logging
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -19,7 +20,7 @@ DEFAULT_STYLE = {
 }
 
 icons = {}
-
+logger = logging.getLogger("app_logger")
 
 def get_icon(name, fill=None, bootstyle=None, height=15):
     if bootstyle is not None and fill is None:
@@ -56,7 +57,7 @@ class Chord(tk.Frame):
         # label.pack(side=LEFT)
 
     def _click_handler(self):
-        print(self.title)
+        logger.debug(self.title)
         if not self.expanded:
             self.expanded = True
             self.title_button.config(image=self.accordion.icon_expanded)
