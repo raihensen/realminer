@@ -95,8 +95,8 @@ class View:
         # label.grid(row=2, column=0, sticky='nsew')
         # label.pack()
 
-    def init_object_types(self, object_types, counts, colors=None):
-        self.ot_widget = ObjectTypeWidget(self.ot_container, object_types, counts, colors)
+    def init_object_types(self, object_types, counts, model, colors=None):
+        self.ot_widget = ObjectTypeWidget(self.ot_container, object_types, counts, model, colors)
         self.ot_widget.pack(fill=X)
 
     def init_activities(self, activities):

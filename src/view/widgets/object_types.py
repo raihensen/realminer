@@ -9,7 +9,7 @@ from view.components.dnd_list import DndList, DndListItem
 logger = logging.getLogger("app_logger")
 
 class ObjectTypeWidget(ttk.Frame):
-    def __init__(self, master, object_types, counts, colors=None, **kwargs):
+    def __init__(self, master, object_types, counts, model, colors=None, **kwargs):
         super().__init__(master=master, **kwargs)
 
         self.list_widget = ObjectTypeListWidget(master=self, object_types=object_types, counts=counts, colors=None, on_swap=self.on_swap)
@@ -24,37 +24,51 @@ class ObjectTypeWidget(ttk.Frame):
         self.btn_reset.pack(side=RIGHT)
         self.btn_apply.pack(side=RIGHT, padx=10)
 
+        self.model = model
+
     def on_swap(self, order):
         logger.info(f"object types reordered: {order}")
         self.update_buttons()
 
-    def on_check(self, list_item):
-        logger.info(f"checkbox '{list_item.item}'")
-        self.update_buttons()
-
-    def update_buttons(self):
-        if self.has_changes():
-            self.btn_reset.pack(side=RIGHT)
-            self.btn_apply.pack(side=RIGHT, padx=10)
-        else:
-            self.btn_reset.pack_forget()
-            self.btn_apply.pack_forget()
-
-    def has_changes(self):
-        active_ots = [w.item for w in self.list_widget.items if w.is_checked()]
-
-        # compare to model
-
-        return True
+    # def on_check(self, checkbox):
+    #     self.update_buttons()
+    #
+    # def update_buttons(self):
+    #     if self.has_changes():
+    #         self.btn_reset.pack(side=RIGHT)
+    #         self.btn_apply.pack(side=RIGHT, padx=10)
+    #     else:
+    #         self.btn_reset.pack_forget()
+    #         self.btn_apply.pack_forget()
+    # def has_changes(self):
+    #     active_ots = [w.item for w in self.list_widget.items if w.is_checked()]
+    #
+    #     # compare to model
+    #
+    #     return True
 
     def apply(self):
+        active_objects = self.get_list_of_active_objects()
+        self.model.update_active_ot_in_model(active_objects)
         logger.debug("Apply")
 
+
     def reset(self):
+        for ot in self.children['!objecttypelistwidget'].items:
+            ot.checkbox_var.set(1)
+        active_objects = self.get_list_of_active_objects()
+        self.model.update_active_ot_in_model(active_objects)
         logger.debug("Reset")
+
+    def get_list_of_active_objects(self):
+        active_objects = [ot.item for ot in self.children['!objecttypelistwidget'].items if ot.checkbox_var.get()]
+        logger.info("The active objects are: " + str(active_objects))
+        return active_objects
 
 
 class ObjectTypeListWidget(DndList):
+
+
     def __init__(self, master, object_types, counts, colors=None, on_swap=None, **kwargs):
         super().__init__(master, on_swap=on_swap, **kwargs)
 
@@ -68,23 +82,22 @@ class ObjectTypeListWidget(DndList):
                                                                ot=ot,
                                                                enabled=True,
                                                                count=counts[ot],
-                                                               color=colors[ot],
-                                                               on_change=master.on_check))
+                                                               color=colors[ot]))
 
 
 class ObjectTypeEntryWidget(DndListItem):
-    def __init__(self, master, ot: str, enabled: bool, count: int, color: str, on_change: callable=None, **kwargs):
+    def __init__(self, master, ot: str, enabled: bool, count: int, color: str, **kwargs):
         super().__init__(master=master, item=ot, **kwargs)
 
         # checkbox and name
         self.checkbox_var = tk.IntVar(value=int(enabled))
         self.checkbox = ttk.Checkbutton(master=self.interior,
                                         text=f"{ot} ({count})",
-                                        command=self.update_checkbox,
+                                        command=self.update_ot_checkbox,
                                         variable=self.checkbox_var,
                                         bootstyle="round-toggle")
         self.checkbox.pack(side=LEFT)
-        self.on_change = on_change
+        # self.on_change = on_change
         # color display / color picker
         # color_border = ttk.Frame(master=self.interior, bg="black")
         # ot_bg_style = f"Colorbox:{ot}.TLabel"
@@ -95,12 +108,10 @@ class ObjectTypeEntryWidget(DndListItem):
         # color_border.pack(side=RIGHT, padx=10)
         # TODO color picker
 
-    def update_checkbox(self, toggle=False):
-        self.on_change(self)
-        # if toggle:
-        #     self.checkbox_var.set(1 - self.checkbox_var.get())
-        # selected = bool(self.checkbox_var.get())
-        # self.checkbox.config(bootstyle=PRIMARY if selected else SECONDARY)
+    def update_ot_checkbox(self):
+        ot_status = self.checkbox_var.get()
+        item_status = 'on' if ot_status else 'off'
+        logging.info(f"Object Type: {self.item} was toggled: {item_status}")
 
     def is_checked(self):
         return bool(self.checkbox_var.get())

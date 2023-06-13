@@ -20,7 +20,7 @@ class OCEL(ABC):
     activity_cache: list = None
     case_cache: list = None
     variant_cache: dict = None
-    ocpn_cache = None
+    active_ot = None
 
     @abstractmethod
     def __init__(self, **kwargs):
@@ -87,9 +87,7 @@ class OCEL(ABC):
 
 
     def discover_petri_net(self):
-        if self.ocpn_cache is None:
-            self.ocpn_cache = self._discover_petri_net()
-        return self.ocpn_cache
+        return self._discover_petri_net()
 
 
     def reset_cache(self) -> None:

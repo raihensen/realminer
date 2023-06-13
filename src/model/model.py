@@ -23,3 +23,9 @@ class Model:
         event_log_constructor = backends[backend]
         self.ocel = event_log_constructor(**dataset)
         logger.info("OCEL loaded successfully")
+
+    def update_active_ot_in_model(self, active_ot):
+        self.ocel.active_ot = active_ot
+        self.ocel.filter_ocel_by_active_ot()
+
+
