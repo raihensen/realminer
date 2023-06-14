@@ -2,7 +2,6 @@ import logging
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from ttkbootstrap.scrolled import ScrolledFrame
 from tkfontawesome import icon_to_image as fontawesome
 from PIL import Image, ImageTk
 import os
@@ -11,7 +10,7 @@ import os
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
-from view.components.tab import Tabs, Tab
+from view.components.tab import Tabs, Tab, SidebarTab
 # from controller.controller import *
 
 WINDOW_TITLE = "Object-centric Business App"
@@ -30,28 +29,12 @@ def view():
     return View.instance
 
 
-class SidebarTab(Tab):
-    def __init__(self, master, title, **kwargs):
-        super().__init__(master=master, title=title, **kwargs)
-        # Main layout
-        self.rowconfigure(0, minsize=TOOLBAR_HEIGHT)
-        self.rowconfigure(1, weight=1)
-        self.columnconfigure(0, minsize=SIDEBAR_MIN_WIDTH, weight=1)
-        self.columnconfigure(1, minsize=SIDEBAR_MIN_WIDTH / SIDEBAR_WIDTH_RATIO,
-                             weight=int(round(1 / SIDEBAR_WIDTH_RATIO, 0)) - 1)
-
-        view().style.configure("sidebar.TFrame", background="#e0e0e0")
-        # self.sidebar = VerticalScrolledFrame(master=self.window, style="sidebar.TFrame")
-        self.sidebar = ScrolledFrame(master=self)
-        self.sidebar.grid(row=1, column=0, sticky=NSEW)
-        self.main = tk.Frame(master=self)
-        self.main.grid(row=1, column=1, sticky=NSEW)
-        self.interior = self.main
-
-
 class FilterTab(SidebarTab):
     def __init__(self, master):
-        super().__init__(master=master, title="Filters and Settings")
+        super().__init__(master=master,
+                         title="Filters and Settings",
+                         sidebar_width_ratio=SIDEBAR_WIDTH_RATIO,
+                         sidebar_min_width=SIDEBAR_MIN_WIDTH)
 
         # Sidebar contents
         acc = Accordion(self.sidebar, title_height=50, bootstyle=SECONDARY)
@@ -147,9 +130,9 @@ class View:
         self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, object_types, counts, model, colors)
         self.tab1.ot_widget.pack(fill=X)
 
-    def init_activities(self, activities, model, colors=None):
-        self.activities_widget = ActivityWidget(self.tab1.act_container, activities, model, colors)
-        self.activities_widget.pack(fill=X)
+    def init_activities(self, activities, model):
+        self.tab1.act_widget = ActivityWidget(self.tab1.act_container, activities, model)
+        self.tab1.act_widget.pack(fill=X)
 
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")

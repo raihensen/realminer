@@ -14,7 +14,6 @@ class Controller:
                                     colors=None,
                                     model=self.model)
         self.view.init_activities(activities=self.model.ocel.activities,
-                                  colors=None,
                                   model=self.model)
 
     def test_action(self):
