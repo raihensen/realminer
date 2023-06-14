@@ -85,10 +85,8 @@ class OCEL(ABC):
             self.variant_cache = self._get_variants()
         return self.variant_cache
 
-
     def discover_petri_net(self):
         return self._discover_petri_net()
-
 
     def reset_cache(self) -> None:
         """

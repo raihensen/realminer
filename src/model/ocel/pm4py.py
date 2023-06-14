@@ -55,7 +55,7 @@ class Pm4pyEventLog(OCEL):
         filename = 'static/img/ocpn.png'
         pm4py.save_vis_ocpn(ocpn, filename)
         logger.info(f"Petri net saved to {filename}")
-        return ocpn
+        return filename
 
     def filter_ocel_by_active_ot(self):
         # TODO: Once we add filtering by activities it will require an additional adjustment

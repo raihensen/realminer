@@ -11,7 +11,7 @@ from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
 from view.components.tab import Tabs, Tab, SidebarTab
-# from controller.controller import *
+from controller.tasks import *
 
 WINDOW_TITLE = "Object-centric Business App"
 if os.getlogin() == "RH":
@@ -60,22 +60,21 @@ class PetriNetTab(Tab):
         super().__init__(master=master, title="Petri Net")
 
         # Petri Net Discovery
-        self.pn_button = tk.Button(master=self, text="Discover Petri Net", command=self.display_petri_net)
-        self.pn_button.pack()
+        # self.pn_button = tk.Button(master=self, text="Discover Petri Net", command=self.generate_petri_net)
+        # self.pn_button.pack()
 
     def on_open(self):
-        self.display_petri_net()
+        self.generate_petri_net()
 
-    def display_petri_net(self):
-        # TODO move to controller, with callback
-        # TODO display in window
-        logger.info("Discovering petri net")
-        view().controller.model.ocel.discover_petri_net()
-        ocpn_image = Image.open('static/img/ocpn.png')
-        image_tk = ImageTk.PhotoImage(ocpn_image)
-        # label = ttk.Label(self.window, text="Petri Net", image=image_tk)
-        # label.grid(row=2, column=0, sticky='nsew')
-        # label.pack()
+    def generate_petri_net(self):
+        view().controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
+
+    def display_petri_net(self, path):
+        print("Display petri net")
+        # ocpn_image = Image.open(path)
+        image = ImageTk.PhotoImage(file=path)
+        label = ttk.Label(self, image=image)
+        label.pack()
 
 
 class Window(tk.Tk):
