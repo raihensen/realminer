@@ -26,7 +26,7 @@ class Pm4pyEventLog(OCEL):
         self.ocel = pm4py.read_ocel(filename)
         self.filtered_ocel = self.ocel
         self.active_ot = pm4py.ocel.ocel_get_object_types(self.ocel)
-
+        self.active_activities = self._get_activities()
 
     def _get_object_types(self):
         return pm4py.ocel.ocel_get_object_types(self.filtered_ocel)
@@ -36,7 +36,12 @@ class Pm4pyEventLog(OCEL):
         return ot.value_counts().to_dict()
 
     def _get_activities(self):
-        return pm4py.ocel.ocel_object_type_activities(self.filtered_ocel)
+        ot_activity_dict = pm4py.ocel.ocel_object_type_activities(self.filtered_ocel)
+        activities = set()
+        for ot in ot_activity_dict:
+            for activity in ot_activity_dict[ot]:
+                activities.add(activity)
+        return activities
 
     def _get_cases(self):
         return []
@@ -53,6 +58,20 @@ class Pm4pyEventLog(OCEL):
     def filter_ocel_by_active_ot(self):
         # TODO: Once we add filtering by activities it will require an additional adjustment
         self.filtered_ocel = pm4py.filter_ocel_object_types(self.ocel, self.active_ot)
+
+    def filter_ocel_by_ot_and_active_activities(self):
+        ot_activity_dict = pm4py.ocel.ocel_object_type_activities(self.ocel)
+        
+        # example for desired dictionary: {“order”: [“Create Order”], “element”: [“Create Order”, “Create Delivery”]}
+        active_ot_activity_filter_dict = {}
+        for ot in self.active_ot:
+            active_ot_activity_filter_dict[ot] = []
+            for activity in self.active_activities:
+                if activity in ot_activity_dict[ot]:
+                    active_ot_activity_filter_dict[ot].append(activity)
+        
+        self.filtered_ocel =  pm4py.filter_ocel_object_types_allowed_activities(self.ocel, active_ot_activity_filter_dict)
+
 
     def export_json_ocel(self, target_path):
         pm4py.objects.ocel.exporter.jsonocel.exporter.apply(self.filtered_ocel, target_path)

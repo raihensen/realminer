@@ -29,7 +29,11 @@ class Model:
 
     def update_active_ot_in_model(self, active_ot):
         self.ocel.active_ot = active_ot
-        self.ocel.filter_ocel_by_active_ot()
+        self.ocel.filter_ocel_by_ot_and_active_activities()
+
+    def update_active_activities_in_model(self, active_activities):
+        self.ocel.active_activities = active_activities
+        self.ocel.filter_ocel_by_ot_and_active_activities()
 
     def get_opca_ocel(self):
         target_path = 'tmp.jsonocel'

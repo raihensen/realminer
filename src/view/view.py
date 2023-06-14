@@ -8,6 +8,7 @@ from PIL import Image, ImageTk
 # from view.components.scrollable_frame import VerticalScrolledFrame
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
+from view.widgets.activities import ActivityWidget
 # from controller.controller import *
 
 WINDOW_TITLE = "Object-centric Business App"
@@ -97,7 +98,7 @@ class View:
         # Activities
         self.act_container = acc.add_chord(title='Activities')
         self.act_widget = None
-        tk.Label(self.act_container, text='hello world', bg='white').pack()
+        # tk.Label(self.act_container, text='hello world', bg='white').pack()
 
         acc.pack(side=TOP, fill=X)
 
@@ -125,8 +126,9 @@ class View:
         self.ot_widget = ObjectTypeWidget(self.ot_container, object_types, counts, model, colors)
         self.ot_widget.pack(fill=X)
 
-    def init_activities(self, activities):
-        pass
+    def init_activities(self, activities, model, colors=None):
+        self.activities_widget = ActivityWidget(self.act_container, activities, model, colors)
+        self.activities_widget.pack(fill=X)
 
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")

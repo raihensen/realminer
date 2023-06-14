@@ -13,7 +13,9 @@ class Controller:
                                     counts=self.model.ocel.object_type_counts,
                                     colors=None,
                                     model=self.model)
-        # self.view.init_activities(activities=self.model.ocel.activities)
+        self.view.init_activities(activities=self.model.ocel.activities,
+                                  colors=None,
+                                  model=self.model)
 
     def test_action(self):
         self.view.test_set_label(self.model.ocel.object_types)
