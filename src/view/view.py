@@ -11,6 +11,7 @@ from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
 from view.components.tab import Tabs, Tab, SidebarTab
+from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
 
 WINDOW_TITLE = "Object-centric Business App"
@@ -58,23 +59,33 @@ class FilterTab(SidebarTab):
 class PetriNetTab(Tab):
     def __init__(self, master):
         super().__init__(master=master, title="Petri Net")
+        self.display_label = ttk.Label(self)
+        self.imgview = None
 
         # Petri Net Discovery
         # self.pn_button = tk.Button(master=self, text="Discover Petri Net", command=self.generate_petri_net)
         # self.pn_button.pack()
 
     def on_open(self):
-        self.generate_petri_net()
-
-    def generate_petri_net(self):
         view().controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
 
     def display_petri_net(self, path):
-        print("Display petri net")
-        # ocpn_image = Image.open(path)
-        image = ImageTk.PhotoImage(file=path)
-        label = ttk.Label(self, image=image)
-        label.pack()
+        # image = Image.open(path)
+        # w0, h0 = image.size
+        # aspect = w0 / h0
+        # w = self.winfo_width() - 20
+        # h = int(w / aspect)
+        # image = image.resize((w, h))
+        # logger.info(f"Resize image to {w}x{h}")
+        # self.ocpn_image = ImageTk.PhotoImage(image)
+        # self.display_label.pack_forget()
+        # self.display_label = ttk.Label(master=self, image=self.ocpn_image)
+        # self.display_label.pack()
+        if self.imgview is not None:
+            self.imgview.canvas.forget()
+            self.imgview.forget()
+        self.imgview = AdvancedZoom(self, path=path)
+        self.imgview.pack(fill=BOTH, expand=True)
 
 
 class Window(tk.Tk):
@@ -103,7 +114,7 @@ class View:
 
         # Tabs
         self.tab_widget = Tabs(master=self.window)
-        self.tab_widget.pack(side=TOP, fill=BOTH)
+        self.tab_widget.pack(side=TOP, fill=BOTH, expand=True)
 
         # create a new frame
         self.tab1 = FilterTab(self.tab_widget)
