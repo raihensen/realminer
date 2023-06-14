@@ -4,6 +4,7 @@ import logging
 from ocpa.objects.log.ocel import OCEL as Pm4pyEventLogObject
 from model.ocel.base import OCEL
 from pathlib import Path
+import pandas as pd
 
 logger = logging.getLogger("app_logger")
 
@@ -26,7 +27,7 @@ class Pm4pyEventLog(OCEL):
         self.ocel = pm4py.read_ocel(filename)
         self.filtered_ocel = self.ocel
         self.active_ot = pm4py.ocel.ocel_get_object_types(self.ocel)
-        self.active_activities = self._get_activities()
+        self.active_activities = self.get_activities()
 
     def _get_object_types(self):
         return pm4py.ocel.ocel_get_object_types(self.filtered_ocel)
@@ -72,8 +73,12 @@ class Pm4pyEventLog(OCEL):
                 if activity in ot_activity_dict[ot]:
                     active_ot_activity_filter_dict[ot].append(activity)
         
-        self.filtered_ocel =  pm4py.filter_ocel_object_types_allowed_activities(self.ocel, active_ot_activity_filter_dict)
+        self.filtered_ocel = pm4py.filter_ocel_object_types_allowed_activities(self.ocel, active_ot_activity_filter_dict)
 
+    def __hash__(self):
+        # TODO test/fix this
+        hash_df = lambda df: pd.util.hash_array(pd.util.hash_pandas_object(df).to_numpy())
+        return [hash_df(self.filtered_ocel.events), hash_df(self.filtered_ocel.relations), hash_df(self.filtered_ocel.objects)]
 
     def export_json_ocel(self, target_path):
         pm4py.objects.ocel.exporter.jsonocel.exporter.apply(self.filtered_ocel, target_path)
