@@ -5,6 +5,8 @@ from ttkbootstrap.constants import *
 from tkfontawesome import icon_to_image as fontawesome
 from PIL import Image, ImageTk
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # from view.components.scrollable_frame import VerticalScrolledFrame
 from view.components.accordion import Accordion
@@ -39,7 +41,7 @@ class FilterTab(SidebarTab):
 
         # Sidebar contents
         acc = Accordion(self.sidebar, title_height=50, bootstyle=SECONDARY)
-        acc.pack(side=TOP, fill=X)
+        acc.pack(side=TOP, fill=X, expand=True)
         # Object types
         self.ot_container = acc.add_chord(title='Object types', expanded=True)
         self.ot_widget = None
@@ -87,29 +89,35 @@ class PetriNetTab(Tab):
         self.imgview = AdvancedZoom(self, path=path)
         self.imgview.pack(fill=BOTH, expand=True)
 
+
 class HeatMapTab(Tab):
     def __init__(self, master):
         super().__init__(master=master, title="Heatmap")
-
-        # Petri Net Discovery
-        self.pn_button = tk.Button(master=self, text="Show Heatmap for selected Object Types", command=self.computeHeatMap)
-        self.pn_button.pack()
+        self.image_tk = None
+        self.display_label = None
 
     def on_open(self):
-        self.computeHeatMap()
+        # self.display_heatmap_ot()
+        view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
 
-    def computeHeatMap(self):
-        # TODO move to controller, with callback
-        # TODO display in window
-        logger.info("Computing Heatmap")
+    def display_heatmap_ot(self, number_matrix):
+        figure = plt.figure()
+        sns.heatmap(number_matrix, cmap="crest")
+        plt.show()
+        # TODO remove plt.show() and make sure no (invisible) window is opened
 
-        view().controller.model.ocel.computeHeatMap()
-        
-        heatmap_image = Image.open('static/img/heatmap.png')
-        image_tk = ImageTk.PhotoImage(heatmap_image)
-        #label = ttk.Label(self.window, text="Heatmap", image=figure)
-        #label.grid(row=2, column=0, sticky='nsew')
-        #label.pack()        
+        # filename = 'static/img/heatmap.png'
+        # plt.savefig(filename, dpi=dpi)
+        # logger.info("saved heatmap as png")
+        # return filename
+
+        # print("[display]")
+        # heatmap_image = Image.open(path)
+        # self.image_tk = ImageTk.PhotoImage(heatmap_image)
+        # if self.display_label is not None:
+        #     self.display_label.pack_forget()
+        # self.display_label = ttk.Label(self, image=self.image_tk)
+        # self.display_label.pack()
 
 
 class Window(tk.Tk):

@@ -8,8 +8,6 @@ logger = logging.getLogger("app_logger")
 
 
 class Controller:
-    view: View
-    tasks: Dict[str, Task]
     TASKS: Dict
 
     def __init__(self, model):
@@ -35,8 +33,15 @@ class Controller:
             if self.tasks[key].running and kill_if_running:
                 self.tasks[key].kill()
 
-        self.tasks[key] = Task(key, **task_args, **kwargs)
-        self.tasks[key].start()
+        self.tasks[key] = task = Task(self.view.window, key, **task_args, **kwargs)
+        task.running = True
+
+        # Init loop waiting for termination
+        if task.has_callback():
+            task.watch()
+
+        # start task
+        task.start()
 
     def test_action(self):
         self.view.test_set_label(self.model.ocel.object_types)
