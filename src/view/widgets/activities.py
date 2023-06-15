@@ -8,8 +8,9 @@ from view.components.dnd_list import DndList, DndListItem
 
 logger = logging.getLogger("app_logger")
 
+
 class ActivityWidget(ttk.Frame):
-    def __init__(self, master, activities, model, colors=None, **kwargs):
+    def __init__(self, master, activities, model, **kwargs):
         super().__init__(master=master, **kwargs)
 
         self.list_widget = ActivityListWidget(master=self, activities=activities, colors=None, on_swap=self.on_swap)
@@ -29,7 +30,6 @@ class ActivityWidget(ttk.Frame):
     def on_swap(self, order):
         logger.info(f"Activities reordered: {order}")
         self.update_buttons()
-
 
     def apply(self):
         active_activities = self.get_list_of_active_activities()
@@ -51,25 +51,16 @@ class ActivityWidget(ttk.Frame):
 
 
 class ActivityListWidget(DndList):
-
-
-    def __init__(self, master, activities, colors=None, on_swap=None, **kwargs):
+    def __init__(self, master, activities, on_swap=None, **kwargs):
         super().__init__(master, on_swap=on_swap, **kwargs)
-
-        # TODO random color assignment, use nice color palette
-        if colors is None:
-            r = lambda: random.randint(0, 255)
-            colors = {activity: '#{:02x}{:02x}{:02x}'.format(r(), r(), r()) for activity in activities}
 
         for activity in activities:
             self.add_item(item=activity, child=ActivityEntryWidget(master=self,
                                                                activity=activity,
-                                                               enabled=True,
-                                                               color=colors[activity]))
-
+                                                               enabled=True))
 
 class ActivityEntryWidget(DndListItem):
-    def __init__(self, master, activity: str, enabled: bool, color: str, **kwargs):
+    def __init__(self, master, activity: str, enabled: bool, **kwargs):
         super().__init__(master=master, item=activity, **kwargs)
 
         # checkbox and name
@@ -80,12 +71,6 @@ class ActivityEntryWidget(DndListItem):
                                         variable=self.checkbox_var,
                                         bootstyle="round-toggle")
         self.checkbox.pack(side=LEFT)
-
-        logger.info(str(activity) + " : " + str(color))
-        tk.Label(master=self.interior, image=tk.PhotoImage(), autostyle=False,
-                 width=10, height=10, bg=color).pack(side=RIGHT, padx=20)
-        # color_border.pack(side=RIGHT, padx=10)
-        # TODO color picker
 
     def update_activity_checkbox(self):
         activity_status = self.checkbox_var.get()

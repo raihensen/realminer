@@ -89,13 +89,12 @@ class OCEL(ABC):
             self.variant_cache = self._get_variants()
         return self.variant_cache
 
-
     def discover_petri_net(self):
         return self._discover_petri_net()
 
     def computeHeatMap(self):
         return self._computeHeatMap()
-
+    
     def reset_cache(self) -> None:
         """
         When any event log changes are made, this function is called.

@@ -1,6 +1,8 @@
 
+import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from ttkbootstrap.scrolled import ScrolledFrame
 from tkfontawesome import icon_to_image as fontawesome
 
 
@@ -38,15 +40,6 @@ class Tabs(ttk.Frame):
             self.active_tab.on_close()
         self.active_tab = new_tab
 
-        # callback_open = self.callbacks[index][0]
-        # if callback_open is not None:
-        #     callback_open()
-        # if self.active_tab is not None:
-        #     callback_close = self.callbacks[self.active_tab][1]
-        #     if callback_close is not None:
-        #         callback_close()
-        # self.active_tab = index
-
 
 class Tab(ttk.Frame):
     def __init__(self, master: Tabs, title: str, icon=None, **kwargs):
@@ -61,4 +54,18 @@ class Tab(ttk.Frame):
         pass
 
 
+class SidebarTab(Tab):
+    def __init__(self, master, title, sidebar_width_ratio, sidebar_min_width, **kwargs):
+        super().__init__(master=master, title=title, **kwargs)
+        # Main layout
+        self.columnconfigure(0, minsize=sidebar_min_width, weight=1)
+        self.columnconfigure(1, minsize=sidebar_min_width / sidebar_width_ratio,
+                             weight=int(round(1 / sidebar_width_ratio, 0)) - 1)
 
+        ttk.Style.instance.configure("sidebar.TFrame", background="#e0e0e0")
+        # self.sidebar = VerticalScrolledFrame(master=self.window, style="sidebar.TFrame")
+        self.sidebar = ScrolledFrame(master=self)
+        self.sidebar.grid(row=0, column=0, sticky=NSEW)
+        self.main = tk.Frame(master=self)
+        self.main.grid(row=0, column=1, sticky=NSEW)
+        self.interior = self.main

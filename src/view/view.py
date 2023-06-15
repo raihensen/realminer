@@ -2,7 +2,6 @@ import logging
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from ttkbootstrap.scrolled import ScrolledFrame
 from tkfontawesome import icon_to_image as fontawesome
 from PIL import Image, ImageTk
 import os
@@ -11,8 +10,9 @@ import os
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
-from view.components.tab import Tabs, Tab
-# from controller.controller import *
+from view.components.tab import Tabs, Tab, SidebarTab
+from view.components.zoomable_frame import AdvancedZoom
+from controller.tasks import *
 
 WINDOW_TITLE = "Object-centric Business App"
 if os.getlogin() == "RH":
@@ -30,28 +30,12 @@ def view():
     return View.instance
 
 
-class SidebarTab(Tab):
-    def __init__(self, master, title, **kwargs):
-        super().__init__(master=master, title=title, **kwargs)
-        # Main layout
-        self.rowconfigure(0, minsize=TOOLBAR_HEIGHT)
-        self.rowconfigure(1, weight=1)
-        self.columnconfigure(0, minsize=SIDEBAR_MIN_WIDTH, weight=1)
-        self.columnconfigure(1, minsize=SIDEBAR_MIN_WIDTH / SIDEBAR_WIDTH_RATIO,
-                             weight=int(round(1 / SIDEBAR_WIDTH_RATIO, 0)) - 1)
-
-        view().style.configure("sidebar.TFrame", background="#e0e0e0")
-        # self.sidebar = VerticalScrolledFrame(master=self.window, style="sidebar.TFrame")
-        self.sidebar = ScrolledFrame(master=self)
-        self.sidebar.grid(row=1, column=0, sticky=NSEW)
-        self.main = tk.Frame(master=self)
-        self.main.grid(row=1, column=1, sticky=NSEW)
-        self.interior = self.main
-
-
 class FilterTab(SidebarTab):
     def __init__(self, master):
-        super().__init__(master=master, title="Filters and Settings")
+        super().__init__(master=master,
+                         title="Filters and Settings",
+                         sidebar_width_ratio=SIDEBAR_WIDTH_RATIO,
+                         sidebar_min_width=SIDEBAR_MIN_WIDTH)
 
         # Sidebar contents
         acc = Accordion(self.sidebar, title_height=50, bootstyle=SECONDARY)
@@ -75,24 +59,33 @@ class FilterTab(SidebarTab):
 class PetriNetTab(Tab):
     def __init__(self, master):
         super().__init__(master=master, title="Petri Net")
+        self.display_label = ttk.Label(self)
+        self.imgview = None
 
         # Petri Net Discovery
-        self.pn_button = tk.Button(master=self, text="Discover Petri Net", command=self.display_petri_net)
-        self.pn_button.pack()
+        # self.pn_button = tk.Button(master=self, text="Discover Petri Net", command=self.generate_petri_net)
+        # self.pn_button.pack()
 
     def on_open(self):
-        self.display_petri_net()
+        view().controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
 
-    def display_petri_net(self):
-        # TODO move to controller, with callback
-        # TODO display in window
-        logger.info("Discovering petri net")
-        view().controller.model.ocel.discover_petri_net()
-        ocpn_image = Image.open('static/img/ocpn.png')
-        image_tk = ImageTk.PhotoImage(ocpn_image)
-        # label = ttk.Label(self.window, text="Petri Net", image=image_tk)
-        # label.grid(row=2, column=0, sticky='nsew')
-        # label.pack()
+    def display_petri_net(self, path):
+        # image = Image.open(path)
+        # w0, h0 = image.size
+        # aspect = w0 / h0
+        # w = self.winfo_width() - 20
+        # h = int(w / aspect)
+        # image = image.resize((w, h))
+        # logger.info(f"Resize image to {w}x{h}")
+        # self.ocpn_image = ImageTk.PhotoImage(image)
+        # self.display_label.pack_forget()
+        # self.display_label = ttk.Label(master=self, image=self.ocpn_image)
+        # self.display_label.pack()
+        if self.imgview is not None:
+            self.imgview.canvas.forget()
+            self.imgview.forget()
+        self.imgview = AdvancedZoom(self, path=path)
+        self.imgview.pack(fill=BOTH, expand=True)
 
 class HeatMapTab(Tab):
     def __init__(self, master):
@@ -145,7 +138,7 @@ class View:
 
         # Tabs
         self.tab_widget = Tabs(master=self.window)
-        self.tab_widget.pack(side=TOP, fill=BOTH)
+        self.tab_widget.pack(side=TOP, fill=BOTH, expand=True)
 
         # create a new frame
         self.tab1 = FilterTab(self.tab_widget)
@@ -173,9 +166,9 @@ class View:
         self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, object_types, counts, model, colors)
         self.tab1.ot_widget.pack(fill=X)
 
-    def init_activities(self, activities, model, colors=None):
-        self.activities_widget = ActivityWidget(self.tab1.act_container, activities, model, colors)
-        self.activities_widget.pack(fill=X)
+    def init_activities(self, activities, model):
+        self.tab1.act_widget = ActivityWidget(self.tab1.act_container, activities, model)
+        self.tab1.act_widget.pack(fill=X)
 
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")

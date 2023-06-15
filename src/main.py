@@ -36,13 +36,15 @@ class App:
     def __init__(self):
         dataset = DATASET_RECRUITING
         self.model = Model(dataset)
+        self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
+        # self.model.init_ocel(dataset, backend=BACKEND_OCPA)
+
         self.controller = Controller(self.model)
         self.view = View(self.controller, theme="litera")
         self.controller.view = self.view
 
-        self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
-        # self.model.init_ocel(dataset, backend=BACKEND_OCPA)
         self.controller.init_view()
+
 
 if __name__ == "__main__":
     logger.info("Program started")
