@@ -29,7 +29,7 @@ class Pm4pyEventLog(OCEL):
         self.ocel = pm4py.read_ocel(filename)
         self.filtered_ocel = self.ocel
         self.active_ot = pm4py.ocel.ocel_get_object_types(self.ocel)
-        self.active_activities = self.get_activities()
+        self.active_activities = self.activities
 
     def _get_object_types(self):
         return pm4py.ocel.ocel_get_object_types(self.filtered_ocel)
