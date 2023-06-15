@@ -50,6 +50,10 @@ class OCEL(ABC):
     def _discover_petri_net(self):
         """Discovers an object-centric Petri net from the provided object-centric event log"""
 
+    @abstractmethod
+    def _computeHeatMap(self):
+        """Computes a HeatMap of Object Realtions from the provided object-centric event log"""    
+
     @property
     @final
     def object_types(self) -> List[str]:
@@ -89,6 +93,8 @@ class OCEL(ABC):
     def discover_petri_net(self):
         return self._discover_petri_net()
 
+    def computeHeatMap(self):
+        return self._computeHeatMap()
 
     def reset_cache(self) -> None:
         """

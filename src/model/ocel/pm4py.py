@@ -1,5 +1,7 @@
 import pm4py
 import logging
+import seaborn as sns
+import pandas as pd
 
 from ocpa.objects.log.ocel import OCEL as Pm4pyEventLogObject
 from model.ocel.base import OCEL
@@ -56,6 +58,43 @@ class Pm4pyEventLog(OCEL):
         pm4py.save_vis_ocpn(ocpn, filename)
         logger.info(f"Petri net saved to {filename}")
         return ocpn
+    
+    def _computeHeatMap(self):
+        df = self.filtered_ocel.relations
+        collect = pd.DataFrame([],index=[],columns=['Events'])
+        #print(collect)
+
+        for x in set(df.loc[:,'ocel:type']):
+            tmp = df.loc[lambda df: df['ocel:type'] == x]
+            #print(tmp.loc[:,'ocel:eid'].tolist())
+            tmp_list = tmp.loc[:,'ocel:eid'].tolist()
+            tmp_df = pd.DataFrame([[tmp_list]], index=[x], columns=['Events'])
+            collect = pd.concat([collect,tmp_df])
+    
+        #print(collect)
+        matrix = pd.DataFrame([],index=[collect.index],columns=[collect.index])
+        #print(matrix)
+        eventlists = collect.loc[:,'Events'].tolist()
+
+        for x in range(len(eventlists)):
+            for y in range(x,len(eventlists)):
+                if (x==y):
+                    events = list(dict.fromkeys(eventlists[x]))
+                    matrix.iloc[x,x]=events
+                else:
+                    events = [value for value in eventlists[x] if value in eventlists[y]]
+                    matrix.iloc[x,y]=events
+                    matrix.iloc[y,x]=events
+
+        #print(matrix) 
+        number_matrix = matrix
+        number_matrix = number_matrix.applymap(lambda x: len(x))
+        #print(number_matrix)
+        heatmap = sns.heatmap(number_matrix, cmap="crest")
+        figure = heatmap.get_figure()    
+        figure.savefig('static/img/heatmap.png', dpi=400)
+        logger.info("saved heatmap as png")
+        return number_matrix 
 
     def filter_ocel_by_active_ot(self):
         # TODO: Once we add filtering by activities it will require an additional adjustment

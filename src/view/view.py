@@ -94,6 +94,30 @@ class PetriNetTab(Tab):
         # label.grid(row=2, column=0, sticky='nsew')
         # label.pack()
 
+class HeatMapTab(Tab):
+    def __init__(self, master):
+        super().__init__(master=master, title="Heatmap")
+
+        # Petri Net Discovery
+        self.pn_button = tk.Button(master=self, text="Show Heatmap for selected Object Types", command=self.computeHeatMap)
+        self.pn_button.pack()
+
+    def on_open(self):
+        self.computeHeatMap()
+
+    def computeHeatMap(self):
+        # TODO move to controller, with callback
+        # TODO display in window
+        logger.info("Computing Heatmap")
+
+        view().controller.model.ocel.computeHeatMap()
+        
+        heatmap_image = Image.open('static/img/heatmap.png')
+        image_tk = ImageTk.PhotoImage(heatmap_image)
+        #label = ttk.Label(self.window, text="Heatmap", image=figure)
+        #label.grid(row=2, column=0, sticky='nsew')
+        #label.pack()        
+
 
 class Window(tk.Tk):
     def __init__(self):
@@ -128,6 +152,8 @@ class View:
         self.tab_widget.add_tab(self.tab1)
         self.tab2 = PetriNetTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab2)
+        self.tab3 = HeatMapTab(self.tab_widget)
+        self.tab_widget.add_tab(self.tab3)
 
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
