@@ -1,6 +1,10 @@
 import pm4py
 import logging
 import seaborn as sns
+
+# import matplotlib
+# matplotlib.use('Agg')  # Use the 'Agg' backend to prevent opening a GUI
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from ocpa.objects.log.ocel import OCEL as Pm4pyEventLogObject
@@ -60,7 +64,7 @@ class Pm4pyEventLog(OCEL):
         logger.info(f"Petri net saved to {filename}")
         return filename
     
-    def _computeHeatMap(self):
+    def _computeHeatMap(self, dpi=150):
         df = self.filtered_ocel.relations
         collect = pd.DataFrame([],index=[],columns=['Events'])
         #print(collect)
@@ -87,15 +91,8 @@ class Pm4pyEventLog(OCEL):
                     matrix.iloc[x,y]=events
                     matrix.iloc[y,x]=events
 
-        #print(matrix) 
-        number_matrix = matrix
-        number_matrix = number_matrix.applymap(lambda x: len(x))
-        #print(number_matrix)
-        heatmap = sns.heatmap(number_matrix, cmap="crest")
-        figure = heatmap.get_figure()    
-        figure.savefig('static/img/heatmap.png', dpi=400)
-        logger.info("saved heatmap as png")
-        return number_matrix 
+        number_matrix = matrix.applymap(len)
+        return number_matrix
 
     def filter_ocel_by_active_ot(self):
         # TODO: Once we add filtering by activities it will require an additional adjustment

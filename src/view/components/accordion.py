@@ -89,7 +89,7 @@ class Accordion(ttk.Frame):
         c = Chord(wrapper, self, title, expanded, bootstyle=self.bootstyle, **kwargs)
         if c.expanded:
             c.pack(side=TOP, fill=X, expand=True)
-        wrapper.pack(side=TOP, fill=X)
+        wrapper.pack(side=TOP, fill=X, expand=True)
         return c
 
 
