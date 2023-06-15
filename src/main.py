@@ -34,6 +34,7 @@ logger.addHandler(file_handler)
 
 class App:
     def __init__(self):
+        logger.info("Initiating the app")
         dataset = DATASET_RECRUITING
         self.model = Model(dataset)
         self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
@@ -45,9 +46,12 @@ class App:
 
         self.controller.init_view()
 
+    def __del__(self):
+        logging.info('Destructor called, app deleted.')
 
 if __name__ == "__main__":
     logger.info("Program started")
     app = App()
     app.view.start()
+    del app
     logger.info("Program exited")

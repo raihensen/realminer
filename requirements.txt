@@ -1,5 +1,7 @@
-pycelonis==2.0.1
+# pycelonis
 ocpa
 tkfontawesome
 ttkbootstrap
 pillow
+pytest
+matplotlib
