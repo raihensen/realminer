@@ -128,8 +128,18 @@ class VariantsTab(Tab):
         self.display_label = None
 
         variants = self.compute_variants()
+        keys = variants.keys()
+        print_variants = []
+        for key in keys:
+            print_variants.append(key)
+        tuple = self.compute_basic_stats()
+        num_proc = tuple[0]
+        num_var = tuple[1]
  
-        self.Combo = ttk.Combobox(self, values = variants)
+        self.stats_label = tk.Label(self, text="There are "+ str(num_proc) +" process executions of "+ str(num_var) +" varinats. In the Drop down menu below, these variants are listed by theire frequency (descending).")
+        self.stats_label.pack()
+
+        self.Combo = ttk.Combobox(self, values = print_variants, width=30)
         self.Combo.set("Pick a Variant")
         self.Combo.pack(padx = 5, pady = 5)
 
@@ -143,13 +153,18 @@ class VariantsTab(Tab):
     def on_open(self):
         pass
 
+    def compute_basic_stats(self):
+        tuple = get_basic_stats()
+        return tuple
+
     def compute_variants(self):
         logger.info("Computing Variants")
         variants = get_variants()
         return variants
 
     def display_variants(self):
-        graph = display_variant(self.Combo.get())
+        #print('test')
+        graph = display_variant(self.compute_variants()[self.Combo.get()])
         #figure = plt.figure()
         #nx.draw_networkx(graph)
         #plt.show()
