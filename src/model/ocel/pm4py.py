@@ -93,6 +93,12 @@ class Pm4pyEventLog(OCEL):
 
         number_matrix = matrix.applymap(len)
         return number_matrix
+    
+    #def _computeVariants(self):
+        #return self.ocel.variants
+
+    #def display_variants(self, id):
+        #return test
 
     def filter_ocel_by_active_ot(self):
         # TODO: Once we add filtering by activities it will require an additional adjustment

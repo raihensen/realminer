@@ -52,7 +52,19 @@ class OCEL(ABC):
 
     @abstractmethod
     def _computeHeatMap(self):
-        """Computes a HeatMap of Object Realtions from the provided object-centric event log"""    
+        """Computes a HeatMap of Object Realtions from the provided object-centric event log""" 
+
+    #@abstractmethod
+    #def _compute_variants(self):
+        """Computes Variants of the provided object-centric event log"""  
+
+    #@abstractmethod
+    #def _display_variants(self, id):
+        """Computes Variants of the provided object-centric event log""" 
+
+    #@abstractmethod
+    #def _computeBasicVariantStats(self):
+        """Computes Basic Statistics of Variants of the provided object-centric event log"""              
 
     @property
     @final
@@ -94,6 +106,12 @@ class OCEL(ABC):
 
     def computeHeatMap(self):
         return self._computeHeatMap()
+    
+    #def compute_variants(self):
+    #    return self._computeVariants()
+    
+    #def display_variants(self, id):
+    #    return self._computeVariants()
     
     def reset_cache(self) -> None:
         """

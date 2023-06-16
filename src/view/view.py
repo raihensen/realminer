@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+import networkx as nx
 
 # from view.components.scrollable_frame import VerticalScrolledFrame
 from view.components.accordion import Accordion
@@ -15,6 +16,7 @@ from view.widgets.activities import ActivityWidget
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
+from ocpa_variants import *
 
 WINDOW_TITLE = "Object-centric Business App"
 if os.getlogin() == "RH":
@@ -119,6 +121,40 @@ class HeatMapTab(Tab):
         # self.display_label = ttk.Label(self, image=self.image_tk)
         # self.display_label.pack()
 
+class VariantsTab(Tab):
+    def __init__(self, master):
+        super().__init__(master=master, title="Variants Explorer")
+        self.image_tk = None
+        self.display_label = None
+
+        variants = self.compute_variants()
+ 
+        self.Combo = ttk.Combobox(self, values = variants)
+        self.Combo.set("Pick a Variant")
+        self.Combo.pack(padx = 5, pady = 5)
+
+        # label of basic statistics
+        #tuple = self.computeBasicVariantStats()
+        #num_proc_exe = tuple[0]
+        #num_var = tuple[1]
+        self.show_button = tk.Button(master=self, text="Show Variant", command=self.display_variants)
+        self.show_button.pack()
+
+    def on_open(self):
+        pass
+
+    def compute_variants(self):
+        logger.info("Computing Variants")
+        variants = get_variants()
+        return variants
+
+    def display_variants(self):
+        graph = display_variant(self.Combo.get())
+        #figure = plt.figure()
+        #nx.draw_networkx(graph)
+        #plt.show()
+        # TODO remove plt.show() and make sure no (invisible) window is opened
+
 
 class Window(tk.Tk):
     def __init__(self):
@@ -155,6 +191,8 @@ class View:
         self.tab_widget.add_tab(self.tab2)
         self.tab3 = HeatMapTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab3)
+        self.tab4 = VariantsTab(self.tab_widget)
+        self.tab_widget.add_tab(self.tab4)
 
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
