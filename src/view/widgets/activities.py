@@ -36,7 +36,6 @@ class ActivityWidget(ttk.Frame):
         self.model.update_active_activities_in_model(active_activities)
         logger.debug("Apply - Activities")
 
-
     def reset(self):
         for activity in self.children['!activitylistwidget'].items:
             activity.checkbox_var.set(1)

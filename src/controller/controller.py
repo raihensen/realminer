@@ -17,11 +17,11 @@ class Controller:
         init_tasks(self)
 
     def init_view(self):
-        self.view.init_object_types(object_types=self.model.ocel.object_types,
-                                    counts=self.model.ocel.object_type_counts,
+        self.view.init_object_types(object_types=self.model.original_ocel.object_types,
+                                    counts=self.model.original_ocel.object_type_counts,
                                     colors=None,
                                     model=self.model)
-        self.view.init_activities(activities=self.model.ocel.activities,
+        self.view.init_activities(activities=self.model.original_ocel.activities,
                                   model=self.model)
 
     def run_task(self, key: str, kill_if_running: bool = True, **kwargs):
@@ -44,5 +44,5 @@ class Controller:
         task.start()
 
     def test_action(self):
-        self.view.test_set_label(self.model.ocel.object_types)
+        self.view.test_set_label(self.model.object_types)
 

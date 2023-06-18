@@ -1,3 +1,5 @@
+from typing import Dict
+
 import pm4py
 import logging
 import seaborn as sns
@@ -7,7 +9,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from ocpa.objects.log.ocel import OCEL as Pm4pyEventLogObject
+from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
+from pm4py.ocel import OCEL as Pm4pyEventLogObject
 from model.ocel.base import OCEL
 from pathlib import Path
 import pandas as pd
@@ -20,107 +23,86 @@ class Pm4pyEventLog(OCEL):
     Event log wrapper using the pm4py module
     """
 
-    ocel: Pm4pyEventLogObject
-    filtered_ocel: Pm4pyEventLogObject
-
-    def __init__(self, dataset, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(ocel_type="pm4py", **kwargs)
 
-        filename = str(Path("../data/datasets") / dataset)
-        logger.info(f"Importing dataset {filename}")
+        if "ocel" in kwargs and isinstance(kwargs["ocel"], Pm4pyEventLogObject):
+            self.ocel = kwargs["ocel"]
+        elif "dataset" in kwargs:
+            filename = str(Path("../data/datasets") / kwargs["dataset"])
+            logger.info(f"Importing dataset {filename}")
 
-        # https://pm4py.fit.fraunhofer.de/documentation#object-centric-event-logs
-        self.ocel = pm4py.read_ocel(filename)
-        self.filtered_ocel = self.ocel
-        self.active_ot = pm4py.ocel.ocel_get_object_types(self.ocel)
-        self.active_activities = self.activities
+            # https://pm4py.fit.fraunhofer.de/documentation#object-centric-event-logs
+            self.ocel = pm4py.read_ocel(filename)
+        else:
+            raise ValueError("pm4py event log could not be instantiated.")
 
     def _get_object_types(self):
-        return pm4py.ocel.ocel_get_object_types(self.filtered_ocel)
+        return pm4py.ocel.ocel_get_object_types(self.ocel)
 
     def _get_object_type_counts(self):
         ot = self.ocel.objects['ocel:type']
         return ot.value_counts().to_dict()
 
     def _get_activities(self):
-        ot_activity_dict = pm4py.ocel.ocel_object_type_activities(self.filtered_ocel)
+        ot_activity_dict = pm4py.ocel.ocel_object_type_activities(self.ocel)
         activities = set()
         for ot in ot_activity_dict:
             for activity in ot_activity_dict[ot]:
                 activities.add(activity)
         return activities
 
+    def _get_ot_activities(self):
+        return pm4py.ocel.ocel_object_type_activities(self.ocel)
+
     def _get_cases(self):
-        return []
+        return None  # Not supported, use ocpa
 
     def _get_variants(self):
-        return {}
+        return None  # Not supported, use ocpa
 
-    def _discover_petri_net(self):
+    def _get_variant_frequencies(self):
+        return None  # Not supported, use ocpa
+
+    def _compute_petri_net(self):
         logger.info("Beggining the discovery of a petri net using pm4py")
-        ocpn = pm4py.discover_oc_petri_net(self.filtered_ocel)
+        ocpn = pm4py.discover_oc_petri_net(self.ocel)
         filename = 'static/img/ocpn.png'
         pm4py.save_vis_ocpn(ocpn, filename)
         logger.info(f"Petri net saved to {filename}")
         return filename
     
-    def _computeHeatMap(self, dpi=150):
-        df = self.filtered_ocel.relations
+    def _compute_heatmap(self, dpi=150) -> pd.DataFrame:
+        df = self.ocel.relations
         collect = pd.DataFrame([],index=[],columns=['Events'])
-        #print(collect)
 
         for x in set(df.loc[:,'ocel:type']):
             tmp = df.loc[lambda df: df['ocel:type'] == x]
-            #print(tmp.loc[:,'ocel:eid'].tolist())
+            # print(tmp.loc[:,'ocel:eid'].tolist())
             tmp_list = tmp.loc[:,'ocel:eid'].tolist()
             tmp_df = pd.DataFrame([[tmp_list]], index=[x], columns=['Events'])
             collect = pd.concat([collect,tmp_df])
-    
-        #print(collect)
-        matrix = pd.DataFrame([],index=[collect.index],columns=[collect.index])
-        #print(matrix)
-        eventlists = collect.loc[:,'Events'].tolist()
 
-        for x in range(len(eventlists)):
-            for y in range(x,len(eventlists)):
-                if (x==y):
-                    events = list(dict.fromkeys(eventlists[x]))
+        matrix = pd.DataFrame([],index=[collect.index],columns=[collect.index])
+        event_lists = collect.loc[:,'Events'].tolist()
+
+        for x in range(len(event_lists)):
+            for y in range(x,len(event_lists)):
+                if x == y:
+                    events = list(dict.fromkeys(event_lists[x]))
                     matrix.iloc[x,x]=events
                 else:
-                    events = [value for value in eventlists[x] if value in eventlists[y]]
+                    events = [value for value in event_lists[x] if value in event_lists[y]]
                     matrix.iloc[x,y]=events
                     matrix.iloc[y,x]=events
 
         number_matrix = matrix.applymap(len)
         return number_matrix
-    
-    #def _computeVariants(self):
-        #return self.ocel.variants
-
-    #def display_variants(self, id):
-        #return test
-
-    def filter_ocel_by_active_ot(self):
-        # TODO: Once we add filtering by activities it will require an additional adjustment
-        self.filtered_ocel = pm4py.filter_ocel_object_types(self.ocel, self.active_ot)
-
-    def filter_ocel_by_ot_and_active_activities(self):
-        ot_activity_dict = pm4py.ocel.ocel_object_type_activities(self.ocel)
-        
-        # example for desired dictionary: {“order”: [“Create Order”], “element”: [“Create Order”, “Create Delivery”]}
-        active_ot_activity_filter_dict = {}
-        for ot in self.active_ot:
-            active_ot_activity_filter_dict[ot] = []
-            for activity in self.active_activities:
-                if activity in ot_activity_dict[ot]:
-                    active_ot_activity_filter_dict[ot].append(activity)
-        
-        self.filtered_ocel = pm4py.filter_ocel_object_types_allowed_activities(self.ocel, active_ot_activity_filter_dict)
 
     def __hash__(self):
         # TODO test/fix this
         hash_df = lambda df: pd.util.hash_array(pd.util.hash_pandas_object(df).to_numpy())
-        return [hash_df(self.filtered_ocel.events), hash_df(self.filtered_ocel.relations), hash_df(self.filtered_ocel.objects)]
+        return [hash_df(self.ocel.events), hash_df(self.ocel.relations), hash_df(self.ocel.objects)]
 
     def export_json_ocel(self, target_path):
-        pm4py.objects.ocel.exporter.jsonocel.exporter.apply(self.filtered_ocel, target_path)
+        pm4py.objects.ocel.exporter.jsonocel.exporter.apply(self.ocel, target_path)

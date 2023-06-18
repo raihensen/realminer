@@ -13,8 +13,8 @@ TASK_HEATMAP_OT = "heatmap_ot"
 
 def init_tasks(controller):
     controller.TASKS = {
-        TASK_DISCOVER_PETRI_NET: {"func": controller.model.ocel.discover_petri_net},
-        TASK_HEATMAP_OT: {"func": controller.model.ocel.computeHeatMap}
+        TASK_DISCOVER_PETRI_NET: {"func": controller.model.compute_petri_net},
+        TASK_HEATMAP_OT: {"func": controller.model.compute_heatmap}
     }
 # ----------------------------------------------------------------------------------------------------------------------
 

@@ -16,7 +16,7 @@ from view.widgets.activities import ActivityWidget
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
-from ocpa_variants import *
+# from ocpa_variants import *
 
 WINDOW_TITLE = "Object-centric Business App"
 if os.getlogin() == "RH":
@@ -53,11 +53,15 @@ class FilterTab(SidebarTab):
         # tk.Label(self.act_container, text='hello world', bg='white').pack()
 
         # get ocpa ocel
-        self.ocpa_button = tk.Button(master=self.main, text="Get ocpa ocel", command=view().controller.model.get_opca_ocel)
+        self.ocpa_button = tk.Button(master=self.main, text="Test OCPA functions", command=self.test_ocpa)
         self.ocpa_button.pack()
 
     def on_open(self):
-       pass
+        pass
+
+    def test_ocpa(self):
+        print(view().controller.model.object_types)
+        print(view().controller.model.cases)
 
 
 class PetriNetTab(Tab):
@@ -153,22 +157,21 @@ class VariantsTab(Tab):
     def on_open(self):
         pass
 
-    def compute_basic_stats(self):
-        tuple = get_basic_stats()
-        return tuple
-
-    def compute_variants(self):
-        logger.info("Computing Variants")
-        variants = get_variants()
-        return variants
-
-    def display_variants(self):
-        #print('test')
-        graph = display_variant(self.compute_variants()[self.Combo.get()])
-        #figure = plt.figure()
-        #nx.draw_networkx(graph)
-        #plt.show()
-        # TODO remove plt.show() and make sure no (invisible) window is opened
+    # def compute_basic_stats(self):
+    #     tuple = get_basic_stats()
+    #     return tuple
+    #
+    # def compute_variants(self):
+    #     logger.info("Computing Variants")
+    #     variants = get_variants()
+    #     return variants
+    # def display_variants(self):
+    #     #print('test')
+    #     graph = display_variant(self.compute_variants()[self.Combo.get()])
+    #     #figure = plt.figure()
+    #     #nx.draw_networkx(graph)
+    #     #plt.show()
+    #     # TODO remove plt.show() and make sure no (invisible) window is opened
 
 
 class Window(tk.Tk):
@@ -206,8 +209,8 @@ class View:
         self.tab_widget.add_tab(self.tab2)
         self.tab3 = HeatMapTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab3)
-        self.tab4 = VariantsTab(self.tab_widget)
-        self.tab_widget.add_tab(self.tab4)
+        # self.tab4 = VariantsTab(self.tab_widget)
+        # self.tab_widget.add_tab(self.tab4)
 
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
@@ -234,9 +237,6 @@ class View:
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")
         self.style.theme_use(theme)
-
-    def test_set_label(self, x):
-        self.test_label.config(text=str(x))
 
     @property
     def style(self):

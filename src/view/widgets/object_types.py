@@ -52,7 +52,6 @@ class ObjectTypeWidget(ttk.Frame):
         self.model.update_active_ot_in_model(active_objects)
         logger.debug("Apply")
 
-
     def reset(self):
         for ot in self.children['!objecttypelistwidget'].items:
             ot.checkbox_var.set(1)
@@ -67,8 +66,6 @@ class ObjectTypeWidget(ttk.Frame):
 
 
 class ObjectTypeListWidget(DndList):
-
-
     def __init__(self, master, object_types, counts, colors=None, on_swap=None, **kwargs):
         super().__init__(master, on_swap=on_swap, **kwargs)
 

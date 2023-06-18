@@ -1,4 +1,6 @@
 import logging
+from typing import Dict, List
+
 from model.ocel.base import OCEL
 
 from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
@@ -10,7 +12,6 @@ from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
 from pathlib import Path
 from pprint import pprint
 
-
 OCPA_DEFAULT_SETTINGS = {
     "execution_extraction": LEAD_TYPE,
     "leading_type": None,
@@ -20,12 +21,11 @@ OCPA_DEFAULT_SETTINGS = {
 
 logger = logging.getLogger("app_logger")
 
+
 class OcpaEventLog(OCEL):
     """
     Event log wrapper using the ocpa module
     """
-
-    ocel: OcpaEventLogObject
 
     def __init__(self, dataset, **kwargs):
         super().__init__(ocel_type="ocpa", **kwargs)
@@ -46,9 +46,20 @@ class OcpaEventLog(OCEL):
     def _get_activities(self):
         return self.ocel.obj.activities
 
-    def _get_cases(self):
-        return []
+    def _get_ot_activities(self):
+        raise NotImplementedError()
 
-    def _get_variants(self):
-        return {}
+    def _get_cases(self) -> Dict[int, str]:
+        return self.ocel.process_executions  # TODO
 
+    def _get_variants(self) -> List[str]:
+        return []  # TODO
+
+    def _get_variant_frequencies(self) -> Dict[str, int]:
+        return dict(zip(self.ocel.variants, self.ocel.variant_frequencies))
+
+    def _compute_petri_net(self):
+        return None  # Use pm4py
+
+    def _compute_heatmap(self):
+        return None  # Use pm4py
