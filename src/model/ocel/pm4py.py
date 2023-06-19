@@ -64,6 +64,9 @@ class Pm4pyEventLog(OCEL):
     def _get_variant_frequencies(self):
         return None  # Not supported, use ocpa
 
+    def _get_variant_graph(self, variant_id):
+        return None  # Not supported, use ocpa
+
     def _compute_petri_net(self):
         logger.info("Beggining the discovery of a petri net using pm4py")
         ocpn = pm4py.discover_oc_petri_net(self.ocel)

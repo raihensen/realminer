@@ -4,6 +4,7 @@ from typing import final, List, Dict
 from builtins import property
 from pathlib import Path
 
+import networkx as nx
 from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
 
 from model.ocel.base import OCEL, DummyEventLog
@@ -31,8 +32,11 @@ class Model:
         """
         self._ocels = []  # originally filtered_ocel
         self.original_ocel: OCEL = None
+
         self.active_ot = []
         self.active_activities = []
+        self.filter_timestamp = None
+
         self.dataset = dataset
         self.result_cache: dict = {}
         self.ocels_traverse_extensions = [
@@ -53,37 +57,52 @@ class Model:
         logger.info(f"OCEL loaded successfully ({backend})")
 
     def update_active_ot_in_model(self, active_ot):
-        ocel = self._ocels[0]
         self.active_ot = active_ot
-        self.filter_ocel_by_activities()
+        self.filter_ocel()
 
     def update_active_activities_in_model(self, active_activities):
-        ocel = self._ocels[0]
         self.active_activities = active_activities
-        self.filter_ocel_by_activities()
+        self.filter_ocel()
 
-    def filter_ocel_by_object_types(self):
-        # TODO: Once we add filtering by activities it will require an additional adjustment
-        if not isinstance(self._ocels[0], Pm4pyEventLog):
+    def update_timestamp_filter(self, start, end):
+        self.filter_timestamp = (start, end)
+        self.filter_ocel()
+
+    def filter_ocel(self):
+        """
+        Applies filters on the event log. Duplicate event log instances are deleted, only retaining one pm4py instance.
+        Merged all filters to one function:
+            - timestamp
+            - object types
+            - activities
+        """
+        if not isinstance(self.original_ocel, Pm4pyEventLog):
             raise NotImplementedError("Filtering is only supported for pm4py event logs.")
-        ocel = pm4py.filter_ocel_object_types(self.original_ocel, self.active_ot)
-        self._ocels = [Pm4pyEventLog(ocel=ocel)]
-        self.reset_cache()
+        ocel = self.original_ocel.ocel
 
-    def filter_ocel_by_activities(self):
-        if not isinstance(self._ocels[0], Pm4pyEventLog):
-            raise NotImplementedError("Filtering is only supported for pm4py event logs.")
-        ot_activity_dict = self.original_ocel.ot_activities
+        # Timestamp
+        # if self.filter_timestamp is not None:
+        #     start, end = self.filter_timestamp
+        #     if start is None:
+        #         start = ocel.events['ocel:timestamp'].min()
+        #     if end is None:
+        #         end = ocel.events['ocel:timestamp'].max()
+        #     ocel = pm4py.filter_ocel_events_timestamp(ocel, start, end)
 
-        # example for desired dictionary: {“order”: [“Create Order”], “element”: [“Create Order”, “Create Delivery”]}
-        active_ot_activity_filter_dict = {}
-        for ot in self.active_ot:
-            active_ot_activity_filter_dict[ot] = []
-            for activity in self.active_activities:
-                if activity in ot_activity_dict[ot]:
-                    active_ot_activity_filter_dict[ot].append(activity)
+        # Object types and activities
+        if self.active_ot and self.active_activities:
+            # example for desired dictionary: {“order”: [“Create Order”], “element”: [“Create Order”, “Create Delivery”]}
+            ot_activity_dict = self.original_ocel.ot_activities
+            active_ot_activity_filter_dict = {}
+            for ot in self.active_ot:
+                active_ot_activity_filter_dict[ot] = []
+                for activity in self.active_activities:
+                    if activity in ot_activity_dict[ot]:
+                        active_ot_activity_filter_dict[ot].append(activity)
 
-        ocel = pm4py.filter_ocel_object_types_allowed_activities(self.original_ocel.ocel, active_ot_activity_filter_dict)
+            ocel = pm4py.filter_ocel_object_types_allowed_activities(ocel, active_ot_activity_filter_dict)
+
+        # save filtered event log and delete cache
         self._ocels = [Pm4pyEventLog(ocel=ocel)]
         self.reset_cache()
 
@@ -98,11 +117,13 @@ class Model:
         pm4py_ocel = self._ocels[0]
         self._ocels = [pm4py_ocel]
         pm4py_ocel.export_json_ocel(target_path)
-        self.init_ocel(dataset={"dataset": target_file, **{k: v for k, v in self.dataset.items() if k != "dataset"}}, backend=BACKEND_OCPA)
+        self.init_ocel(dataset={"dataset": target_file, **{k: v for k, v in self.dataset.items() if k != "dataset"}},
+                       backend=BACKEND_OCPA,
+                       )
         os.remove(target_path)
         return True
 
-    def _execute_ocel_method(self, method_name):
+    def _execute_ocel_method(self, method_name, *args):
         """
         Manages multiple OCEL wrapper instances, with caching.
         :param method_name: The name of the method to be called on an OCEL wrapper instance
@@ -114,7 +135,7 @@ class Model:
         i = 0
         while i < len(self._ocels):
             method = getattr(self._ocels[i], method_name)
-            result = method()
+            result = method(*args)
             if result is not None:
                 self.result_cache[method_name] = result
                 return result
@@ -125,6 +146,8 @@ class Model:
                 extended = self.ocels_traverse_extensions[i]()
                 if not extended:
                     break
+
+            i += 1
 
         raise NotImplementedError("The model's event log(s) do not support the requested method.")
 
@@ -162,6 +185,10 @@ class Model:
     @final
     def variant_frequencies(self) -> Dict[str, int]:
         return self._execute_ocel_method("_get_variant_frequencies")
+
+    @final
+    def variant_graph(self, variant_id) -> nx.DiGraph:
+        return self._execute_ocel_method("_get_variant_graph", variant_id)
 
     @final
     def compute_petri_net(self) -> List[str]:

@@ -13,20 +13,18 @@ def get_variants():
     pairs = dict(zip(variants, frequencies))
     sorted_pairs = dict(sorted(pairs.items(), key=lambda item: item[1]))
     string_list = []
-    count=0
+    count = 0
     for i in sorted_pairs.keys():
         count=count+1
-        string_list.append("Variant "+ str(count)+ " with frequency: "+ str(sorted_pairs[i]))
+        string_list.append(f"Variant {count} with frequency: {sorted_pairs[i]}")
     return_dict = dict(zip(string_list, sorted_pairs.keys()))
     #print(string_list)
     #print(return_dict)
     return return_dict
 
 def display_variant(id):
-    graph = ocel.variant_graphs
-    tuple = graph[id]
-    g = tuple[0]
-    nx.draw_networkx(g)
+    graph = ocel.variant_graphs[id][0]
+    nx.draw_networkx(graph)
     plt.show()
 
 def get_basic_stats():

@@ -16,6 +16,7 @@ from view.widgets.activities import ActivityWidget
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
+
 # from ocpa_variants import *
 
 WINDOW_TITLE = "Object-centric Business App"
@@ -61,7 +62,10 @@ class FilterTab(SidebarTab):
 
     def test_ocpa(self):
         print(view().controller.model.object_types)
-        print(view().controller.model.cases)
+        view().controller.run_task(TASK_COMPUTE_VARIANTS, callback=self.display_variants)
+
+    def display_variants(self, variants):
+        print(variants)
 
 
 class PetriNetTab(Tab):
@@ -125,37 +129,46 @@ class HeatMapTab(Tab):
         # self.display_label = ttk.Label(self, image=self.image_tk)
         # self.display_label.pack()
 
+
 class VariantsTab(Tab):
     def __init__(self, master):
         super().__init__(master=master, title="Variants Explorer")
-        self.image_tk = None
-        self.display_label = None
-
-        variants = self.compute_variants()
-        keys = variants.keys()
-        print_variants = []
-        for key in keys:
-            print_variants.append(key)
-        tuple = self.compute_basic_stats()
-        num_proc = tuple[0]
-        num_var = tuple[1]
- 
-        self.stats_label = tk.Label(self, text="There are "+ str(num_proc) +" process executions of "+ str(num_var) +" varinats. In the Drop down menu below, these variants are listed by theire frequency (descending).")
-        self.stats_label.pack()
-
-        self.Combo = ttk.Combobox(self, values = print_variants, width=30)
-        self.Combo.set("Pick a Variant")
-        self.Combo.pack(padx = 5, pady = 5)
-
-        # label of basic statistics
-        #tuple = self.computeBasicVariantStats()
-        #num_proc_exe = tuple[0]
-        #num_var = tuple[1]
-        self.show_button = tk.Button(master=self, text="Show Variant", command=self.display_variants)
-        self.show_button.pack()
+        self.stats_label = None
+        self.combo = None
+        self.show_button = None
+        self.label_to_variant = {}
 
     def on_open(self):
-        pass
+        for w in [self.stats_label, self.combo, self.show_button]:
+            if w is not None:
+                w.forget()
+        view().controller.run_task(TASK_COMPUTE_VARIANT_FREQUENCIES, callback=self.display_variants)
+
+    def display_variants(self, variant_frequencies):
+        variant_frequencies = dict(sorted(variant_frequencies.items(), key=lambda item: item[1], reverse=True))
+        labels = [f"Variant #{i} with frequency: {freq:.4f}" for i, freq in enumerate(variant_frequencies.values())]
+        self.label_to_variant = dict(zip(labels, variant_frequencies.keys()))
+
+        num_proc, num_var = len(view().controller.model.cases), len(variant_frequencies)
+
+        self.stats_label = tk.Label(self, text=f"There are {num_proc} process executions of {num_var} variants. In the Drop down menu below, these variants are listed by their frequency (descending).")
+        self.stats_label.pack()
+
+        self.combo = ttk.Combobox(self, values=labels, width=30)
+        self.combo.set("Pick a Variant")
+        self.combo.pack(padx=5, pady=5)
+
+        self.show_button = ttk.Button(master=self, text="Show Variant", command=self.display_selected_variant, bootstyle=PRIMARY)
+        self.show_button.pack()
+
+    def display_selected_variant(self):
+        variant_id = self.label_to_variant[self.combo.get()]
+        graph = view().controller.model.variant_graph(variant_id)
+        self.display_variant_graph(graph)
+
+    def display_variant_graph(self, graph: nx.DiGraph):
+        nx.draw_networkx(graph)
+        plt.show()
 
     # def compute_basic_stats(self):
     #     tuple = get_basic_stats()
@@ -209,8 +222,8 @@ class View:
         self.tab_widget.add_tab(self.tab2)
         self.tab3 = HeatMapTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab3)
-        # self.tab4 = VariantsTab(self.tab_widget)
-        # self.tab_widget.add_tab(self.tab4)
+        self.tab4 = VariantsTab(self.tab_widget)
+        self.tab_widget.add_tab(self.tab4)
 
         # Toolbar contents
         ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
@@ -244,4 +257,3 @@ class View:
 
     def start(self):
         self.window.mainloop()
-

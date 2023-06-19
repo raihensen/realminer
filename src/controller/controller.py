@@ -24,6 +24,18 @@ class Controller:
         self.view.init_activities(activities=self.model.original_ocel.activities,
                                   model=self.model)
 
+    def compute_cases(self):
+        # run as task
+        return self.model.cases
+
+    def compute_variants(self):
+        # run as task
+        return self.model.variants
+
+    def compute_variant_frequencies(self):
+        # run as task
+        return self.model.variant_frequencies
+
     def run_task(self, key: str, kill_if_running: bool = True, **kwargs):
         if key not in self.TASKS:
             logger.error(f"Controller: Task '{key}' not found.")

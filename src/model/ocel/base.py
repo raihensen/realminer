@@ -7,6 +7,8 @@ from pathlib import Path
 # import pandas as pd
 from typing import List, Dict
 
+import networkx as nx
+
 logger = logging.getLogger("app_logger")
 
 
@@ -45,11 +47,15 @@ class OCEL(ABC):
 
     @abstractmethod
     def _get_variants(self) -> List[str]:
-        """ Returns the list of case variants """
+        """ Returns the list of case variants (identified by a uid) """
 
     @abstractmethod
     def _get_variant_frequencies(self) -> Dict[str, int]:
-        """ Returns the list of case variants """
+        """ Returns the variant frequencies """
+
+    @abstractmethod
+    def _get_variant_graph(self, variant_id) -> nx.DiGraph:
+        """ Returns the event-object graph of a given variant """
 
     @abstractmethod
     def _compute_petri_net(self):
@@ -122,6 +128,9 @@ class DummyEventLog(OCEL):
 
     def _get_variant_frequencies(self) -> Dict[str, int]:
         return {}
+
+    def _get_variant_graph(self, variant_id) -> nx.DiGraph:
+        return None
 
     def _compute_petri_net(self):
         return None

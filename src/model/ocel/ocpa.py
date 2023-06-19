@@ -1,6 +1,8 @@
 import logging
 from typing import Dict, List
 
+import networkx as nx
+
 from model.ocel.base import OCEL
 
 from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
@@ -53,10 +55,13 @@ class OcpaEventLog(OCEL):
         return self.ocel.process_executions  # TODO
 
     def _get_variants(self) -> List[str]:
-        return []  # TODO
+        return self.ocel.variants
 
     def _get_variant_frequencies(self) -> Dict[str, int]:
         return dict(zip(self.ocel.variants, self.ocel.variant_frequencies))
+
+    def _get_variant_graph(self, variant_id) -> nx.DiGraph:
+        return self.ocel.variant_graphs[variant_id][0]
 
     def _compute_petri_net(self):
         return None  # Use pm4py
