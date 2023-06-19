@@ -85,7 +85,8 @@ class OcpaEventLog(OCEL):
             edge["label"] = ", ".join([f"{count}x {ot}" for ot, count in edge_ot_counts.items()])
 
         A = to_agraph(G)
-        A.graph_attr["rankdir"] = "TB"
+        A.graph_attr["rankdir"] = "TB"  # would prefer LR, but edge labels might be long
+        A.node_attr["shape"] = "box"
         A.layout('dot')
         path = f"tmp/variant_graph_{variant_id}.png"
         A.draw(path)

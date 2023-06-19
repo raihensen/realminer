@@ -53,19 +53,8 @@ class FilterTab(SidebarTab):
         self.act_widget = None
         # tk.Label(self.act_container, text='hello world', bg='white').pack()
 
-        # get ocpa ocel
-        self.ocpa_button = tk.Button(master=self.main, text="Test OCPA functions", command=self.test_ocpa)
-        self.ocpa_button.pack()
-
     def on_open(self):
         pass
-
-    def test_ocpa(self):
-        print(view().controller.model.object_types)
-        view().controller.run_task(TASK_COMPUTE_VARIANTS, callback=self.display_variants)
-
-    def display_variants(self, variants):
-        print(variants)
 
 
 class PetriNetTab(Tab):
@@ -74,25 +63,10 @@ class PetriNetTab(Tab):
         self.display_label = ttk.Label(self)
         self.imgview = None
 
-        # Petri Net Discovery
-        # self.pn_button = tk.Button(master=self, text="Discover Petri Net", command=self.generate_petri_net)
-        # self.pn_button.pack()
-
     def on_open(self):
         view().controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
 
     def display_petri_net(self, path):
-        # image = Image.open(path)
-        # w0, h0 = image.size
-        # aspect = w0 / h0
-        # w = self.winfo_width() - 20
-        # h = int(w / aspect)
-        # image = image.resize((w, h))
-        # logger.info(f"Resize image to {w}x{h}")
-        # self.ocpn_image = ImageTk.PhotoImage(image)
-        # self.display_label.pack_forget()
-        # self.display_label = ttk.Label(master=self, image=self.ocpn_image)
-        # self.display_label.pack()
         if self.imgview is not None:
             self.imgview.canvas.forget()
             self.imgview.forget()
@@ -116,34 +90,22 @@ class HeatMapTab(Tab):
         plt.show()
         # TODO remove plt.show() and make sure no (invisible) window is opened
 
-        # filename = 'static/img/heatmap.png'
-        # plt.savefig(filename, dpi=dpi)
-        # logger.info("saved heatmap as png")
-        # return filename
-
-        # print("[display]")
-        # heatmap_image = Image.open(path)
-        # self.image_tk = ImageTk.PhotoImage(heatmap_image)
-        # if self.display_label is not None:
-        #     self.display_label.pack_forget()
-        # self.display_label = ttk.Label(self, image=self.image_tk)
-        # self.display_label.pack()
-
 
 class VariantsTab(SidebarTab):
     def __init__(self, master):
         super().__init__(master=master,
                          title="Variants Explorer",
                          sidebar_width_ratio=SIDEBAR_WIDTH_RATIO,
-                         sidebar_min_width=SIDEBAR_MIN_WIDTH)
+                         sidebar_min_width=120)
         self.stats_label = None
-        self.combo = None
-        self.show_button = None
+        self.variant_selection = None
         self.imgview = None
         self.label_to_variant = {}
+        self.value_to_variant = {}
+        self.variant_selection_var = tk.IntVar()
 
     def on_open(self):
-        for w in [self.stats_label, self.combo, self.show_button]:
+        for w in [self.stats_label, self.variant_selection, self.imgview]:
             if w is not None:
                 w.forget()
         view().controller.run_task(TASK_COMPUTE_VARIANT_FREQUENCIES, callback=self.display_variants)
@@ -152,27 +114,41 @@ class VariantsTab(SidebarTab):
         variant_frequencies = dict(sorted(variant_frequencies.items(), key=lambda item: item[1], reverse=True))
         labels = [f"Variant #{i} with frequency: {freq:.4f}" for i, freq in enumerate(variant_frequencies.values())]
         self.label_to_variant = dict(zip(labels, variant_frequencies.keys()))
+        self.value_to_variant = dict(enumerate(variant_frequencies.keys()))
 
         num_proc, num_var = len(view().controller.model.cases), len(variant_frequencies)
 
-        self.stats_label = tk.Label(self.sidebar,
-                                    text=f"There are {num_proc} process executions of {num_var} variants. In the Drop down menu below, these variants are listed by their frequency (descending).")
-        self.stats_label.pack()
+        self.stats_label = tk.Message(self.sidebar,
+                                      width=self.sidebar.winfo_width() - 20,
+                                      text=f"There are {num_proc} process executions of {num_var} variants. In the list below, these variants are listed by their frequency (descending).")
+        self.stats_label.pack(fill=X)
 
-        self.combo = ttk.Combobox(self.sidebar, values=labels, width=30)
-        self.combo.set("Pick a Variant")
-        self.combo.pack(padx=5, pady=5)
+        max_freq = max(variant_frequencies.values())
 
-        self.show_button = ttk.Button(master=self.sidebar, text="Show Variant", command=self.display_selected_variant,
-                                      bootstyle=PRIMARY)
-        self.show_button.pack()
+        self.variant_selection = ttk.Frame(master=self.sidebar)
+        self.variant_selection.pack(fill=BOTH)
+        self.variant_selection_var.set(0)
+        for i, freq in enumerate(variant_frequencies.values()):
+            variant_row = ttk.Frame(master=self.variant_selection)
+            variant_row.pack(fill=X, padx=5, pady=2)
+            radio = ttk.Radiobutton(master=variant_row,
+                                    value=i,
+                                    variable=self.variant_selection_var,
+                                    text=f"Variant #{i} ({freq:.1%})",
+                                    command=self.display_selected_variant)
+            radio.pack(side=LEFT, fill=X)
+
+            freq_var = tk.IntVar()
+            freq_var.set(int(freq / max_freq * 100))
+            progressbar = ttk.Progressbar(master=variant_row, length=100, variable=freq_var)
+            progressbar.pack(side=RIGHT, padx=15)
+
+        self.display_selected_variant()
 
     def display_selected_variant(self):
-        variant_id = self.label_to_variant[self.combo.get()]
+        variant_id = self.value_to_variant[self.variant_selection_var.get()]
         path = view().controller.model.variant_graph(variant_id)
-        self.display_variant_graph(path)
 
-    def display_variant_graph(self, path: str):
         if self.imgview is not None:
             self.imgview.canvas.forget()
             self.imgview.forget()

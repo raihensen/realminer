@@ -61,6 +61,7 @@ class SidebarTab(Tab):
         self.columnconfigure(0, minsize=sidebar_min_width, weight=1)
         self.columnconfigure(1, minsize=sidebar_min_width / sidebar_width_ratio,
                              weight=int(round(1 / sidebar_width_ratio, 0)) - 1)
+        self.rowconfigure(0, weight=1)
 
         ttk.Style.instance.configure("sidebar.TFrame", background="#e0e0e0")
         # self.sidebar = VerticalScrolledFrame(master=self.window, style="sidebar.TFrame")
