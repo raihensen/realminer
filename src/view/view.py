@@ -130,12 +130,16 @@ class HeatMapTab(Tab):
         # self.display_label.pack()
 
 
-class VariantsTab(Tab):
+class VariantsTab(SidebarTab):
     def __init__(self, master):
-        super().__init__(master=master, title="Variants Explorer")
+        super().__init__(master=master,
+                         title="Variants Explorer",
+                         sidebar_width_ratio=SIDEBAR_WIDTH_RATIO,
+                         sidebar_min_width=SIDEBAR_MIN_WIDTH)
         self.stats_label = None
         self.combo = None
         self.show_button = None
+        self.imgview = None
         self.label_to_variant = {}
 
     def on_open(self):
@@ -151,40 +155,29 @@ class VariantsTab(Tab):
 
         num_proc, num_var = len(view().controller.model.cases), len(variant_frequencies)
 
-        self.stats_label = tk.Label(self, text=f"There are {num_proc} process executions of {num_var} variants. In the Drop down menu below, these variants are listed by their frequency (descending).")
+        self.stats_label = tk.Label(self.sidebar,
+                                    text=f"There are {num_proc} process executions of {num_var} variants. In the Drop down menu below, these variants are listed by their frequency (descending).")
         self.stats_label.pack()
 
-        self.combo = ttk.Combobox(self, values=labels, width=30)
+        self.combo = ttk.Combobox(self.sidebar, values=labels, width=30)
         self.combo.set("Pick a Variant")
         self.combo.pack(padx=5, pady=5)
 
-        self.show_button = ttk.Button(master=self, text="Show Variant", command=self.display_selected_variant, bootstyle=PRIMARY)
+        self.show_button = ttk.Button(master=self.sidebar, text="Show Variant", command=self.display_selected_variant,
+                                      bootstyle=PRIMARY)
         self.show_button.pack()
 
     def display_selected_variant(self):
         variant_id = self.label_to_variant[self.combo.get()]
-        graph = view().controller.model.variant_graph(variant_id)
-        self.display_variant_graph(graph)
+        path = view().controller.model.variant_graph(variant_id)
+        self.display_variant_graph(path)
 
-    def display_variant_graph(self, graph: nx.DiGraph):
-        nx.draw_networkx(graph)
-        plt.show()
-
-    # def compute_basic_stats(self):
-    #     tuple = get_basic_stats()
-    #     return tuple
-    #
-    # def compute_variants(self):
-    #     logger.info("Computing Variants")
-    #     variants = get_variants()
-    #     return variants
-    # def display_variants(self):
-    #     #print('test')
-    #     graph = display_variant(self.compute_variants()[self.Combo.get()])
-    #     #figure = plt.figure()
-    #     #nx.draw_networkx(graph)
-    #     #plt.show()
-    #     # TODO remove plt.show() and make sure no (invisible) window is opened
+    def display_variant_graph(self, path: str):
+        if self.imgview is not None:
+            self.imgview.canvas.forget()
+            self.imgview.forget()
+        self.imgview = AdvancedZoom(self.main, path=path)
+        self.imgview.pack(fill=BOTH, expand=True)
 
 
 class Window(tk.Tk):

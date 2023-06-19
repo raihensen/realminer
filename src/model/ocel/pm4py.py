@@ -3,6 +3,8 @@ from typing import Dict
 import pm4py
 import logging
 import seaborn as sns
+from pm4py.algo.discovery.ocel.ocpn import algorithm as ocpn_discovery
+from pm4py.visualization.ocel.ocpn import visualizer as ocpn_visualizer
 
 # import matplotlib
 # matplotlib.use('Agg')  # Use the 'Agg' backend to prevent opening a GUI
