@@ -127,9 +127,17 @@ class Model:
         """
         Manages multiple OCEL wrapper instances, with caching.
         :param method_name: The name of the method to be called on an OCEL wrapper instance
+        :param *args: Further args. Must be hashable.
         """
+
+        if args:
+            args_key = tuple(args)
         if self.result_cache.get(method_name, None) is not None:
-            return self.result_cache[method_name]
+            if args:
+                if args_key in self.result_cache[method_name]:
+                    return self.result_cache[method_name][args_key]
+            else:
+                return self.result_cache[method_name]
 
         logger.info(f"Request '{method_name}' (not in cache)")
         i = 0
@@ -137,7 +145,12 @@ class Model:
             method = getattr(self._ocels[i], method_name)
             result = method(*args)
             if result is not None:
-                self.result_cache[method_name] = result
+                if args:
+                    if method_name not in self.result_cache:
+                        self.result_cache[method_name] = {}
+                    self.result_cache[method_name][args_key] = result
+                else:
+                    self.result_cache[method_name] = result
                 return result
 
             # Extend OCEL list? (copy pm4py log to ocpa)
