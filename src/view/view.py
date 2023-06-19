@@ -16,10 +16,9 @@ from view.widgets.activities import ActivityWidget
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
+from view.constants import *
 
 # from ocpa_variants import *
-
-WINDOW_TITLE = "Object-centric Business App"
 if os.getlogin() == "RH":
     MAXIMIZED = True
 else:
@@ -52,6 +51,8 @@ class FilterTab(SidebarTab):
         self.act_container = acc.add_chord(title='Activities')
         self.act_widget = None
         # tk.Label(self.act_container, text='hello world', bg='white').pack()
+
+        # Display event log as table (https://ilya-fradlin.atlassian.net/browse/CO-23)
 
     def on_open(self):
         pass
@@ -108,6 +109,11 @@ class VariantsTab(SidebarTab):
         for w in [self.stats_label, self.variant_selection, self.imgview]:
             if w is not None:
                 w.forget()
+
+        # Check if computing variants makes sense (https://ilya-fradlin.atlassian.net/browse/CO-28)
+        # TODO
+
+        # Compute variants in separate thread
         view().controller.run_task(TASK_COMPUTE_VARIANT_FREQUENCIES, callback=self.display_variants)
 
     def display_variants(self, variant_frequencies):
@@ -156,21 +162,21 @@ class VariantsTab(SidebarTab):
         self.imgview.pack(fill=BOTH, expand=True)
 
 
-class Window(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title(WINDOW_TITLE)
-        if MAXIMIZED:
-            self.state('zoomed')
-
-
 class View:
     instance = None
 
-    def __init__(self, controller, theme):
+    def __init__(self, controller, window: tk.Tk, theme):
         View.instance = self
         self.controller = controller
-        self.window = Window()
+
+        # Recycle the welcome screen's window (only one Tk instance per run)
+        self.window = window
+        for w in self.window.winfo_children():
+            w.destroy()
+        self.window.title(WINDOW_TITLE)
+        if MAXIMIZED:
+            self.window.state('zoomed')
+        self.window.resizable(width=True, height=True)
 
         self.theme = theme
 

@@ -6,6 +6,7 @@ src/static/img/ocpn.png
 src/static/img/heatmap.png
 src/tmp
 .vscode/
+src/recent_files.json
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

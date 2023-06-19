@@ -1,12 +1,12 @@
 import logging
 
-from view.view import View
-from model.model import *
 from model.constants import *
-from controller.controller import *
+from welcome_screen import WelcomeScreen
 import os
 from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
 from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
+import tkinter as tk
+from view.constants import *
 
 # Startup code of our app, initializing the main classes
 
@@ -41,16 +41,37 @@ logger.addHandler(file_handler)
 
 class App:
     def __init__(self):
+        self.model = None
+        self.view = None
+        self.controller = None
+
+        self.window = tk.Tk()
+
+        # welcome screen
+        welcome_screen = WelcomeScreen(self, self.window)
+        welcome_screen.start()
+
+    def initialize(self, file):
         logger.info("Initiating the app")
-        dataset = DATASET_OCPA_P2P
+
+        from model.model import Model
+        from controller.controller import Controller
+        from view.view import View
+
+        dataset = {
+            "dataset": file,
+            "execution_extraction": CONN_COMP
+        }
+        # dataset = DATASET_OCPA_P2P
         self.model = Model(dataset)
         self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
 
         self.controller = Controller(self.model)
-        self.view = View(self.controller, theme="litera")
+        self.view = View(self.controller, window=self.window, theme="litera")
         self.controller.view = self.view
-
         self.controller.init_view()
+
+        self.view.start()
 
     def __del__(self):
         logging.info('Destructor called, app deleted.')
@@ -59,6 +80,5 @@ class App:
 if __name__ == "__main__":
     logger.info("Program started")
     app = App()
-    app.view.start()
     del app
     logger.info("Program exited")
