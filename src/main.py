@@ -7,6 +7,7 @@ import os
 # from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
 # from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
 import tkinter as tk
+from tkinter import messagebox
 from view.constants import *
 from view.widgets.spinner import Spinner
 
@@ -101,7 +102,11 @@ class App:
         }
         # dataset = DATASET_OCPA_P2P
         self.model = Model(dataset)
-        self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
+        try:
+            self.model.init_ocel(dataset, backend=BACKEND_PM4PY)
+        except Exception:
+            messagebox.showerror("Import failed", "The selected file could not be imported.")
+            return
 
         self.controller = Controller(self.model)
         self.view = View(self.controller, window=self.window, theme="litera")

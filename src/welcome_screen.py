@@ -97,7 +97,7 @@ class WelcomeScreen:
         self.app.initialize(file)
 
     def open_file_dialog(self):
-        file = filedialog.askopenfile(filetypes=[("Object-centric event logs", "*.jsonocel")],
+        file = filedialog.askopenfile(filetypes=[("Object-centric event logs", ".csv .jsonocel")],
                                       initialdir="../data/datasets",
                                       initialfile=self.recent_files[0] if self.recent_files else None)
         if file is not None:
