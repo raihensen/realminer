@@ -24,6 +24,8 @@ OCPA_DEFAULT_SETTINGS = {
 
 logger = logging.getLogger("app_logger")
 
+MULTILINE_GRAPH_LABELS = True
+
 
 class OcpaEventLog(OCEL):
     """
@@ -79,10 +81,11 @@ class OcpaEventLog(OCEL):
         }
         for i, node in G.nodes.items():
             node["label"] = log.loc[i, "event_activity"]
+        ot_label_connector = "\n" if MULTILINE_GRAPH_LABELS else ", "
         for (i, j), edge in G.edges.items():
             edge_ots = {ot1 for ot1, _ in edge_objects[(i, j)]}
             edge_ot_counts = {ot: len([obj for ot1, obj in edge_objects[(i, j)] if ot1 == ot]) for ot in edge_ots}
-            edge["label"] = ", ".join([f"{count}x {ot}" for ot, count in edge_ot_counts.items()])
+            edge["label"] = ot_label_connector.join([f"{count}x {ot}" for ot, count in edge_ot_counts.items()])
 
         A = to_agraph(G)
         A.graph_attr["rankdir"] = "TB"  # would prefer LR, but edge labels might be long

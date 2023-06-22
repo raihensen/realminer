@@ -1,12 +1,19 @@
 import logging
+from threading import Thread
 
 from model.constants import *
 from welcome_screen import WelcomeScreen
 import os
-from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
-from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
+# from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
+# from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
 import tkinter as tk
 from view.constants import *
+from view.widgets.spinner import Spinner
+
+CONN_COMP = "connected_components"
+LEAD_TYPE = "leading_type"
+
+IMPORT_WATCH_DELAY = 100
 
 # Startup code of our app, initializing the main classes
 
@@ -38,28 +45,66 @@ file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(m
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
+# Modules to be imported in the background
+model, view, controller = None, None, None
+
 
 class App:
     def __init__(self):
+        self.imports_finished = False
         self.model = None
         self.view = None
         self.controller = None
 
+        # Start background imports
+        self.import_thread = Thread(target=self.delayed_import)
+
+        print("start imports")
+        self.import_thread.start()
+
         self.window = tk.Tk()
+        self.file = None
 
         # welcome screen
+        print("create welcome screen")
         welcome_screen = WelcomeScreen(self, self.window)
         welcome_screen.start()
 
-    def initialize(self, file):
-        logger.info("Initiating the app")
 
+    def delayed_import(self):
+        # Perform the delayed import inside a separate thread
+        global Model, View, Controller
+        print("Do imports")
         from model.model import Model
         from controller.controller import Controller
         from view.view import View
+        print("Imports done")
+        self.imports_finished = True
+
+    def initialize(self, file):
+        self.file = file
+        if not self.imports_finished:
+            logger.info("Waiting for background imports ...")
+            # Spinner animation
+            self._clear_window()
+            Spinner(self.window).pack()
+        self._initialize_after_imports()
+
+    def _clear_window(self):
+        for w in self.window.winfo_children():
+            w.destroy()
+
+    def _initialize_after_imports(self):
+        global Model, View, Controller
+        if not self.imports_finished:
+            self.window.after(IMPORT_WATCH_DELAY, self._initialize_after_imports)
+            return
+
+        # Imports are finished
+        logger.info("Imports done, initiating the app")
 
         dataset = {
-            "dataset": file,
+            "dataset": self.file,
             "execution_extraction": CONN_COMP
         }
         # dataset = DATASET_OCPA_P2P

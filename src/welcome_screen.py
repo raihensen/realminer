@@ -32,6 +32,7 @@ class WelcomeScreen:
 
         ICON_RECENT = fontawesome("history", fill="grey", scale_to_height=18)
         ICON_OPEN = fontawesome("folder-open", fill="white", scale_to_height=18)
+        ICON_PLUS = fontawesome("plus", fill="white", scale_to_height=18)
         ICON_ARROW_RIGHT = fontawesome("arrow-right", fill="white", scale_to_height=18)
 
         style = ttk.Style()
@@ -46,11 +47,11 @@ class WelcomeScreen:
         title_label = ttk.Label(master=hero, text=WINDOW_TITLE.upper(), bootstyle=DANGER, style="title.TLabel")
         title_label.pack(side=LEFT, fill=BOTH, padx=50, pady=50)
 
-        main = ttk.Frame(master=self.window)
+        main = tk.Frame(master=self.window, background="")
         main.pack(side=TOP, fill=BOTH, expand=True)
-        row_recent = tk.Frame(master=main)
+        row_recent = tk.Frame(master=main, background="")
         row_recent.pack(side=TOP, fill=X, pady=15)
-        row_import = ttk.Frame(master=main)
+        row_import = tk.Frame(master=main, background="")
         row_import.pack(side=TOP, fill=X, pady=15)
 
         if self.recent_files:
