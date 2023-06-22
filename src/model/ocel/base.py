@@ -42,6 +42,10 @@ class OCEL(ABC):
         """ Returns a dict mapping each object type to the list of activities they appear in """
 
     @abstractmethod
+    def _compute_opera(self):
+        """ Computes object-centric KPIs as defined in the OPerA framework """
+
+    @abstractmethod
     def _get_cases(self) -> List[str]:
         """ Returns the list of cases """
 
@@ -64,18 +68,6 @@ class OCEL(ABC):
     @abstractmethod
     def _compute_heatmap(self):
         """Computes a HeatMap of Object Relations from the provided object-centric event log"""
-
-    # @abstractmethod
-    # def _compute_variants(self):
-        """Computes Variants of the provided object-centric event log"""  
-
-    # @abstractmethod
-    # def _display_variants(self, id):
-        """Computes Variants of the provided object-centric event log""" 
-
-    # @abstractmethod
-    # def _computeBasicVariantStats(self):
-        """Computes Basic Statistics of Variants of the provided object-centric event log"""
 
     @property
     @final
@@ -117,6 +109,9 @@ class DummyEventLog(OCEL):
 
     def _get_ot_activities(self):
         return []
+
+    def _compute_opera(self):
+        return {}
 
     def _get_cases(self):
         freqs = [30, 18, 8, 7, 1, 1, 1]

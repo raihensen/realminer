@@ -203,6 +203,10 @@ class Model:
         return self._execute_ocel_method("_get_variant_graph", variant_id)
 
     @final
+    def compute_opera(self) -> List[str]:
+        return self._execute_ocel_method("_compute_opera")
+
+    @final
     def compute_petri_net(self) -> List[str]:
         return self._execute_ocel_method("_compute_petri_net")
 
