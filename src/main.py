@@ -45,9 +45,6 @@ file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(m
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
-# Modules to be imported in the background
-model, view, controller = None, None, None
-
 
 class App:
     def __init__(self):
@@ -58,15 +55,12 @@ class App:
 
         # Start background imports
         self.import_thread = Thread(target=self.delayed_import)
-
-        print("start imports")
         self.import_thread.start()
 
         self.window = tk.Tk()
         self.file = None
 
         # welcome screen
-        print("create welcome screen")
         welcome_screen = WelcomeScreen(self, self.window)
         welcome_screen.start()
 
@@ -74,11 +68,9 @@ class App:
     def delayed_import(self):
         # Perform the delayed import inside a separate thread
         global Model, View, Controller
-        print("Do imports")
         from model.model import Model
         from controller.controller import Controller
         from view.view import View
-        print("Imports done")
         self.imports_finished = True
 
     def initialize(self, file):
