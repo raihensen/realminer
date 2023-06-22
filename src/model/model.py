@@ -5,7 +5,6 @@ from builtins import property
 from pathlib import Path
 
 import networkx as nx
-from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
 
 from model.ocel.base import OCEL, DummyEventLog
 from model.ocel.ocpa import OcpaEventLog, OCPA_DEFAULT_SETTINGS

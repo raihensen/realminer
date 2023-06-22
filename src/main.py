@@ -4,8 +4,6 @@ from threading import Thread
 from model.constants import *
 from welcome_screen import WelcomeScreen
 import os
-# from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
-# from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
 import tkinter as tk
 from tkinter import messagebox
 from view.constants import *

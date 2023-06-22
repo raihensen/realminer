@@ -3,10 +3,10 @@ from typing import Dict, List
 
 from model.ocel.base import OCEL
 
-from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
-from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
-from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
-from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
+from submodules.ocpa.ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
+from submodules.ocpa.ocpa.objects.log.importer.ocel import factory as ocel_import_factory
+from submodules.ocpa.ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
+from submodules.ocpa.ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
 
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout, to_agraph

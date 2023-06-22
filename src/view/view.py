@@ -18,7 +18,6 @@ from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
 from view.constants import *
 
-# from ocpa_variants import *
 if os.getlogin() == "RH":
     MAXIMIZED = True
 else:

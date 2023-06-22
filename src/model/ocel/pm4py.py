@@ -2,16 +2,7 @@ from typing import Dict
 
 import pm4py
 import logging
-import seaborn as sns
-from pm4py.algo.discovery.ocel.ocpn import algorithm as ocpn_discovery
-from pm4py.visualization.ocel.ocpn import visualizer as ocpn_visualizer
 
-# import matplotlib
-# matplotlib.use('Agg')  # Use the 'Agg' backend to prevent opening a GUI
-import matplotlib.pyplot as plt
-import pandas as pd
-
-from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
 from pm4py.ocel import OCEL as Pm4pyEventLogObject
 from model.ocel.base import OCEL
 from pathlib import Path
