@@ -48,6 +48,9 @@ class Pm4pyEventLog(OCEL):
     def _get_ot_activities(self):
         return pm4py.ocel.ocel_object_type_activities(self.ocel)
 
+    def _compute_opera(self):
+        return None  # Not supported, use ocpa
+
     def _get_cases(self):
         return None  # Not supported, use ocpa
 
