@@ -26,9 +26,9 @@ class WelcomeScreen:
         self.window.resizable(width=False, height=False)
 
         # background image
-        background_image = ImageTk.PhotoImage(Image.open("static/img/background/0-1(4).jpg"))
-        background_label = tk.Label(master=self.window, image=background_image)
-        background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        #background_image = ImageTk.PhotoImage(Image.open("static/img/background/0-1(4).jpg"))
+        #background_label = tk.Label(master=self.window, image=background_image)
+        #background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         ICON_RECENT = fontawesome("history", fill="grey", scale_to_height=18)
         ICON_OPEN = fontawesome("folder-open", fill="white", scale_to_height=18)

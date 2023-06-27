@@ -96,6 +96,8 @@ class Pm4pyEventLog(OCEL):
                     matrix.iloc[y,x]=events
 
         number_matrix = matrix.applymap(len)
+        number_matrix = number_matrix.sort_index(axis=1)
+        number_matrix = number_matrix.sort_index()
         return number_matrix
 
     def __hash__(self):
