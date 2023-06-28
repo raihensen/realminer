@@ -14,13 +14,14 @@ from cefpython3 import cefpython as cef
 import ctypes
 
 # from view.components.scrollable_frame import VerticalScrolledFrame
+from view.constants import *
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
+from view.widgets.heatmap import *
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
-from view.constants import *
 
 if os.getlogin() == "RH":
     MAXIMIZED = True
@@ -29,6 +30,7 @@ else:
 SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
+
 
 IMAGE_EXT = ".png" if tk.TkVersion > 8.5 else ".gif"
 
@@ -96,13 +98,19 @@ class HeatMapTab(Tab):
         print(number_matrix)
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix, x=list(number_matrix.columns.levels[0]), y=list(number_matrix.columns.levels[0])))#, x=number_matrix.index.values.tolist(), y=number_matrix.index.values.tolist()))
-        fig.write_html("heatmap.html")
+        fig.write_html(HEATMAP_HTML_FILE)
+        # refresh browser
+        browser = self.frame.get_browser()
+        if browser is not None:
+            browser.Reload()
+        else:
+            print("Could not reload to show heatmap, browser is None")
+
 
 class MainFrame(tk.Frame):
-
     def __init__(self, root):
         self.browser_frame = None
-        self.navigation_bar = None
+        # self.navigation_bar = None
 
         # Root
         #root.geometry("900x640")
@@ -120,14 +128,14 @@ class MainFrame(tk.Frame):
         self.bind("<FocusOut>", self.on_focus_out)
 
         # NavigationBar
-        self.navigation_bar = NavigationBar(self)
-        self.navigation_bar.grid(row=0, column=0,
-                                 sticky=(tk.N + tk.S + tk.E + tk.W))
+        # self.navigation_bar = NavigationBar(self)
+        # self.navigation_bar.grid(row=0, column=0,
+        #                          sticky=(tk.N + tk.S + tk.E + tk.W))
         tk.Grid.rowconfigure(self, 0, weight=0)
         tk.Grid.columnconfigure(self, 0, weight=0)
 
         # BrowserFrame
-        self.browser_frame = BrowserFrame(self, self.navigation_bar)
+        self.browser_frame = BrowserFrame(self, navigation_bar=None)
         self.browser_frame.grid(row=1, column=0,
                                 sticky=(tk.N + tk.S + tk.E + tk.W))
         tk.Grid.rowconfigure(self, 1, weight=1)
@@ -146,8 +154,8 @@ class MainFrame(tk.Frame):
         if self.browser_frame:
             width = event.width
             height = event.height
-            if self.navigation_bar:
-                height = height - self.navigation_bar.winfo_height()
+            # if self.navigation_bar:
+            #     height = height - self.navigation_bar.winfo_height()
             self.browser_frame.on_mainframe_configure(width, height)
 
     def on_focus_in(self, _):
@@ -195,7 +203,7 @@ class NavigationBar(tk.Frame):
         back_png = os.path.join(resources, "back"+IMAGE_EXT)
         if os.path.exists(back_png):
             self.back_image = tk.PhotoImage(file=back_png)
-        self.back_button = tk.Button(self, image=self.back_image,
+        self.back_button = tk.Button(self, text="Backward",
                                      command=self.go_back)
         self.back_button.grid(row=0, column=0)
 
@@ -203,7 +211,7 @@ class NavigationBar(tk.Frame):
         forward_png = os.path.join(resources, "forward"+IMAGE_EXT)
         if os.path.exists(forward_png):
             self.forward_image = tk.PhotoImage(file=forward_png)
-        self.forward_button = tk.Button(self, image=self.forward_image,
+        self.forward_button = tk.Button(self, text="Forward",
                                         command=self.go_forward)
         self.forward_button.grid(row=0, column=1)
 
@@ -211,7 +219,7 @@ class NavigationBar(tk.Frame):
         reload_png = os.path.join(resources, "reload"+IMAGE_EXT)
         if os.path.exists(reload_png):
             self.reload_image = tk.PhotoImage(file=reload_png)
-        self.reload_button = tk.Button(self, image=self.reload_image,
+        self.reload_button = tk.Button(self, text="Reload",
                                        command=self.reload)
         self.reload_button.grid(row=0, column=2)
 
@@ -223,19 +231,17 @@ class NavigationBar(tk.Frame):
         self.url_entry.bind("<Button-1>", self.on_button1)
         self.url_entry.grid(row=0, column=3,
                             sticky=(tk.N + tk.S + tk.E + tk.W))
-        tk.Grid.rowconfigure(self, 0, weight=100)
-        tk.Grid.columnconfigure(self, 3, weight=100)
+        # tk.Grid.rowconfigure(self, 0, weight=100)
+        tk.Grid.columnconfigure(self, 3, weight=1)
 
         # Update state of buttons
         self.update_state()
 
     def go_back(self):
-        if self.master.get_browser():
-            self.master.get_browser().GoBack()
+        pass
 
     def go_forward(self):
-        if self.master.get_browser():
-            self.master.get_browser().GoForward()
+        pass
 
     def reload(self):
         if self.master.get_browser():
@@ -262,36 +268,10 @@ class NavigationBar(tk.Frame):
         self.master.master.focus_force()
 
     def update_state(self):
-        browser = self.master.get_browser()
-        if not browser:
-            if self.back_state != tk.DISABLED:
-                self.back_button.config(state=tk.DISABLED)
-                self.back_state = tk.DISABLED
-            if self.forward_state != tk.DISABLED:
-                self.forward_button.config(state=tk.DISABLED)
-                self.forward_state = tk.DISABLED
-            self.after(100, self.update_state)
-            return
-        if browser.CanGoBack():
-            if self.back_state != tk.NORMAL:
-                self.back_button.config(state=tk.NORMAL)
-                self.back_state = tk.NORMAL
-        else:
-            if self.back_state != tk.DISABLED:
-                self.back_button.config(state=tk.DISABLED)
-                self.back_state = tk.DISABLED
-        if browser.CanGoForward():
-            if self.forward_state != tk.NORMAL:
-                self.forward_button.config(state=tk.NORMAL)
-                self.forward_state = tk.NORMAL
-        else:
-            if self.forward_state != tk.DISABLED:
-                self.forward_button.config(state=tk.DISABLED)
-                self.forward_state = tk.DISABLED
-        self.after(100, self.update_state)
+        pass
+
 
 class BrowserFrame(tk.Frame):
-
     def __init__(self, master, navigation_bar=None):
         print("init BrowserFrame")
         self.navigation_bar = navigation_bar
@@ -309,10 +289,8 @@ class BrowserFrame(tk.Frame):
         rect = [0, 0, self.winfo_width(), self.winfo_height()]
         window_info.SetAsChild(self.get_window_handle(), rect)
         self.browser = cef.CreateBrowserSync(window_info,
-                                             url="file:///heatmap.html") #todo, C:\Users\kimam\Documents\studium\3_master\praktikum\pads-x-celonis-ocpm
-        print("synced")
-        assert self.browser
-        print("asserted")
+                                             url=f"file:///{HEATMAP_HTML_FILE}") #todo, C:\Users\kimam\Documents\studium\3_master\praktikum\pads-x-celonis-ocpm
+        assert self.browser, "Browser could not be initialized"
         self.browser.SetClientHandler(LoadHandler(self))
         self.browser.SetClientHandler(FocusHandler(self))
         self.message_loop_work()
@@ -366,8 +344,8 @@ class BrowserFrame(tk.Frame):
         # code. All references must be cleared for CEF to shutdown cleanly.
         self.browser = None
 
-class LoadHandler(object):
 
+class LoadHandler(object):
     def __init__(self, browser_frame):
         self.browser_frame = browser_frame
 
@@ -377,7 +355,6 @@ class LoadHandler(object):
 
 
 class FocusHandler(object):
-
     def __init__(self, browser_frame):
         self.browser_frame = browser_frame
 
