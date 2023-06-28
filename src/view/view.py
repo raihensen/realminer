@@ -18,6 +18,7 @@ from view.constants import *
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
+from view.widgets.table_view import TableViewWidget
 from view.widgets.heatmap import *
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
@@ -57,9 +58,9 @@ class FilterTab(SidebarTab):
         # Activities
         self.act_container = acc.add_chord(title='Activities')
         self.act_widget = None
-        # tk.Label(self.act_container, text='hello world', bg='white').pack()
+        # Table
+        self.table_widget = None
 
-        # Display event log as table (https://ilya-fradlin.atlassian.net/browse/CO-23)
 
     def on_open(self):
         pass
@@ -503,6 +504,12 @@ class View:
     def init_activities(self, activities, model):
         self.tab1.act_widget = ActivityWidget(self.tab1.act_container, activities, model)
         self.tab1.act_widget.pack(fill=X)
+
+    def init_ocel_df(self, model):
+        self.tab1.table_widget = TableViewWidget(self.tab1.interior, model)
+        self.refresh_table_button = tk.Button(self.tab1.interior, text="Refresh Table", command=self.tab1.table_widget.update_table)
+        self.refresh_table_button.pack(side=BOTTOM, padx=10, pady=10, fill=X)
+        # self.refresh_table_button.pack(fill=BOTH, expand=NO, padx=10, pady=10)
 
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")

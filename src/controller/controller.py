@@ -23,6 +23,8 @@ class Controller:
                                     model=self.model)
         self.view.init_activities(activities=self.model.original_ocel.activities,
                                   model=self.model)
+        self.view.init_ocel_df(model=self.model)
+        
 
     def compute_cases(self):
         # run as task
