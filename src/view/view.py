@@ -514,5 +514,5 @@ class View:
 
     def start(self):
         cef.Initialize()
-        self.window.mainloop()
+        # self.window.mainloop()
         cef.Shutdown()

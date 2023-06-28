@@ -63,7 +63,6 @@ class App:
         welcome_screen = WelcomeScreen(self, self.window)
         welcome_screen.start()
 
-
     def delayed_import(self):
         # Perform the delayed import inside a separate thread
         global Model, View, Controller
