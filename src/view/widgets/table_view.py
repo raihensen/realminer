@@ -45,7 +45,7 @@ class TableViewWidget:
 
     def update_table(self):
         logger.info("Updating table according to update ocel...")
-        self.ocel_df = self.model._ocels[0].ocel.get_extended_table()
+        self.ocel_df = self.model.extended_table
 
         columns = self.get_columns()
         row_data = self.get_rows()

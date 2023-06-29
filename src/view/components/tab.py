@@ -12,7 +12,7 @@ class Tabs(ttk.Frame):
         self.tabs = []
         # self.callbacks = []
         self.active_tab = None
-        self.notebook = ttk.Notebook(master=self, padding=0)
+        self.notebook = ttk.Notebook(master=self, padding=0, bootstyle=DARK)
         self.notebook.pack(fill=BOTH, expand=True)
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
 

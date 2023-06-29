@@ -41,7 +41,7 @@ class WelcomeScreen:
         # Title
         hero = tk.Frame(master=self.window)
         hero.pack(side=TOP, fill=X, expand=True)
-        title_label = ttk.Label(master=hero, text=WINDOW_TITLE.upper(), bootstyle=DANGER, style="title.TLabel")
+        title_label = ttk.Label(master=hero, text=WINDOW_TITLE, bootstyle=DANGER, style="title.TLabel")
         title_label.pack(side=LEFT, fill=BOTH, padx=50, pady=50)
 
         main = tk.Frame(master=self.window, background="")
@@ -51,7 +51,7 @@ class WelcomeScreen:
         row_import = tk.Frame(master=main, background="")
         row_import.pack(side=TOP, fill=X, pady=15)
 
-        recent_files = self.app.preferences.get("recent_files", [])
+        recent_files = self.app.get_preference("recent_files")
 
         if recent_files:
 
@@ -88,7 +88,7 @@ class WelcomeScreen:
         btn_open.pack(side=LEFT, padx=10)
 
         # Checkbox for disabling demo popups
-        self.checkbox_demo_popups_var = tk.IntVar(value=int(self.app.preferences.get("show_demo_popups", True)))
+        self.checkbox_demo_popups_var = tk.IntVar(value=int(self.app.get_preference("show_demo_popups")))
         checkbox_demo_popups = ttk.Checkbutton(master=row_import,
                                                text=f"Show instructions",
                                                command=self.update_demo_popups_checkbox,
@@ -104,7 +104,7 @@ class WelcomeScreen:
         self.open_file(self.var_recent_file.get())
 
     def open_file_dialog(self):
-        recent_files = self.app.preferences.get("recent_files", [])
+        recent_files = self.app.get_preference("recent_files")
         file = filedialog.askopenfile(filetypes=[("Object-centric event logs", ".csv .jsonocel")],
                                       initialdir="../data/datasets",
                                       initialfile=recent_files[0] if recent_files else None)
@@ -112,6 +112,6 @@ class WelcomeScreen:
             self.open_file(file)
 
     def open_file(self, file):
-        recent_files = [file] + [f for f in self.app.preferences.get("recent_files", []) if f != file]
+        recent_files = [file] + [f for f in self.app.get_preference("recent_files") if f != file]
         self.app.set_preference("recent_files", recent_files)
         self.app.initialize(file)

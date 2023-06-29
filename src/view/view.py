@@ -64,13 +64,23 @@ class FilterTab(SidebarTab):
         self.act_container = acc.add_chord(title='Activities')
         self.act_widget = None
         # Checkbox for disabling demo popups
-        self.checkbox_demo_popups_var = tk.IntVar(value=int(view().app.preferences.get("show_demo_popups", True)))
+        self.checkbox_demo_popups_var = tk.IntVar(value=int(view().app.get_preference("show_demo_popups")))
         self.checkbox_demo_popups = ttk.Checkbutton(master=self.sidebar,
-                                        text=f"Show instructions",
-                                        command=self.update_demo_popups_checkbox,
-                                        variable=self.checkbox_demo_popups_var,
-                                        bootstyle="round-toggle")
+                                                    text=f"Show instructions",
+                                                    command=self.update_demo_popups_checkbox,
+                                                    variable=self.checkbox_demo_popups_var,
+                                                    bootstyle="round-toggle")
         self.checkbox_demo_popups.pack(side=BOTTOM, fill=X, padx=10, pady=10)
+        # Theme selection
+        theme_menubutton = ttk.Menubutton(master=self.sidebar, text="Change theme", bootstyle=SECONDARY)
+        theme_menubutton.pack(side=BOTTOM, padx=10, pady=10, fill=X)
+        theme_menu = ttk.Menu(theme_menubutton)
+        theme_var = tk.StringVar(value=view().app.get_preference("theme"))
+        for theme in ttk.style.STANDARD_THEMES:
+            theme_menu.add_radiobutton(label=theme,
+                                       variable=theme_var,
+                                       command=lambda t=theme: view().change_theme(t))
+        theme_menubutton["menu"] = theme_menu
         # Table
         self.table_widget = None
         self.refresh_table_button = None
@@ -173,7 +183,7 @@ class HeatMapTab(SidebarTab):
         print(f"Compute heatmap '{heatmap_type.title}'")
         heatmap_type.generate()
         # The above call schedules a task, with a callback that then displays the heatmap.
-    
+
     def display_heatmap_ot(self, args):
         number_matrix, activities = args
         fig = go.Figure()
@@ -285,7 +295,7 @@ class VariantsTab(SidebarTab):
 class View:
     instance = None
 
-    def __init__(self, app, controller, window: tk.Tk, theme):
+    def __init__(self, app, controller, window: tk.Tk):
         View.instance = self
         self.app = app
         self.controller = controller
@@ -294,18 +304,10 @@ class View:
         self.window = window
         for w in self.window.winfo_children():
             w.destroy()
-        self.window.title(WINDOW_TITLE)
+        self.window.title(f"{WINDOW_TITLE} - {app.file}")
         if MAXIMIZED:
             self.window.state('zoomed')
         self.window.resizable(width=True, height=True)
-
-        self.theme = theme
-
-        # Basic layout
-        style = ttk.Style(theme)
-        self.toolbar = ttk.Frame(master=self.window, bootstyle=DARK)
-        # self.toolbar.grid(row=0, column=0, columnspan=2, sticky=NSEW)
-        self.toolbar.pack(side=TOP, fill=X)
 
         # Tabs
         self.tab_widget = Tabs(master=self.window)
@@ -321,40 +323,30 @@ class View:
         self.tab4 = VariantsTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab4)
 
-        # Toolbar contents
-        ttk.Label(master=self.toolbar, text="[Toolbar]", bootstyle=DARK).pack(side=LEFT)
-
-        # Theme selection
-        theme_menubutton = ttk.Menubutton(master=self.toolbar, text="Change theme", bootstyle=DARK)
-        theme_menubutton.pack(side=RIGHT, padx=10, pady=10, fill=Y)
-        theme_menu = ttk.Menu(theme_menubutton)
-        theme_var = tk.StringVar(value=self.theme)
-        for theme in ttk.style.STANDARD_THEMES:
-            theme_menu.add_radiobutton(label=theme,
-                                       variable=theme_var,
-                                       command=lambda t=theme: self.change_theme(t))
-        theme_menubutton["menu"] = theme_menu
-
     def show_demo_popup(self, title, message):
-        if self.app.preferences.get("show_demo_popups", True):
+        if self.app.get_preference("show_demo_popups"):
             logger.info(f"Demo message: {title} -- {message}")
             # TODO open popup window
 
     def init_object_types(self, object_types, counts, model, colors=None):
-        self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, object_types, counts, model, colors)
+        self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, self, object_types, counts, model, colors)
         self.tab1.ot_widget.pack(fill=X)
 
     def init_activities(self, activities, model):
-        self.tab1.act_widget = ActivityWidget(self.tab1.act_container, activities, model)
+        self.tab1.act_widget = ActivityWidget(self.tab1.act_container, self, activities, model)
         self.tab1.act_widget.pack(fill=X)
 
     def init_ocel_df(self, model):
         self.tab1.init_table(model)
 
+    def on_filter(self):
+        self.tab1.table_widget.update_table()
+
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")
         self.style.theme_use(theme)
+        self.app.set_preference("theme", theme)
 
     @property
-    def style(self):
+    def style(self) -> ttk.Style:
         return ttk.style.Style.instance

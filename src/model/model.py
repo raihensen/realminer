@@ -217,6 +217,11 @@ class Model:
         return self._execute_ocel_method("_compute_heatmap")
 
     @final
+    @property
+    def extended_table(self):
+        return self._execute_ocel_method("_get_extended_table")
+
+    @final
     def compute_heatmap_pooling(self):
         return self._execute_ocel_method("_compute_heatmap_pooling")
     

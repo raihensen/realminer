@@ -70,6 +70,10 @@ class OCEL(ABC):
     def _compute_heatmap(self):
         """Computes a HeatMap of Object Relations from the provided object-centric event log"""
 
+    @abstractmethod
+    def _get_extended_table(self):
+        """Returns the event log as a pandas DataFrame"""
+
     @property
     @final
     def object_types(self) -> List[str]:
@@ -113,6 +117,9 @@ class DummyEventLog(OCEL):
 
     def _compute_opera(self):
         return {}
+
+    def _get_extended_table(self):
+        return None
 
     def _get_cases(self):
         freqs = [30, 18, 8, 7, 1, 1, 1]

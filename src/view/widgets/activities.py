@@ -10,10 +10,11 @@ logger = logging.getLogger("app_logger")
 
 
 class ActivityWidget(ttk.Frame):
-    def __init__(self, master, activities, model, **kwargs):
+    def __init__(self, master, view, activities, model, **kwargs):
         super().__init__(master=master, **kwargs)
+        self.view = view
 
-        self.list_widget = ActivityListWidget(master=self, activities=activities, colors=None, on_swap=self.on_swap)
+        self.list_widget = ActivityListWidget(master=self, activities=activities, colors=None)
         self.list_widget.pack(side=TOP, fill=X)
 
         btn_frame = ttk.Frame(master=self)
@@ -35,6 +36,7 @@ class ActivityWidget(ttk.Frame):
         active_activities = self.get_list_of_active_activities()
         self.model.update_active_activities_in_model(active_activities)
         logger.debug("Apply - Activities")
+        self.view.on_filter()
 
     def reset(self):
         for activity in self.children['!activitylistwidget'].items:
@@ -42,9 +44,11 @@ class ActivityWidget(ttk.Frame):
         active_activities = self.get_list_of_active_activities()
         self.model.update_active_activities_in_model(active_activities)
         logger.debug("Reset - Activities")
+        self.view.on_filter()
 
     def get_list_of_active_activities(self):
-        active_activities = [activity.item for activity in self.children['!activitylistwidget'].items if activity.checkbox_var.get()]
+        active_activities = [activity.item for activity in self.children['!activitylistwidget'].items if
+                             activity.checkbox_var.get()]
         logger.info("The active activities are: " + str(active_activities))
         return active_activities
 
@@ -55,12 +59,13 @@ class ActivityListWidget(DndList):
 
         for activity in activities:
             self.add_item(item=activity, child=ActivityEntryWidget(master=self,
-                                                               activity=activity,
-                                                               enabled=True))
+                                                                   activity=activity,
+                                                                   enabled=True))
+
 
 class ActivityEntryWidget(DndListItem):
     def __init__(self, master, activity: str, enabled: bool, **kwargs):
-        super().__init__(master=master, item=activity, **kwargs)
+        super().__init__(master=master, item=activity, draggable=False, **kwargs)
 
         # checkbox and name
         self.checkbox_var = tk.IntVar(value=int(enabled))

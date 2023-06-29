@@ -5,6 +5,7 @@ from model.constants import *
 from welcome_screen import WelcomeScreen
 import os
 import tkinter as tk
+import ttkbootstrap as ttk
 from tkinter import messagebox
 from view.constants import *
 from view.widgets.spinner import Spinner
@@ -53,14 +54,19 @@ class App:
         self.model = None
         self.view = None
         self.controller = None
-        self.load_preferences()
+        self.file = None
+
+        self.preferences = self.load_preferences()
 
         # Start background imports
         self.import_thread = Thread(target=self.delayed_import)
         self.import_thread.start()
 
         self.window = tk.Tk()
-        self.file = None
+        self.window_icon = tk.PhotoImage(file='static/img/window_icon.png')
+        self.window.wm_iconphoto(False, self.window_icon)
+        style = ttk.Style()
+        style.theme_use(self.get_preference("theme"))
 
         # welcome screen
         welcome_screen = WelcomeScreen(self, self.window)
@@ -111,24 +117,37 @@ class App:
             return
 
         self.controller = Controller(self.model)
-        self.view = View(self, self.controller, window=self.window, theme="litera")
+        self.view = View(self, self.controller, window=self.window)
         self.controller.view = self.view
         self.controller.init_view()
 
-    def load_preferences(self) -> dict:
+    @staticmethod
+    def load_preferences() -> dict:
         if os.path.exists(PREFERENCES_FILE):
             try:
                 with open(PREFERENCES_FILE, 'r') as file:
-                    contents = json.load(file)
+                    preferences = json.load(file)
             except json.JSONDecodeError:
-                contents = {}
+                preferences = {}
         else:
-            contents = {}
-        self.preferences = {
-            "recent_files": [f for f in contents.get("recent_files", []) if os.path.exists(f)],
-            "show_demo_popups": contents.get("show_demo_popups", True)
-        }
-        return self.preferences
+            preferences = {}
+
+        # Fill up with default values
+        for key, default in DEFAULT_PREFERENCES.items():
+            if key not in preferences:
+                preferences[key] = default
+
+        # Sanity filters
+        if "recent_files" in preferences:
+            preferences["recent_files"] = [f for f in preferences["recent_files"] if os.path.exists(f)]
+        return preferences
+
+    def get_preference(self, key: str):
+        if key in self.preferences:
+            return self.preferences[key]
+        if key in DEFAULT_PREFERENCES:
+            return DEFAULT_PREFERENCES[key]
+        return None
 
     def set_preference(self, key: str, value):
         logger.info(f"Save new preference: {key} := {value}")
