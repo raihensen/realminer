@@ -5,6 +5,7 @@ from ttkbootstrap.constants import *
 from tkfontawesome import icon_to_image as fontawesome
 from PIL import Image, ImageTk
 import os
+from pprint import pprint
 
 import plotly.graph_objects as go
 
@@ -52,10 +53,17 @@ class FilterTab(SidebarTab):
         self.act_widget = None
         # Table
         self.table_widget = None
-
+        self.refresh_table_button = None
 
     def on_open(self):
-        pass
+        if self.table_widget is not None:
+            self.table_widget.update_table()
+
+    def init_table(self, model):
+        self.table_widget = TableViewWidget(self.interior, model)
+        self.refresh_table_button = tk.Button(self.interior, text="Refresh Table",
+                                              command=self.table_widget.update_table)
+        self.refresh_table_button.pack(side=BOTTOM, padx=10, pady=10, fill=X)
 
 
 class PetriNetTab(Tab):
@@ -75,16 +83,25 @@ class PetriNetTab(Tab):
         self.imgview.pack(fill=BOTH, expand=True)
 
 
-class HeatMapTab(Tab):
+class HeatMapTab(SidebarTab):
     def __init__(self, master):
-        super().__init__(master=master, title="Heatmap")
-        self.display_label = ttk.Label(self)
+        super().__init__(master=master,
+                         title="Heatmap",
+                         sidebar_width_ratio=SIDEBAR_WIDTH_RATIO,
+                         sidebar_min_width=SIDEBAR_MIN_WIDTH)
+        self.display_label = ttk.Label(self.interior)
         self.imgview = None
-        self.frame = HeatmapFrame(self)
+        self.frame = HeatmapFrame(self.interior, key="object_interactions")
         self.frame.pack(fill=BOTH, expand=YES)
 
     def on_open(self):
+        # Compute OPerA KPIs. Argument `agg` can be changed to any of 'min', 'max' or 'mean'.
+        view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
+        # Compute object interaction heatmap
         view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
+
+    def display_opera(self, kpis):
+        pprint(kpis)
 
     def display_heatmap_ot(self, number_matrix):
         fig = go.Figure()
@@ -231,10 +248,7 @@ class View:
         self.tab1.act_widget.pack(fill=X)
 
     def init_ocel_df(self, model):
-        self.tab1.table_widget = TableViewWidget(self.tab1.interior, model)
-        self.refresh_table_button = tk.Button(self.tab1.interior, text="Refresh Table", command=self.tab1.table_widget.update_table)
-        self.refresh_table_button.pack(side=BOTTOM, padx=10, pady=10, fill=X)
-        # self.refresh_table_button.pack(fill=BOTH, expand=NO, padx=10, pady=10)
+        self.tab1.init_table(model)
 
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")

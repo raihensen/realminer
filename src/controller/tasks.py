@@ -12,6 +12,7 @@ TASK_HEATMAP_OT = "heatmap_ot"
 TASK_COMPUTE_CASES = "cases"
 TASK_COMPUTE_VARIANTS = "variants"
 TASK_COMPUTE_VARIANT_FREQUENCIES = "variant_frequencies"
+TASK_OPERA = "opera"
 
 
 def init_tasks(controller):
@@ -20,7 +21,8 @@ def init_tasks(controller):
         TASK_HEATMAP_OT: {"func": controller.model.compute_heatmap},
         TASK_COMPUTE_CASES: {"func": controller.compute_cases},
         TASK_COMPUTE_VARIANTS: {"func": controller.compute_variants},
-        TASK_COMPUTE_VARIANT_FREQUENCIES: {"func": controller.compute_variant_frequencies}
+        TASK_COMPUTE_VARIANT_FREQUENCIES: {"func": controller.compute_variant_frequencies},
+        TASK_OPERA: {"func": controller.compute_opera}
     }
 # ----------------------------------------------------------------------------------------------------------------------
 

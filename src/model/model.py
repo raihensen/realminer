@@ -1,9 +1,9 @@
 import logging
 import os
-from typing import final, List, Dict
+from typing import final, List, Dict, Union, Optional
 from builtins import property
 from pathlib import Path
-
+import pandas as pd
 import networkx as nx
 
 from model.ocel.base import OCEL, DummyEventLog
@@ -203,8 +203,8 @@ class Model:
         return self._execute_ocel_method("_get_variant_graph", variant_id)
 
     @final
-    def compute_opera(self) -> List[str]:
-        return self._execute_ocel_method("_compute_opera")
+    def compute_opera(self, agg: Union[List[str], str, None] = None) -> Optional[Dict[str, Dict[str, pd.DataFrame]]]:
+        return self._execute_ocel_method("_compute_opera", agg)
 
     @final
     def compute_petri_net(self) -> List[str]:

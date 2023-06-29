@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List, Union, Optional
 
 import pm4py
 import logging
@@ -49,7 +49,7 @@ class Pm4pyEventLog(OCEL):
     def _get_ot_activities(self):
         return pm4py.ocel.ocel_object_type_activities(self.ocel)
 
-    def _compute_opera(self):
+    def _compute_opera(self, agg: Union[List[str], str, None] = None) -> Optional[Dict[str, Dict[str, pd.DataFrame]]]:
         return None  # Not supported, use ocpa
 
     def _get_cases(self):

@@ -1,18 +1,21 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Union, Optional
 
 from model.ocel.base import OCEL
 
-from submodules.ocpa.ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
-from submodules.ocpa.ocpa.objects.log.importer.ocel import factory as ocel_import_factory
-from submodules.ocpa.ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
-from submodules.ocpa.ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
-from submodules.ocpa.ocpa.algo.enhancement.token_replay_based_performance import algorithm as performance_factory
+from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
+from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
+from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
+from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
+from ocpa.algo.enhancement.token_replay_based_performance import algorithm as performance_factory
+from ocpa.algo.discovery.ocpn import algorithm as ocpn_discovery_factory
+from ocpa.visualization.oc_petri_net import factory as ocpn_viz_factory
 
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout, to_agraph
 
-# import pandas as pd
+import pandas as pd
+import numpy as np
 from pathlib import Path
 from pprint import pprint
 
@@ -23,12 +26,9 @@ OCPA_DEFAULT_SETTINGS = {
     "exact_variant_calculation": False
 }
 
-OPERA_MEASURES = ['waiting_time', 'service_time', 'sojourn_time', 'synchronization_time', 'pooling_time',
-                  'lagging_time', 'flow_time']
-OCPA_OPERA_PARAMS = {
-    'measures': ['act_freq', 'arc_freq', 'object_count', *OPERA_MEASURES],
-    'agg': ['mean', 'min', 'max'],
-    'format': 'png'}
+OPERA_OT_MEASURES = ["lagging_time", "pooling_time"]
+OPERA_OVERALL_MEASURES = ['waiting_time', 'service_time', 'sojourn_time', 'synchronization_time', 'flow_time']
+OPERA_MEASURES = OPERA_OVERALL_MEASURES + OPERA_OT_MEASURES
 
 logger = logging.getLogger("app_logger")
 
@@ -60,13 +60,60 @@ class OcpaEventLog(OCEL):
         return self.ocel.obj.activities
 
     def _get_ot_activities(self):
-        raise NotImplementedError()
+        return None  # Use pm4py
 
-    def _compute_opera(self):
-        return {}
+    def _compute_opera(self, agg: Union[List[str], str, None] = None) -> Optional[Dict[str, Dict[str, pd.DataFrame]]]:
+        """
+        Performs OPerA computations on the OCEL.
+        Includes waiting, service, sojourn, synchronization, flow time (not object type-related)
+        and lagging and pooling time (object type-related)
+        Supports different aggregation functions.
+        :param agg: A list containing one or more of 'mean', 'min', 'max', or a single one of these strings
+        :return: A dict containing multiple pandas DataFrames with the requested KPIs.
+        """
+        opera_params = {
+            'measures': ['act_freq', 'arc_freq', 'object_count', *OPERA_MEASURES],
+            'agg': ['mean', 'min', 'max'],
+            'format': 'png'}
+
+        ocpn = ocpn_discovery_factory.apply(self.ocel, parameters={"debug": False})
+        diag = performance_factory.apply(ocpn, self.ocel, parameters=opera_params)
+        # gviz = ocpn_viz_factory.apply(ocpn, diagnostics=diag, variant="annotated_with_opera", parameters=opera_params)
+        L_ACT = list(self.activities)
+        L_MEA_OVR = OPERA_OVERALL_MEASURES
+        L_MEA_OTS = OPERA_OT_MEASURES
+        L_OTS = self.object_types
+        L_AGG = ["mean", "min", "max"]
+
+        L_LEVELS = ["activity", "measure", "agg"]
+        L_LEVELS_OT = ["activity", "measure", "object_type", "agg"]
+        # ocpn_viz_factory.view(gviz)
+
+        # Select aggregation function
+        if agg is None:
+            agg = ['mean']
+        aggs = [agg] if isinstance(agg, str) else agg
+        aggs = [L_AGG.index(a) for a in aggs if a in L_AGG]
+        if not aggs:
+            aggs = [L_AGG.index('mean')]
+
+        # Related to ONE object type
+        A_OTS = np.array([[[[diag[act][mea].get(ot, {}).get(agg, None)
+                         for agg in L_AGG] for ot in L_OTS]
+                       for mea in L_MEA_OTS] for act in L_ACT])
+
+        # Not related to object types
+        A_OVR = np.array([[[diag[act][mea][agg] for agg in L_AGG] for mea in L_MEA_OVR] for act in L_ACT])
+
+        # Summarize everything in dict of DataFrames
+        dfs = {**{mea: {L_AGG[agg]: pd.DataFrame(A_OTS[:, i, :, agg], columns=L_OTS, index=L_ACT) for agg in aggs}
+                  for i, mea in enumerate(OPERA_OT_MEASURES)},
+               **{mea: {L_AGG[agg]: pd.Series(A_OVR[:, i, agg], index=L_ACT) for agg in aggs}
+                  for i, mea in enumerate(L_MEA_OVR)}}
+        return dfs
 
     def _get_cases(self) -> Dict[int, str]:
-        return self.ocel.process_executions  # TODO
+        return self.ocel.process_executions
 
     def _get_variants(self) -> List[str]:
         return self.ocel.variants

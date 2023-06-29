@@ -5,7 +5,8 @@ from builtins import property
 from pprint import pprint
 from pathlib import Path
 # import pandas as pd
-from typing import List, Dict
+from typing import List, Dict, Union, Optional
+import pandas as pd
 
 import networkx as nx
 
@@ -42,7 +43,7 @@ class OCEL(ABC):
         """ Returns a dict mapping each object type to the list of activities they appear in """
 
     @abstractmethod
-    def _compute_opera(self):
+    def _compute_opera(self, agg: Union[List[str], str, None] = None) -> Optional[Dict[str, Dict[str, pd.DataFrame]]]:
         """ Computes object-centric KPIs as defined in the OPerA framework """
 
     @abstractmethod

@@ -1,7 +1,7 @@
 
 import logging
 from view.view import View
-from typing import Dict
+from typing import Dict, List, Union, Optional
 from controller.tasks import *
 
 logger = logging.getLogger("app_logger")
@@ -38,9 +38,14 @@ class Controller:
         # run as task
         return self.model.variant_frequencies
 
+    def compute_opera(self, agg: Union[List[str], str]):
+        # run as task
+        return self.model.compute_opera(agg)
+
     def run_task(self, key: str, kill_if_running: bool = True, **kwargs):
         if key not in self.TASKS:
             logger.error(f"Controller: Task '{key}' not found.")
+            return
         task_args = self.TASKS[key]
 
         if key in self.tasks:
