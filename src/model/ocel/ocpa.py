@@ -49,7 +49,6 @@ class OcpaEventLog(OCEL):
         params = {k: kwargs.get(k, default) for k, default in OCPA_DEFAULT_SETTINGS.items()}
 
         self.ocel = ocel_import_factory.apply(filename, parameters=params)
-        self.opera_diagnostic = None
 
     def _get_object_types(self):
         return self.ocel.object_types

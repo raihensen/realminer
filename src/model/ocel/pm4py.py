@@ -31,6 +31,8 @@ class Pm4pyEventLog(OCEL):
         else:
             raise ValueError("pm4py event log could not be instantiated.")
 
+        self.opera_diagnostic = None
+
     def _get_object_types(self):
         return pm4py.ocel.ocel_get_object_types(self.ocel)
 
@@ -98,6 +100,22 @@ class Pm4pyEventLog(OCEL):
         number_matrix = matrix.applymap(len)
         number_matrix = number_matrix.sort_index(axis=1)
         number_matrix = number_matrix.sort_index()
+        return number_matrix
+
+
+    def _update_opera_diagnostic(self, dfs):
+        self.opera_diagnostic = dfs
+
+    def _compute_heatmap_pooling(self, dpi=150) -> pd.DataFrame:
+        dfs = self.opera_diagnostic
+        number_matrix = dfs['pooling_time']['mean']
+        number_matrix.fillna(0, inplace=True)
+        return number_matrix
+    
+    def _compute_heatmap_lagging(self, dpi=150) -> pd.DataFrame:
+        dfs = self.opera_diagnostic
+        number_matrix = dfs['lagging_time']['mean']
+        number_matrix.fillna(0, inplace=True)
         return number_matrix
 
     def __hash__(self):

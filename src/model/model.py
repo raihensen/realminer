@@ -204,7 +204,9 @@ class Model:
 
     @final
     def compute_opera(self, agg: Union[List[str], str, None] = None) -> Optional[Dict[str, Dict[str, pd.DataFrame]]]:
-        return self._execute_ocel_method("_compute_opera", agg)
+        dfs = self._execute_ocel_method("_compute_opera", agg)
+        self._ocels[0]._update_opera_diagnostic(dfs)
+        return dfs
 
     @final
     def compute_petri_net(self) -> List[str]:
@@ -214,6 +216,14 @@ class Model:
     def compute_heatmap(self):
         return self._execute_ocel_method("_compute_heatmap")
 
+    @final
+    def compute_heatmap_pooling(self):
+        return self._execute_ocel_method("_compute_heatmap_pooling")
+    
+    @final
+    def compute_heatmap_lagging(self):
+        return self._execute_ocel_method("_compute_heatmap_lagging")
+    
     def reset_cache(self) -> None:
         """
         When any event log changes are made, this function is called.

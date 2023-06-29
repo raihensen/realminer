@@ -32,12 +32,12 @@ HEATMAP_TYPES = {
     "object_interactions": HeatmapType(title="Object Interactions",
                                        description="Lorem Ipsum", task=TASK_HEATMAP_OT,
                                        get_callback=lambda tab: tab.display_heatmap_ot),
-    "performance_metrics": HeatmapType(title="Performance Metrics",
-                                       description="Lorem Ipsum", task=TASK_HEATMAP_OT,
-                                       get_callback=lambda tab: tab.display_heatmap_ot),
-    "oc_performance_metrics": HeatmapType(title="Object-centric Performance Metrics",
-                                          description="Lorem Ipsum", task=TASK_HEATMAP_OT,
-                                          get_callback=lambda tab: tab.display_heatmap_ot)
+    "pooling_metrics": HeatmapType(title="Pooling Metrics",
+                                       description="Lorem Ipsum", task=TASK_HEATMAP_POOLING,
+                                       get_callback=lambda tab: tab.display_heatmap_pooling),
+    "lagging_metrics": HeatmapType(title="Lagging Metrics",
+                                          description="Lorem Ipsum", task=TASK_HEATMAP_LAGGING,
+                                          get_callback=lambda tab: tab.display_heatmap_lagging)
 }
 
 logger = logging.getLogger("app_logger")
@@ -127,6 +127,16 @@ class HeatMapTab(SidebarTab):
                                     text=heatmap_type.title,
                                     command=self.generate_heatmap)
             radio.pack(side=LEFT, fill=X)
+        
+        button_frame = ttk.Frame(master=self.heatmap_selection)
+        button_frame.pack(side=BOTTOM, pady=10)
+
+        choose_min = tk.Button(button_frame, text="Min", command=None)
+        choose_min.pack(side=LEFT, padx=10, pady=10, fill=X)
+        choose_mean = tk.Button(button_frame, text="Mean", command=None) 
+        choose_mean.pack(side=LEFT, padx=10, pady=10, fill=X)
+        choose_max = tk.Button(button_frame, text="Max", command=None) 
+        choose_max.pack(side=LEFT, padx=10, pady=10, fill=X)
 
         # Init heatmap frame with default heatmap (object interactions)
         key, heatmap_type = self.get_selected_heatmap_type()
@@ -135,7 +145,7 @@ class HeatMapTab(SidebarTab):
 
     def on_open(self):
         # Compute OPerA KPIs. Argument `agg` can be changed to any of 'min', 'max' or 'mean'.
-        # view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
+        view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
         # Compute selected heatmap
         self.generate_heatmap()
         # view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
@@ -168,7 +178,25 @@ class HeatMapTab(SidebarTab):
         else:
             print("Could not reload to show heatmap, browser is None")
 
+    def display_heatmap_pooling(self, number_matrix):
+        fig = go.Figure()
+        fig.add_trace(go.Heatmap(z=number_matrix,
+                                 x=list(number_matrix.columns),
+                                 y=list(number_matrix._stat_axis)))
+        fig.write_html(HEATMAP_HTML_FILE)
+        # refresh browser
+        self.refresh_heatmap_display()
 
+    def display_heatmap_lagging(self, number_matrix):
+        fig = go.Figure()
+        fig.add_trace(go.Heatmap(z=number_matrix,
+                                 x=list(number_matrix.columns),
+                                 y=list(number_matrix._stat_axis)))
+        fig.write_html(HEATMAP_HTML_FILE)
+        # refresh browser
+        self.refresh_heatmap_display()
+        
+    
 class VariantsTab(SidebarTab):
     def __init__(self, master):
         super().__init__(master=master,
