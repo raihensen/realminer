@@ -49,6 +49,7 @@ class OcpaEventLog(OCEL):
         params = {k: kwargs.get(k, default) for k, default in OCPA_DEFAULT_SETTINGS.items()}
 
         self.ocel = ocel_import_factory.apply(filename, parameters=params)
+        self.opera_diagnostic = None
 
     def _get_object_types(self):
         return self.ocel.object_types
@@ -76,8 +77,10 @@ class OcpaEventLog(OCEL):
             'agg': ['mean', 'min', 'max'],
             'format': 'png'}
 
+        logger.info("Computing OPERA measures...")
         ocpn = ocpn_discovery_factory.apply(self.ocel, parameters={"debug": False})
         diag = performance_factory.apply(ocpn, self.ocel, parameters=opera_params)
+        logger.info("Computing OPERA completed ")
         # gviz = ocpn_viz_factory.apply(ocpn, diagnostics=diag, variant="annotated_with_opera", parameters=opera_params)
         L_ACT = list(self.activities)
         L_MEA_OVR = OPERA_OVERALL_MEASURES
@@ -90,12 +93,15 @@ class OcpaEventLog(OCEL):
         # ocpn_viz_factory.view(gviz)
 
         # Select aggregation function
-        if agg is None:
-            agg = ['mean']
-        aggs = [agg] if isinstance(agg, str) else agg
+        # if agg is None:
+        #     agg = ['mean']
+        # aggs = [agg] if isinstance(agg, str) else agg
+        # aggs = [L_AGG.index(a) for a in aggs if a in L_AGG]
+        # if not aggs:
+        #     aggs = [L_AGG.index('mean')]
+
+        aggs = L_AGG
         aggs = [L_AGG.index(a) for a in aggs if a in L_AGG]
-        if not aggs:
-            aggs = [L_AGG.index('mean')]
 
         # Related to ONE object type
         A_OTS = np.array([[[[diag[act][mea].get(ot, {}).get(agg, None)
@@ -110,6 +116,7 @@ class OcpaEventLog(OCEL):
                   for i, mea in enumerate(OPERA_OT_MEASURES)},
                **{mea: {L_AGG[agg]: pd.Series(A_OVR[:, i, agg], index=L_ACT) for agg in aggs}
                   for i, mea in enumerate(L_MEA_OVR)}}
+        self.opera_diagnostic = dfs
         return dfs
 
     def _get_cases(self) -> Dict[int, str]:
