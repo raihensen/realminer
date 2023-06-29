@@ -7,6 +7,7 @@ from pm4py.ocel import OCEL as Pm4pyEventLogObject
 from model.ocel.base import OCEL
 from pathlib import Path
 import pandas as pd
+import collections
 
 logger = logging.getLogger("app_logger")
 
@@ -77,21 +78,20 @@ class Pm4pyEventLog(OCEL):
 
         for x in set(df.loc[:,'ocel:type']):
             tmp = df.loc[lambda df: df['ocel:type'] == x]
-            # print(tmp.loc[:,'ocel:eid'].tolist())
-            tmp_list = tmp.loc[:,'ocel:eid'].tolist()
+            tmp_list = list(tmp.loc[:,'ocel:eid'])
             tmp_df = pd.DataFrame([[tmp_list]], index=[x], columns=['Events'])
             collect = pd.concat([collect,tmp_df])
-
+        
         matrix = pd.DataFrame([],index=[collect.index],columns=[collect.index])
         event_lists = collect.loc[:,'Events'].tolist()
 
         for x in range(len(event_lists)):
             for y in range(x,len(event_lists)):
                 if x == y:
-                    events = list(dict.fromkeys(event_lists[x]))
+                    events = [item for item, count in collections.Counter(event_lists[x]).items() if count > 1]
                     matrix.iloc[x,x]=events
                 else:
-                    events = [value for value in event_lists[x] if value in event_lists[y]]
+                    events = set([value for value in event_lists[x] if value in event_lists[y]])
                     matrix.iloc[x,y]=events
                     matrix.iloc[y,x]=events
 
