@@ -87,6 +87,19 @@ class WelcomeScreen:
                               style='large.secondary.TButton' if recent_files else 'large.primary.TButton')
         btn_open.pack(side=LEFT, padx=10)
 
+        # Checkbox for disabling demo popups
+        self.checkbox_demo_popups_var = tk.IntVar(value=int(self.app.preferences.get("show_demo_popups", True)))
+        checkbox_demo_popups = ttk.Checkbutton(master=row_import,
+                                               text=f"Show instructions",
+                                               command=self.update_demo_popups_checkbox,
+                                               variable=self.checkbox_demo_popups_var,
+                                               bootstyle="round-toggle")
+        checkbox_demo_popups.pack(side=LEFT, padx=10)
+
+    def update_demo_popups_checkbox(self):
+        state = bool(self.checkbox_demo_popups_var.get())
+        self.app.set_preference("show_demo_popups", state)
+
     def open_selected_recent_file(self):
         self.open_file(self.var_recent_file.get())
 
