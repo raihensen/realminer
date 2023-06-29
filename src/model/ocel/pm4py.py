@@ -74,7 +74,7 @@ class Pm4pyEventLog(OCEL):
         logger.info(f"Petri net saved to {filename}")
         return filename
     
-    def _compute_heatmap(self, dpi=150) -> pd.DataFrame:
+    def _compute_heatmap(self, dpi=150):
         df = self.ocel.relations
         collect = pd.DataFrame([],index=[],columns=['Events'])
 
@@ -97,10 +97,22 @@ class Pm4pyEventLog(OCEL):
                     matrix.iloc[x,y]=events
                     matrix.iloc[y,x]=events
 
+        matrix = matrix.sort_index(axis=1)
+        matrix = matrix.sort_index()
+
+        hovertext = list()
+        for x in matrix.index:
+            hovertext.append(list())
+            for y in matrix.columns:
+                activity_list = list(pm4py.filter_ocel_events(self.ocel, matrix[x][y]).events.loc[:,'ocel:activity'])
+                count = collections.Counter(activity_list)
+                s = ""
+                for key, value in count.items():
+                    s += str(key) + ": " + str(value) +", "
+                hovertext[-1].append("Shared activities: "+ s)
+        
         number_matrix = matrix.applymap(len)
-        number_matrix = number_matrix.sort_index(axis=1)
-        number_matrix = number_matrix.sort_index()
-        return number_matrix
+        return number_matrix, hovertext
 
 
     def _update_opera_diagnostic(self, dfs):
