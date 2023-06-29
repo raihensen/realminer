@@ -163,12 +163,15 @@ class HeatMapTab(SidebarTab):
         print(f"Compute heatmap '{heatmap_type.title}'")
         heatmap_type.generate()
         # The above call schedules a task, with a callback that then displays the heatmap.
-
-    def display_heatmap_ot(self, number_matrix):
+    
+    def display_heatmap_ot(self, args):
+        number_matrix, activities = args
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns.levels[0]),
-                                 y=list(number_matrix.columns.levels[0])))
+                                 y=list(number_matrix.columns.levels[0]),
+                                 hoverinfo='text',
+                                 text=activities))
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
