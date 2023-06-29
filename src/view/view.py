@@ -103,11 +103,14 @@ class HeatMapTab(SidebarTab):
     def display_opera(self, kpis):
         pprint(kpis)
 
-    def display_heatmap_ot(self, number_matrix):
+    def display_heatmap_ot(self, args):
+        number_matrix, activities = args
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns.levels[0]),
-                                 y=list(number_matrix.columns.levels[0])))
+                                 y=list(number_matrix.columns.levels[0]),
+                                 hoverinfo='text',
+                                 text=activities))
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         browser = self.frame.get_browser()
