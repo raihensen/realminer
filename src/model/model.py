@@ -214,6 +214,11 @@ class Model:
     def compute_heatmap(self):
         return self._execute_ocel_method("_compute_heatmap")
 
+    @final
+    @property
+    def extended_table(self):
+        return self._execute_ocel_method("_get_extended_table")
+
     def reset_cache(self) -> None:
         """
         When any event log changes are made, this function is called.

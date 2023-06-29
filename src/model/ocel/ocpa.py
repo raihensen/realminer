@@ -158,3 +158,6 @@ class OcpaEventLog(OCEL):
 
     def _compute_heatmap(self):
         return None  # Use pm4py
+
+    def _get_extended_table(self):
+        return None  # Use pm4py

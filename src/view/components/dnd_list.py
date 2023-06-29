@@ -1,4 +1,3 @@
-
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -9,7 +8,6 @@ import numpy as np
 
 
 class DndList(tk.Frame):
-
     drag_handle_icon = None
 
     def __init__(self, master, accept_swap=None, on_swap=None, **kwargs):
@@ -119,22 +117,22 @@ class DndList(tk.Frame):
 
 
 class DndListItem(tk.Frame):
-    def __init__(self, master: DndList, item, **kwargs):
+    def __init__(self, master: DndList, item, draggable=True, **kwargs):
         super().__init__(master=master, **kwargs)
         self.item = item
 
-        self.handle = tk.Label(master=self, image=DndList.drag_handle_icon, cursor="fleur")
-        self.handle.bind("<Button-1>", self.dnd_start)
-        self.handle.pack(side=LEFT, padx=5)
+        if draggable:
+            self.handle = tk.Label(master=self, image=DndList.drag_handle_icon, cursor="fleur")
+            self.handle.bind("<Button-1>", self.dnd_start)
+            self.handle.pack(side=LEFT, padx=5)
 
         self.interior = tk.Frame(master=self)
-        self.interior.pack(side=LEFT, fill=X, expand=True)
+        self.interior.pack(side=LEFT, fill=X, padx=2, pady=2, expand=True)
 
         self.drag_offset = None
 
     def dnd_start(self, event):
         if tkdnd.dnd_start(self, event):
-            # print(f"Start: {event.x},{event.y} // {event.root_x},{event.root_y}")
             self.drag_offset = np.array([event.x, event.y])
 
     def get_parent_coords(self, event, start_offset=True):
@@ -164,4 +162,3 @@ if __name__ == '__main__':
         dnd_list.add_item(child=DndListTextItem(master=dnd_list, text=text))
 
     root.mainloop()
-

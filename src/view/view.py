@@ -301,15 +301,18 @@ class View:
             # TODO open popup window
 
     def init_object_types(self, object_types, counts, model, colors=None):
-        self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, object_types, counts, model, colors)
+        self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, self, object_types, counts, model, colors)
         self.tab1.ot_widget.pack(fill=X)
 
     def init_activities(self, activities, model):
-        self.tab1.act_widget = ActivityWidget(self.tab1.act_container, activities, model)
+        self.tab1.act_widget = ActivityWidget(self.tab1.act_container, self, activities, model)
         self.tab1.act_widget.pack(fill=X)
 
     def init_ocel_df(self, model):
         self.tab1.init_table(model)
+
+    def on_filter(self):
+        self.tab1.table_widget.update_table()
 
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")
