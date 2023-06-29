@@ -63,9 +63,21 @@ class FilterTab(SidebarTab):
         # Activities
         self.act_container = acc.add_chord(title='Activities')
         self.act_widget = None
+        # Checkbox for disabling demo popups
+        self.checkbox_demo_popups_var = tk.IntVar(value=int(view().app.preferences.get("show_demo_popups", True)))
+        self.checkbox_demo_popups = ttk.Checkbutton(master=self.sidebar,
+                                        text=f"Show instructions",
+                                        command=self.update_demo_popups_checkbox,
+                                        variable=self.checkbox_demo_popups_var,
+                                        bootstyle="round-toggle")
+        self.checkbox_demo_popups.pack(side=BOTTOM, fill=X, padx=10, pady=10)
         # Table
         self.table_widget = None
         self.refresh_table_button = None
+
+    def update_demo_popups_checkbox(self):
+        state = bool(self.checkbox_demo_popups_var.get())
+        view().app.set_preference("show_demo_popups", state)
 
     def on_open(self):
         if self.table_widget is not None:
@@ -135,7 +147,7 @@ class HeatMapTab(SidebarTab):
 
     def on_open(self):
         # Compute OPerA KPIs. Argument `agg` can be changed to any of 'min', 'max' or 'mean'.
-        # view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
+        view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
         # Compute selected heatmap
         self.generate_heatmap()
         # view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
@@ -242,8 +254,9 @@ class VariantsTab(SidebarTab):
 class View:
     instance = None
 
-    def __init__(self, controller, window: tk.Tk, theme):
+    def __init__(self, app, controller, window: tk.Tk, theme):
         View.instance = self
+        self.app = app
         self.controller = controller
 
         # Recycle the welcome screen's window (only one Tk instance per run)
@@ -290,6 +303,11 @@ class View:
                                        variable=theme_var,
                                        command=lambda t=theme: self.change_theme(t))
         theme_menubutton["menu"] = theme_menu
+
+    def show_demo_popup(self, title, message):
+        if self.app.preferences.get("show_demo_popups", True):
+            logger.info(f"Demo message: {title} -- {message}")
+            # TODO open popup window
 
     def init_object_types(self, object_types, counts, model, colors=None):
         self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, object_types, counts, model, colors)

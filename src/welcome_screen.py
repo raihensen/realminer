@@ -12,23 +12,20 @@ import os
 
 from view.constants import *
 
-
 logger = logging.getLogger("app_logger")
 
 
 class WelcomeScreen:
     def __init__(self, app, window):
         self.app = app
-        self.recent_files = self.get_recent_files()
-
         self.window = window
         self.window.title(WINDOW_TITLE)
         self.window.resizable(width=False, height=False)
 
         # background image
-        #background_image = ImageTk.PhotoImage(Image.open("static/img/background/0-1(4).jpg"))
-        #background_label = tk.Label(master=self.window, image=background_image)
-        #background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        # background_image = ImageTk.PhotoImage(Image.open("static/img/background/0-1(4).jpg"))
+        # background_label = tk.Label(master=self.window, image=background_image)
+        # background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         ICON_RECENT = fontawesome("history", fill="grey", scale_to_height=18)
         ICON_OPEN = fontawesome("folder-open", fill="white", scale_to_height=18)
@@ -54,7 +51,9 @@ class WelcomeScreen:
         row_import = tk.Frame(master=main, background="")
         row_import.pack(side=TOP, fill=X, pady=15)
 
-        if self.recent_files:
+        recent_files = self.app.preferences.get("recent_files", [])
+
+        if recent_files:
 
             # ttk.Label(master=row_file, image=ICON_RECENT).pack(side=LEFT, padx=20)
 
@@ -66,9 +65,9 @@ class WelcomeScreen:
             btn_recent.pack(side=LEFT, fill=X, expand=True, padx=10)
 
             menu_recent = ttk.Menu(btn_recent)
-            self.var_recent_file = tk.StringVar(value=self.recent_files[0])
+            self.var_recent_file = tk.StringVar(value=recent_files[0])
 
-            for file in self.recent_files:
+            for file in recent_files:
                 menu_recent.add_radiobutton(label=file,
                                             value=file,
                                             variable=self.var_recent_file,
@@ -84,38 +83,22 @@ class WelcomeScreen:
 
         btn_open = ttk.Button(master=row_import, text="Open new event log", image=ICON_OPEN, compound=LEFT,
                               command=self.open_file_dialog,
-                              bootstyle=SECONDARY if self.recent_files else PRIMARY,
-                              style='large.secondary.TButton' if self.recent_files else 'large.primary.TButton')
+                              bootstyle=SECONDARY if recent_files else PRIMARY,
+                              style='large.secondary.TButton' if recent_files else 'large.primary.TButton')
         btn_open.pack(side=LEFT, padx=10)
 
     def open_selected_recent_file(self):
-        file = self.var_recent_file.get()
-        self.save_recent_files(file)
-        self.app.initialize(file)
+        self.open_file(self.var_recent_file.get())
 
     def open_file_dialog(self):
+        recent_files = self.app.preferences.get("recent_files", [])
         file = filedialog.askopenfile(filetypes=[("Object-centric event logs", ".csv .jsonocel")],
                                       initialdir="../data/datasets",
-                                      initialfile=self.recent_files[0] if self.recent_files else None)
+                                      initialfile=recent_files[0] if recent_files else None)
         if file is not None:
-            self.save_recent_files(str(file.name))
-            self.app.initialize(str(file.name))
+            self.open_file(file)
 
-    def get_recent_files(self) -> List[str]:
-        if os.path.exists(RECENT_FILES_FILE):
-            try:
-                with open(RECENT_FILES_FILE, 'r') as file:
-                    contents = json.load(file)
-                    return [f for f in contents["recent_files"] if os.path.exists(f)]
-            except (KeyError, json.JSONDecodeError):
-                return []
-        return []
-
-    def save_recent_files(self, selected_file: str):
-        recent_files = [selected_file] + [f for f in self.recent_files if f != selected_file]
-        logger.info(f"Save new recent files: {recent_files}")
-        contents = {"recent_files": recent_files}
-        with open(RECENT_FILES_FILE, "w") as file:
-            json.dump(contents, file)
-
-
+    def open_file(self, file):
+        recent_files = [file] + [f for f in self.app.preferences.get("recent_files", []) if f != file]
+        self.app.set_preference("recent_files", recent_files)
+        self.app.initialize(file)

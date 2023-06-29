@@ -9,6 +9,7 @@ from tkinter import messagebox
 from view.constants import *
 from view.widgets.spinner import Spinner
 from cefpython3 import cefpython as cef
+import json
 
 CONN_COMP = "connected_components"
 LEAD_TYPE = "leading_type"
@@ -52,6 +53,7 @@ class App:
         self.model = None
         self.view = None
         self.controller = None
+        self.load_preferences()
 
         # Start background imports
         self.import_thread = Thread(target=self.delayed_import)
@@ -109,9 +111,30 @@ class App:
             return
 
         self.controller = Controller(self.model)
-        self.view = View(self.controller, window=self.window, theme="litera")
+        self.view = View(self, self.controller, window=self.window, theme="litera")
         self.controller.view = self.view
         self.controller.init_view()
+
+    def load_preferences(self) -> dict:
+        if os.path.exists(PREFERENCES_FILE):
+            try:
+                with open(PREFERENCES_FILE, 'r') as file:
+                    contents = json.load(file)
+            except json.JSONDecodeError:
+                contents = {}
+        else:
+            contents = {}
+        self.preferences = {
+            "recent_files": [f for f in contents.get("recent_files", []) if os.path.exists(f)],
+            "show_demo_popups": contents.get("show_demo_popups", True)
+        }
+        return self.preferences
+
+    def set_preference(self, key: str, value):
+        logger.info(f"Save new preference: {key} := {value}")
+        self.preferences[key] = value
+        with open(PREFERENCES_FILE, "w") as file:
+            json.dump(self.preferences, file, indent=2)
 
     def __del__(self):
         logging.info('Destructor called, app deleted.')

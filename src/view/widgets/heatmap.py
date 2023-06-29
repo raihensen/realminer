@@ -54,17 +54,13 @@ class HeatmapFrame(tk.Frame):
         self.browser_frame.pack(side=TOP, fill=BOTH, expand=YES, padx=10, pady=10)
 
     def on_root_configure(self, _):
-        logger.debug("MainFrame.on_root_configure")
         if self.browser_frame:
             self.browser_frame.on_root_configure()
 
     def on_configure(self, event):
-        logger.debug("MainFrame.on_configure")
         if self.browser_frame:
             width = event.width
             height = event.height
-            # if self.navigation_bar:
-            #     height = height - self.navigation_bar.winfo_height()
             self.browser_frame.on_mainframe_configure(width, height)
 
     def on_focus_in(self, _):
