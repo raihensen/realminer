@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import messagebox
 from view.constants import *
 from view.widgets.spinner import Spinner
+from cefpython3 import cefpython as cef
 
 CONN_COMP = "connected_components"
 LEAD_TYPE = "leading_type"
@@ -61,7 +62,9 @@ class App:
 
         # welcome screen
         welcome_screen = WelcomeScreen(self, self.window)
-        welcome_screen.start()
+
+        self.window.mainloop()
+        cef.Shutdown()
 
     def delayed_import(self):
         # Perform the delayed import inside a separate thread
@@ -109,8 +112,6 @@ class App:
         self.view = View(self.controller, window=self.window, theme="litera")
         self.controller.view = self.view
         self.controller.init_view()
-
-        self.view.start()
 
     def __del__(self):
         logging.info('Destructor called, app deleted.')

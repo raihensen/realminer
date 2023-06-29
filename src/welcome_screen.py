@@ -88,9 +88,6 @@ class WelcomeScreen:
                               style='large.secondary.TButton' if self.recent_files else 'large.primary.TButton')
         btn_open.pack(side=LEFT, padx=10)
 
-    def start(self):
-        self.window.mainloop()
-
     def open_selected_recent_file(self):
         file = self.var_recent_file.get()
         self.save_recent_files(file)
