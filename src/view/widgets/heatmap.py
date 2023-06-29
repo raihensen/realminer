@@ -8,54 +8,50 @@ from cefpython3 import cefpython as cef
 import ctypes
 
 import logging
+from controller.tasks import *
 
 logger = logging.getLogger("app_logger")
 
 HEATMAP_HTML_FILE = "tmp/heatmap.html"
 IMAGE_EXT = ".png" if tk.TkVersion > 8.5 else ".gif"
 
-HEATMAP_INFO = {
-    "object_interactions": {
-        "title": "Object Interactions",
-        "description": "Lorem ipsum"
-    }
-}
+
+class HeatmapType:
+    def __init__(self, title, description, task, get_callback, **kwargs):
+        self.title = title
+        self.description = description
+        self.task = task
+        self.task_kwargs = kwargs
+        self.get_callback = get_callback
+        self.generator = None
+        self.callback = None
+        self.controller = None
+
+    def generate(self):
+        if self.controller is not None and self.callback is not None:
+            self.controller.run_task(key=self.task, callback=self.callback, *self.task_kwargs)
 
 
 class HeatmapFrame(tk.Frame):
-    def __init__(self, master, key):
-        self.browser_frame = None
-        info = HEATMAP_INFO[key]
-
-        # Root
-        # tk.Grid.rowconfigure(master, 0, weight=1)
-        # tk.Grid.columnconfigure(master, 0, weight=1)
-
-        # MainFrame
+    def __init__(self, master, key: str, heatmap_type: HeatmapType):
         tk.Frame.__init__(self, master)
-        # self.setup_icon()
         self.bind("<Configure>", self.on_configure)
         self.bind("<FocusIn>", self.on_focus_in)
         self.bind("<FocusOut>", self.on_focus_out)
 
         # Title and Description
-
         style = ttk.Style()
         style.configure('title.TLabel', font=(None, 18, 'bold'))
         style.configure('description.TLabel', font=(None, 10))
         padx = 10
-        self.title = ttk.Label(master=self, text=info["title"], style="title.TLabel")
+        self.title = ttk.Label(master=self, text=heatmap_type.title, style="title.TLabel")
         self.title.pack(side=TOP, padx=padx, pady=10, fill=X)
-        self.description = tk.Message(self, width=self.winfo_width() - 2 * padx, anchor=W, text=info["description"])
+        self.description = tk.Message(self, width=self.winfo_width() - 2 * padx, anchor=W, text=heatmap_type.description)
         self.description.pack(side=TOP, padx=padx, fill=X)
 
         # BrowserFrame
         self.browser_frame = BrowserFrame(self, navigation_bar=None)
         self.browser_frame.pack(side=TOP, fill=BOTH, expand=YES, padx=10, pady=10)
-        # self.browser_frame.grid(row=0, column=0,
-        #                         sticky=(tk.N + tk.S + tk.E + tk.W))
-        # tk.Grid.rowconfigure(self, 0, weight=1)
-        # tk.Grid.columnconfigure(self, 0, weight=1)
 
     def on_root_configure(self, _):
         logger.debug("MainFrame.on_root_configure")

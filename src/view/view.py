@@ -15,7 +15,7 @@ from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
 from view.widgets.table_view import TableViewWidget
-from view.widgets.heatmap import HeatmapFrame, HEATMAP_HTML_FILE
+from view.widgets.heatmap import HeatmapFrame, HeatmapType, HEATMAP_HTML_FILE
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
@@ -27,6 +27,18 @@ else:
 SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
+
+HEATMAP_TYPES = {
+    "object_interactions": HeatmapType(title="Object Interactions",
+                                       description="Lorem Ipsum", task=TASK_HEATMAP_OT,
+                                       get_callback=lambda tab: tab.display_heatmap_ot),
+    "performance_metrics": HeatmapType(title="Performance Metrics",
+                                       description="Lorem Ipsum", task=TASK_HEATMAP_OT,
+                                       get_callback=lambda tab: tab.display_heatmap_ot),
+    "oc_performance_metrics": HeatmapType(title="Object-centric Performance Metrics",
+                                          description="Lorem Ipsum", task=TASK_HEATMAP_OT,
+                                          get_callback=lambda tab: tab.display_heatmap_ot)
+}
 
 logger = logging.getLogger("app_logger")
 
@@ -91,18 +103,55 @@ class HeatMapTab(SidebarTab):
                          sidebar_min_width=SIDEBAR_MIN_WIDTH)
         self.display_label = ttk.Label(self.interior)
         self.imgview = None
-        self.frame = HeatmapFrame(self.interior, key="object_interactions")
+
+        # Prepare heatmap types
+        for heatmap_type in HEATMAP_TYPES.values():
+            heatmap_type.controller = view().controller
+            heatmap_type.callback = heatmap_type.get_callback(self)
+
+        # Heatmap selection
+        selection_info_label = tk.Message(self.sidebar,
+                                          width=self.sidebar.winfo_width() - 20,
+                                          text=f"Below, you can select between different types of heatmaps.")
+        selection_info_label.pack(fill=X)
+        self.heatmap_selection = ttk.Frame(master=self.sidebar)
+        self.heatmap_selection.pack(fill=BOTH)
+        self.heatmap_selection_var = tk.IntVar()
+        self.heatmap_selection_var.set(0)
+        for i, (key, heatmap_type) in enumerate(HEATMAP_TYPES.items()):
+            heatmap_type_row = ttk.Frame(master=self.heatmap_selection)
+            heatmap_type_row.pack(fill=X, padx=5, pady=2)
+            radio = ttk.Radiobutton(master=heatmap_type_row,
+                                    value=i,
+                                    variable=self.heatmap_selection_var,
+                                    text=heatmap_type.title,
+                                    command=self.generate_heatmap)
+            radio.pack(side=LEFT, fill=X)
+
+        # Init heatmap frame with default heatmap (object interactions)
+        key, heatmap_type = self.get_selected_heatmap_type()
+        self.frame = HeatmapFrame(self.interior, key=key, heatmap_type=heatmap_type)
         self.frame.pack(fill=BOTH, expand=YES)
 
     def on_open(self):
         # Compute OPerA KPIs. Argument `agg` can be changed to any of 'min', 'max' or 'mean'.
-        view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
-        # Compute object interaction heatmap
-        view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
+        # view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
+        # Compute selected heatmap
+        self.generate_heatmap()
+        # view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
 
     def display_opera(self, kpis):
         pprint(kpis)
 
+    def get_selected_heatmap_type(self):
+        return list(HEATMAP_TYPES.items())[self.heatmap_selection_var.get()]
+
+    def generate_heatmap(self):
+        key, heatmap_type = self.get_selected_heatmap_type()
+        print(f"Compute heatmap '{heatmap_type.title}'")
+        heatmap_type.generate()
+        # The above call schedules a task, with a callback that then displays the heatmap.
+    
     def display_heatmap_ot(self, args):
         number_matrix, activities = args
         fig = go.Figure()
@@ -113,6 +162,9 @@ class HeatMapTab(SidebarTab):
                                  text=activities))
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
+        self.refresh_heatmap_display()
+
+    def refresh_heatmap_display(self):
         browser = self.frame.get_browser()
         if browser is not None:
             browser.Reload()
