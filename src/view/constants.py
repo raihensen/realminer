@@ -4,7 +4,10 @@ WINDOW_TITLE = "RealMiner"
 PREFERENCES_FILE = "preferences.json"
 
 DEFAULT_PREFERENCES = {
-    "theme": "litera",
+    "theme": "darkly",
     "recent_files": [],
-    "show_demo_popups": True
+    "show_demo_popups": True,
+    "maximized": False
 }
+
+WELCOME_SCREEN_THEME = "litera"

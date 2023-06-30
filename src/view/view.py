@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 
 # from view.components.scrollable_frame import VerticalScrolledFrame
 from view.constants import *
+from view.utils import ResizeTracker
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
@@ -21,10 +22,6 @@ from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
 from view.widgets.popups import *
 
-if os.getlogin() == "RH":
-    MAXIMIZED = True
-else:
-    MAXIMIZED = False
 SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
@@ -34,11 +31,11 @@ HEATMAP_TYPES = {
                                        description="Lorem Ipsum", task=TASK_HEATMAP_OT,
                                        get_callback=lambda tab: tab.display_heatmap_ot),
     "pooling_metrics": HeatmapType(title="Pooling Metrics",
-                                       description="Lorem Ipsum", task=TASK_HEATMAP_POOLING,
-                                       get_callback=lambda tab: tab.display_heatmap_pooling),
+                                   description="Lorem Ipsum", task=TASK_HEATMAP_POOLING,
+                                   get_callback=lambda tab: tab.display_heatmap_pooling),
     "lagging_metrics": HeatmapType(title="Lagging Metrics",
-                                          description="Lorem Ipsum", task=TASK_HEATMAP_LAGGING,
-                                          get_callback=lambda tab: tab.display_heatmap_lagging)
+                                   description="Lorem Ipsum", task=TASK_HEATMAP_LAGGING,
+                                   get_callback=lambda tab: tab.display_heatmap_lagging)
 }
 
 logger = logging.getLogger("app_logger")
@@ -93,7 +90,7 @@ class FilterTab(SidebarTab):
     def on_open(self):
         if self.table_widget is not None:
             self.table_widget.update_table()
-        
+
         toast1 = Toast(
             title="Welcome to REAL MINER",
             message="By importing your event log, you have already done the first step. Let this notifications guide you through the discovery of your process. \n If you do not need any instruction, you can disable them in the welcome screen. \n You are currently in the filter and settings tab. In this tab, you can filter your event log by object types and activities. You can decide what is important for you. If you are not so sure about your log for now, you can also see it in this tab in the displayed table. For a more graphical overwiew you can open the Variants Tab next.",
@@ -168,15 +165,15 @@ class HeatMapTab(SidebarTab):
                                     text=heatmap_type.title,
                                     command=self.generate_heatmap)
             radio.pack(side=LEFT, fill=X)
-        
+
         button_frame = ttk.Frame(master=self.heatmap_selection)
         button_frame.pack(side=BOTTOM, pady=10)
 
         choose_min = tk.Button(button_frame, text="Min", command=self.select_min_measure)
         choose_min.pack(side=LEFT, padx=10, pady=10, fill=X)
-        choose_mean = tk.Button(button_frame, text="Mean", command=self.select_mean_measure) 
+        choose_mean = tk.Button(button_frame, text="Mean", command=self.select_mean_measure)
         choose_mean.pack(side=LEFT, padx=10, pady=10, fill=X)
-        choose_max = tk.Button(button_frame, text="Max", command=self.select_max_measure) 
+        choose_max = tk.Button(button_frame, text="Max", command=self.select_max_measure)
         choose_max.pack(side=LEFT, padx=10, pady=10, fill=X)
 
         # Init heatmap frame with default heatmap (object interactions)
@@ -190,10 +187,9 @@ class HeatMapTab(SidebarTab):
         if key == "lagging_metrics":
             self.display_heatmap_lagging(self.kpi_matrix)
         elif key == "pooling_metrics":
-             self.display_heatmap_pooling(self.kpi_matrix)
+            self.display_heatmap_pooling(self.kpi_matrix)
         else:
             return
-            
 
     def select_mean_measure(self):
         self.measurement = "mean"
@@ -209,12 +205,11 @@ class HeatMapTab(SidebarTab):
         self.measurement = "max"
         key, heatmap_type = self.get_selected_heatmap_type()
         if key == "lagging_metrics":
-             self.display_heatmap_lagging(self.kpi_matrix)
+            self.display_heatmap_lagging(self.kpi_matrix)
         elif key == "pooling_metrics":
-             self.display_heatmap_pooling(self.kpi_matrix)
+            self.display_heatmap_pooling(self.kpi_matrix)
         else:
             return
-
 
     def on_open(self):
         # Compute OPerA KPIs. Argument `agg` can be changed to any of 'min', 'max' or 'mean'.
@@ -285,8 +280,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        
-    
+
+
 class VariantsTab(SidebarTab):
     def __init__(self, master):
         super().__init__(master=master,
@@ -378,9 +373,20 @@ class View:
         for w in self.window.winfo_children():
             w.destroy()
         self.window.title(f"{WINDOW_TITLE} - {app.file}")
-        if MAXIMIZED:
+        if self.app.get_preference("maximized"):
             self.window.state('zoomed')
+        else:
+            screen_size = (self.window.winfo_screenwidth(), self.window.winfo_screenheight())
+            target_size = (1000, 600)
+            size = (min(screen_size[0], target_size[0]), min(screen_size[1], target_size[1]))
+            if size == screen_size:
+                self.window.state("zoomed")
+            else:
+                self.window.geometry(f"{size[0]}x{size[1]}")
         self.window.resizable(width=True, height=True)
+        self.resize_tracker = ResizeTracker(self.window, self.app)
+        self.resize_tracker.bind_config()
+        self.style.theme_use(self.app.get_preference("theme"))
 
         # Tabs
         self.tab_widget = Tabs(master=self.window)

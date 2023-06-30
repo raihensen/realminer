@@ -33,6 +33,7 @@ class WelcomeScreen:
         ICON_ARROW_RIGHT = fontawesome("arrow-right", fill="white", scale_to_height=18)
 
         style = ttk.Style()
+        style.theme_use(WELCOME_SCREEN_THEME)
         style.configure('title.TLabel', font=(None, 40))
         style.configure('large.primary.TButton', font=(None, 14))
         style.configure('large.secondary.TButton', font=(None, 14))
@@ -41,8 +42,11 @@ class WelcomeScreen:
         # Title
         hero = tk.Frame(master=self.window)
         hero.pack(side=TOP, fill=X, expand=True)
-        title_label = ttk.Label(master=hero, text=WINDOW_TITLE, bootstyle=DANGER, style="title.TLabel")
-        title_label.pack(side=LEFT, fill=BOTH, padx=50, pady=50)
+        # title_label = ttk.Label(master=hero, text=WINDOW_TITLE, bootstyle=DANGER, style="title.TLabel")
+        # title_label.pack(side=LEFT, fill=BOTH, padx=50, pady=50)
+        self.logo_image = ImageTk.PhotoImage(Image.open("static/img/project_logo.png"))
+        logo_label = ttk.Label(master=hero, image=self.logo_image)
+        logo_label.pack(side=LEFT, padx=50, pady=50)
 
         main = tk.Frame(master=self.window, background="")
         main.pack(side=TOP, fill=BOTH, expand=True)
