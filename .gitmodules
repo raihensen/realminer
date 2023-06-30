@@ -1,3 +1,0 @@
-[submodule "src/submodules/ocpa"]
-	path = src/submodules/ocpa
-	url = https://github.com/raihensen/ocpa

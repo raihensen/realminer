@@ -305,15 +305,15 @@ class HeatMapTab(SidebarTab):
     @staticmethod
     def time_formatter(t) -> str:
         if t >= 60 * 60 * 24 * 365:
-            return f'{t // (60 * 60 * 24 * 365):.0f}y'
+            return f'{t / (60 * 60 * 24 * 365):.1f}y'
         elif t >= 60 * 60 * 24:
-            return f'{t // (60 * 60 * 24):.0f}d'
+            return f'{t / (60 * 60 * 24):.1f}d'
         elif t >= 60 * 60:
-            return f'{t // (60 * 60):.0f}h'
+            return f'{t // (60 * 60)}:{t % (60 * 60):.01d}'
         elif t >= 60:
-            return f'0:{t // 60:.0f}'
+            return f'0:{t / 60:.1f}'
         elif t > 0:
-            return f'{t:.0f}s'
+            return f'{t:.1f}s'
         else:
             return "0d"
 
