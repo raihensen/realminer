@@ -28,14 +28,14 @@ TOOLBAR_HEIGHT = 40
 
 HEATMAP_TYPES = {
     "object_interactions": HeatmapType(title="Object Interactions",
-                                       description="Lorem Ipsum", task=TASK_HEATMAP_OT,
+                                       description= OBJECT_INTERACTIONS_DESCRIPTION, task=TASK_HEATMAP_OT,
                                        get_callback=lambda tab: tab.display_heatmap_ot),
     "pooling_metrics": HeatmapType(title="Pooling Metrics",
-                                   description="Lorem Ipsum", task=TASK_HEATMAP_POOLING,
-                                   get_callback=lambda tab: tab.display_heatmap_pooling),
+                                       description=POOLING_TIME_DESCRIPTION, task=TASK_HEATMAP_POOLING,
+                                       get_callback=lambda tab: tab.display_heatmap_pooling),
     "lagging_metrics": HeatmapType(title="Lagging Metrics",
-                                   description="Lorem Ipsum", task=TASK_HEATMAP_LAGGING,
-                                   get_callback=lambda tab: tab.display_heatmap_lagging)
+                                          description=LAGGING_TIME_DESCRIPTION, task=TASK_HEATMAP_LAGGING,
+                                          get_callback=lambda tab: tab.display_heatmap_lagging)
 }
 
 logger = logging.getLogger("app_logger")
@@ -144,9 +144,9 @@ class HeatMapTab(SidebarTab):
             heatmap_type.callback = heatmap_type.get_callback(self)
 
         # Heatmap selection
-        selection_info_label = tk.Message(self.sidebar,
+        selection_info_label = tk.Label(self.sidebar,
                                           width=self.sidebar.winfo_width() - 20,
-                                          text=f"Below, you can select between different types of heatmaps.")
+                                          text=HEAT_MAP_EXPLENATION)
         selection_info_label.pack(fill=X)
         self.heatmap_selection = ttk.Frame(master=self.sidebar)
         self.heatmap_selection.pack(fill=BOTH)
@@ -227,6 +227,7 @@ class HeatMapTab(SidebarTab):
         print(f"Compute heatmap '{heatmap_type.title}'")
         heatmap_type.generate()
         # The above call schedules a task, with a callback that then displays the heatmap.
+        self.frame.update_description(heatmap_type)
 
     def display_heatmap_ot(self, args):
         number_matrix, activities = args
@@ -426,12 +427,13 @@ class View:
         # create a new frame
         self.tab1 = FilterTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab1)
+        self.tab4 = VariantsTab(self.tab_widget)
+        self.tab_widget.add_tab(self.tab4)
         self.tab2 = PetriNetTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab2)
         self.tab3 = HeatMapTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab3)
-        self.tab4 = VariantsTab(self.tab_widget)
-        self.tab_widget.add_tab(self.tab4)
+
 
     def show_toast(self, title, message, bootstyle=None):
         if not self.app.get_preference("show_demo_popups"):

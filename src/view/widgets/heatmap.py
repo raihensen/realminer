@@ -53,6 +53,10 @@ class HeatmapFrame(tk.Frame):
         self.browser_frame = BrowserFrame(self, navigation_bar=None)
         self.browser_frame.pack(side=TOP, fill=BOTH, expand=YES, padx=10, pady=10)
 
+    def update_description(self, heatmap_type):
+        self.description.config(text=heatmap_type.description)
+
+
     def on_root_configure(self, _):
         if self.browser_frame:
             self.browser_frame.on_root_configure()
