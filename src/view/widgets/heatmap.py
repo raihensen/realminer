@@ -99,7 +99,6 @@ class HeatmapFrame(tk.Frame):
 
 class BrowserFrame(tk.Frame):
     def __init__(self, master, navigation_bar=None):
-        print("init BrowserFrame")
         self.navigation_bar = navigation_bar
         self.closing = False
         self.browser = None
@@ -110,7 +109,6 @@ class BrowserFrame(tk.Frame):
         self.focus_set()
 
     def embed_browser(self):
-        print("embed browser")
         cef.Initialize()
         window_info = cef.WindowInfo()
         rect = [0, 0, self.winfo_width(), self.winfo_height()]
@@ -132,9 +130,7 @@ class BrowserFrame(tk.Frame):
         self.after(10, self.message_loop_work)
 
     def on_configure(self, _):
-        print("configuring")
         if not self.browser:
-            print("configuring if")
             self.embed_browser()
 
     def on_root_configure(self):
