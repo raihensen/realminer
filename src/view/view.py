@@ -144,7 +144,7 @@ class HeatMapTab(SidebarTab):
             heatmap_type.callback = heatmap_type.get_callback(self)
 
         # Heatmap selection
-        selection_info_label = tk.Message(self.sidebar,
+        selection_info_label = tk.Label(self.sidebar,
                                           width=self.sidebar.winfo_width() - 20,
                                           text=HEAT_MAP_EXPLENATION)
         selection_info_label.pack(fill=X)
@@ -384,12 +384,13 @@ class View:
         # create a new frame
         self.tab1 = FilterTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab1)
+        self.tab4 = VariantsTab(self.tab_widget)
+        self.tab_widget.add_tab(self.tab4)
         self.tab2 = PetriNetTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab2)
         self.tab3 = HeatMapTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab3)
-        self.tab4 = VariantsTab(self.tab_widget)
-        self.tab_widget.add_tab(self.tab4)
+
 
     def show_toast(self, title, message, bootstyle=None):
         if not self.app.get_preference("show_demo_popups"):
