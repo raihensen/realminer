@@ -106,10 +106,8 @@ class Pm4pyEventLog(OCEL):
             for y in matrix.columns:
                 activity_list = list(pm4py.filter_ocel_events(self.ocel, matrix[x][y]).events.loc[:,'ocel:activity'])
                 count = collections.Counter(activity_list)
-                s = ""
-                for key, value in count.items():
-                    s += str(key) + ": " + str(value) +", "
-                hovertext[-1].append("Shared activities: "+ s)
+                s = ", ".join([str(key) + ": " + str(value) for key, value in count.items()])
+                hovertext[-1].append("Shared activities: " + (s if count else "---"))
         
         number_matrix = matrix.applymap(len)
         return number_matrix, hovertext

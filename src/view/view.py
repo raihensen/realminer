@@ -28,14 +28,14 @@ TOOLBAR_HEIGHT = 40
 
 HEATMAP_TYPES = {
     "object_interactions": HeatmapType(title="Object Interactions",
-                                       description= OBJECT_INTERACTIONS_DESCRIPTION, task=TASK_HEATMAP_OT,
+                                       description=OBJECT_INTERACTIONS_DESCRIPTION, task=TASK_HEATMAP_OT,
                                        get_callback=lambda tab: tab.display_heatmap_ot),
     "pooling_metrics": HeatmapType(title="Pooling Metrics",
-                                       description=POOLING_TIME_DESCRIPTION, task=TASK_HEATMAP_POOLING,
-                                       get_callback=lambda tab: tab.display_heatmap_pooling),
+                                   description=POOLING_TIME_DESCRIPTION, task=TASK_HEATMAP_POOLING,
+                                   get_callback=lambda tab: tab.display_heatmap_pooling),
     "lagging_metrics": HeatmapType(title="Lagging Metrics",
-                                          description=LAGGING_TIME_DESCRIPTION, task=TASK_HEATMAP_LAGGING,
-                                          get_callback=lambda tab: tab.display_heatmap_lagging)
+                                   description=LAGGING_TIME_DESCRIPTION, task=TASK_HEATMAP_LAGGING,
+                                   get_callback=lambda tab: tab.display_heatmap_lagging)
 }
 
 logger = logging.getLogger("app_logger")
@@ -144,9 +144,11 @@ class HeatMapTab(SidebarTab):
             heatmap_type.callback = heatmap_type.get_callback(self)
 
         # Heatmap selection
-        selection_info_label = tk.Label(self.sidebar,
-                                          width=self.sidebar.winfo_width() - 20,
-                                          text=HEAT_MAP_EXPLENATION)
+        selection_info_label = ttk.Label(self.sidebar,
+                                         wraplength=self.sidebar.winfo_width() - 20,
+                                         text=HEAT_MAP_EXPLANATION)
+        selection_info_label.bind('<Configure>',
+                                  lambda e: selection_info_label.config(wraplength=self.sidebar.winfo_width() - 20))
         selection_info_label.pack(fill=X)
         self.heatmap_selection = ttk.Frame(master=self.sidebar)
         self.heatmap_selection.pack(fill=BOTH)
@@ -255,8 +257,8 @@ class HeatMapTab(SidebarTab):
         tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
         fig = go.Figure()
         heatmap = go.Heatmap(z=number_matrix,
-                                 x=list(number_matrix.columns),
-                                 y=list(number_matrix._stat_axis))
+                             x=list(number_matrix.columns),
+                             y=list(number_matrix._stat_axis))
         self.format_heatmap_time_intervals(heatmap, tmin, tmax)
         fig.add_trace(heatmap)
         fig.write_html(HEATMAP_HTML_FILE)
@@ -270,8 +272,8 @@ class HeatMapTab(SidebarTab):
         tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
         fig = go.Figure()
         heatmap = go.Heatmap(z=number_matrix,
-                                 x=list(number_matrix.columns),
-                                 y=list(number_matrix._stat_axis))
+                             x=list(number_matrix.columns),
+                             y=list(number_matrix._stat_axis))
         self.format_heatmap_time_intervals(heatmap, tmin, tmax)
         fig.add_trace(heatmap)
         fig.write_html(HEATMAP_HTML_FILE)
@@ -353,10 +355,13 @@ class VariantsTab(SidebarTab):
 
         num_proc, num_var = len(view().controller.model.cases), len(variant_frequencies)
 
-        self.stats_label = tk.Message(self.sidebar,
-                                      width=self.sidebar.winfo_width() - 20,
-                                      text=f"There are {num_proc} process executions of {num_var} variants. In the list below, these variants are listed by their frequency (descending).")
+        self.stats_label = ttk.Label(self.sidebar,
+                                     anchor=W,
+                                     wraplength=self.sidebar.winfo_width() - 20,
+                                     text=f"There are {num_proc} process executions of {num_var} variants. In the list below, these variants are listed by their frequency (descending).")
         self.stats_label.pack(fill=X)
+        self.stats_label.bind('<Configure>',
+                              lambda e: self.stats_label.config(wraplength=self.sidebar.winfo_width() - 20))
 
         max_freq = max(variant_frequencies.values())
 
@@ -433,7 +438,6 @@ class View:
         self.tab_widget.add_tab(self.tab2)
         self.tab3 = HeatMapTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab3)
-
 
     def show_toast(self, title, message, bootstyle=None):
         if not self.app.get_preference("show_demo_popups"):

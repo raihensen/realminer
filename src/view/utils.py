@@ -31,6 +31,5 @@ class ResizeTracker:
         # print(f'Resize window: {event.width}x{event.height}, {"maximized" if maximized else "not maximized"}\n')
         self.width, self.height, self.maximized = event.width, event.height, maximized
 
-
     def is_maximized(self):
         return self.window.state() == "zoomed"

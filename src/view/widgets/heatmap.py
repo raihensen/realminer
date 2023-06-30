@@ -46,7 +46,8 @@ class HeatmapFrame(tk.Frame):
         padx = 10
         self.title = ttk.Label(master=self, text=heatmap_type.title, style="title.TLabel")
         self.title.pack(side=TOP, padx=padx, pady=10, fill=X)
-        self.description = tk.Message(self, width=self.winfo_width() - 2 * padx, anchor=W, text=heatmap_type.description)
+        self.description = ttk.Label(self, wraplength=self.winfo_width() - 2 * padx, anchor=W, text=heatmap_type.description)
+        self.description.bind('<Configure>', lambda e: self.description.config(wraplength=self.winfo_width() - 20))
         self.description.pack(side=TOP, padx=padx, fill=X)
 
         # BrowserFrame
@@ -132,9 +133,7 @@ class BrowserFrame(tk.Frame):
         self.after(10, self.message_loop_work)
 
     def on_configure(self, _):
-        print("configuring")
         if not self.browser:
-            print("configuring if")
             self.embed_browser()
 
     def on_root_configure(self):
