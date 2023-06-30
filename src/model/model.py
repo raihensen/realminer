@@ -102,7 +102,7 @@ class Model:
             ocel = pm4py.filter_ocel_object_types_allowed_activities(ocel, active_ot_activity_filter_dict)
 
         # save filtered event log and delete cache
-        self._ocels = [Pm4pyEventLog(ocel=ocel)]
+        self._ocels = [Pm4pyEventLog(self, ocel=ocel)]
         self.reset_cache()
 
     def duplicate_first_to_ocpa(self):
