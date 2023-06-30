@@ -20,6 +20,7 @@ from view.widgets.heatmap import HeatmapFrame, HeatmapType, HEATMAP_HTML_FILE
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
+from view.widgets.popups import *
 
 SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
@@ -89,6 +90,14 @@ class FilterTab(SidebarTab):
     def on_open(self):
         if self.table_widget is not None:
             self.table_widget.update_table()
+        
+        toast1 = Toast(
+            title="Welcome to REAL MINER",
+            message="By importing your event log, you have already done the first step. Let this notifications guide you through the discovery of your process. \n If you do not need any instruction, you can disable them in the welcome screen. \n You are currently in the filter and settings tab. In this tab, you can filter your event log by object types and activities. You can decide what is important for you. If you are not so sure about your log for now, you can also see it in this tab in the displayed table. For a more graphical overwiew you can open the Variants Tab next.",
+            position=(400, 250, "ne"),
+            bootstyle='dark',
+            icon="")
+        toast1.show_toast()
 
     def init_table(self, model):
         self.table_widget = TableViewWidget(self.interior, model)
@@ -105,6 +114,14 @@ class PetriNetTab(Tab):
 
     def on_open(self):
         view().controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
+
+        toast4 = Toast(
+            title="Process model discovery",
+            message="In this tab, you can see the process model for your process. It consists of all activities of your process and is able to replay every trace. With this, you should already have a good overview of your process. It is now time to dive deeper in the analysis of your process in the heatmap tab.",
+            position=(400, 250, "ne"),
+            bootstyle='dark',
+            icon="")
+        toast4.show_toast()
 
     def display_petri_net(self, path):
         if self.imgview is not None:
@@ -203,6 +220,14 @@ class HeatMapTab(SidebarTab):
         self.generate_heatmap()
         # view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
 
+        toast5 = ToastNotification(
+            title="Insights into object and activity relation",
+            message="In this tab, you can see several heatmaps visualising the relation between object types and between objecty types and activities. \n The first heatmap displayes the realation between onject types. It shows for every pair of object types the number of events they share. If you hover over the map, you can also see a list of the corresponding activities and the count.",
+            position=(400, 250, "ne"),
+            bootstyle="dark",
+            icon="")
+        toast5.show_toast()
+
     def display_opera(self, kpis):
         pprint(kpis)
 
@@ -282,6 +307,14 @@ class VariantsTab(SidebarTab):
 
         # Compute variants in separate thread
         view().controller.run_task(TASK_COMPUTE_VARIANT_FREQUENCIES, callback=self.display_variants)
+
+        toast3 = Toast(
+            title="Explore Process Executions and Variants",
+            message="In this tab, you can see diferent executions of your process. All variants of executions are listed on the left by their frequency. By selcting them, you can see them in a graphical representation. Once you have discovered different executions of your process, you might also be interested in the whole process. Please click the perti net tab to discover a model of your whole process.",
+            position=(400, 250, "ne"),
+            bootstyle='dark',
+            icon="")
+        toast3.show_toast()
 
     def display_variants(self, variant_frequencies):
         variant_frequencies = dict(sorted(variant_frequencies.items(), key=lambda item: item[1], reverse=True))
