@@ -93,7 +93,7 @@ class FilterTab(SidebarTab):
 
         view().show_toast(
             title="Welcome to REAL MINER",
-            message="By importing your event log, you have already done the first step. Let this notifications guide you through the discovery of your process. \n If you do not need any instruction, you can disable them in the welcome screen. \n You are currently in the filter and settings tab. In this tab, you can filter your event log by object types and activities. You can decide what is important for you. If you are not so sure about your log for now, you can also see it in this tab in the displayed table. For a more graphical overwiew you can open the Variants Tab next.",
+            message="By importing your event log, you have already done the first step. Let this notifications guide you through the discovery of your process. \nIf you do not need any instruction, you can disable them in the welcome screen. \nYou are currently in the filter and settings tab. In this tab, you can filter your event log by object types and activities. You can decide what is important for you. If you are not so sure about your log for now, you can also see it in this tab in the displayed table. For a more graphical overwiew you can open the Variants Tab next.",
             bootstyle="dark"
         )
 
@@ -218,7 +218,7 @@ class HeatMapTab(SidebarTab):
 
         view().show_toast(
             title="Insights into object and activity relation",
-            message="In this tab, you can see several heatmaps visualising the relation between object types and between objecty types and activities. \n On the left, you can select between three different heatmaps. The purpose of every heatmap is explained in the tab. Just select one heatmap to start with an explore all of them step by step.",
+            message="In this tab, you can see several heatmaps visualising the relation between object types and between objecty types and activities. \nOn the left, you can select between three different heatmaps. The purpose of every heatmap is explained in the tab. Just select one heatmap to start with an explore all of them step by step.",
             bootstyle="dark")
 
     def get_selected_heatmap_type(self):
@@ -255,10 +255,21 @@ class HeatMapTab(SidebarTab):
         number_matrix = number_matrix['pooling_time'][self.measurement]
         number_matrix.fillna(0, inplace=True)
         tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
+
+        matrix = number_matrix
+        hovertext = list()
+        for x in matrix._stat_axis:
+            hovertext.append(list())
+            for y in matrix.columns:
+                s = f"In activity: {x}<br>Pooling the objects of type:  {y}<br>needs: " + HeatMapTab.time_formatter(matrix[y][x])
+                hovertext[-1].append(s)
+
         fig = go.Figure()
         heatmap = go.Heatmap(z=number_matrix,
                              x=list(number_matrix.columns),
-                             y=list(number_matrix._stat_axis))
+                             y=list(number_matrix._stat_axis),
+                             hoverinfo='text',
+                             text=hovertext)
         self.format_heatmap_time_intervals(heatmap, tmin, tmax)
         fig.add_trace(heatmap)
         fig.write_html(HEATMAP_HTML_FILE)
@@ -270,10 +281,21 @@ class HeatMapTab(SidebarTab):
         number_matrix = number_matrix['lagging_time'][self.measurement]
         number_matrix.fillna(0, inplace=True)
         tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
+
+        matrix = number_matrix
+        hovertext = list()
+        for x in matrix._stat_axis:
+            hovertext.append(list())
+            for y in matrix.columns:
+                s = f"In activity: {x}<br>the first object of object type:  {y}<br>gets delayed by: " + HeatMapTab.time_formatter(matrix[y][x])
+                hovertext[-1].append(s)
+
         fig = go.Figure()
         heatmap = go.Heatmap(z=number_matrix,
                              x=list(number_matrix.columns),
-                             y=list(number_matrix._stat_axis))
+                             y=list(number_matrix._stat_axis),
+                             hoverinfo='text',
+                             text=hovertext)
         self.format_heatmap_time_intervals(heatmap, tmin, tmax)
         fig.add_trace(heatmap)
         fig.write_html(HEATMAP_HTML_FILE)
@@ -293,7 +315,7 @@ class HeatMapTab(SidebarTab):
         elif t > 0:
             return f'{t:.0f}s'
         else:
-            return "0"
+            return "0d"
 
     @staticmethod
     def format_heatmap_time_intervals(heatmap, tmin, tmax):
@@ -305,17 +327,6 @@ class HeatMapTab(SidebarTab):
         # Set the custom tick values and labels for the colorbar
         heatmap.colorbar.tickvals = tick_values
         heatmap.colorbar.ticktext = tick_labels
-
-        # Set the custom formatter for the colorbar ticks
-        # heatmap.colorbar.tickformat = time_formatter
-        # heatmap.colorbar.tickformat = ".1f"
-        # heatmap.colorbar.tickformatstops = [
-        #     dict(dtickrange=[None, 60], valueformat=".1f", textformat="s"),
-        #     dict(dtickrange=[60, 60 * 60], valueformat=".1f", textformat="s"),
-        #     dict(dtickrange=[60 * 60, 60 * 60 * 24], valueformat=".1f", textformat="s"),
-        #     dict(dtickrange=[60 * 60 * 24, 60 * 60 * 24 * 365], valueformat=".1f", textformat="s"),
-        #     dict(dtickrange=[60 * 60 * 24 * 365, None], valueformat=".1f", textformat="s")
-        # ]
 
 
 class VariantsTab(SidebarTab):
