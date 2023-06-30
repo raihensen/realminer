@@ -251,10 +251,21 @@ class HeatMapTab(SidebarTab):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['pooling_time'][self.measurement]
         number_matrix.fillna(0, inplace=True)
+        
+        matrix=number_matrix
+        hovertext = list()
+        for x in matrix._stat_axis:
+            hovertext.append(list())
+            for y in matrix.columns:
+                s = "In activity: " + str(x) + "<br>the first object of object type:  " + str(y) +"<br>gets delayed by: " + str(matrix[y][x]) + "days."
+                hovertext[-1].append(s)
+        
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns),
-                                 y=list(number_matrix._stat_axis)))
+                                 y=list(number_matrix._stat_axis),
+                                 hoverinfo='text',
+                                 text=hovertext))
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
@@ -263,10 +274,21 @@ class HeatMapTab(SidebarTab):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['lagging_time'][self.measurement]
         number_matrix.fillna(0, inplace=True)
+
+        matrix=number_matrix
+        hovertext = list()
+        for x in matrix._stat_axis:
+            hovertext.append(list())
+            for y in matrix.columns:
+                s = "In activity: " + str(x) + "<br>the first object of object type:  " + str(y) + "<br>gets delayed by: " + str(matrix[y][x]) + "days."
+                hovertext[-1].append(s)
+
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns),
-                                 y=list(number_matrix._stat_axis)))
+                                 y=list(number_matrix._stat_axis),
+                                 hoverinfo='text',
+                                 text=hovertext))
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
