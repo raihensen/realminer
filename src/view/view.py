@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 
 # from view.components.scrollable_frame import VerticalScrolledFrame
 from view.constants import *
+from view.utils import ResizeTracker
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
@@ -20,10 +21,6 @@ from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
 
-if os.getlogin() == "RH":
-    MAXIMIZED = True
-else:
-    MAXIMIZED = False
 SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
@@ -345,9 +342,20 @@ class View:
         for w in self.window.winfo_children():
             w.destroy()
         self.window.title(f"{WINDOW_TITLE} - {app.file}")
-        if MAXIMIZED:
+        if self.app.get_preference("maximized"):
             self.window.state('zoomed')
+        else:
+            screen_size = (self.window.winfo_screenwidth(), self.window.winfo_screenheight())
+            target_size = (1000, 600)
+            size = (min(screen_size[0], target_size[0]), min(screen_size[1], target_size[1]))
+            if size == screen_size:
+                self.window.state("zoomed")
+            else:
+                self.window.geometry(f"{size[0]}x{size[1]}")
         self.window.resizable(width=True, height=True)
+        self.resize_tracker = ResizeTracker(self.window, self.app)
+        self.resize_tracker.bind_config()
+        self.style.theme_use(self.app.get_preference("theme"))
 
         # Tabs
         self.tab_widget = Tabs(master=self.window)
