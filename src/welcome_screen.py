@@ -109,7 +109,7 @@ class WelcomeScreen:
                                       initialdir="../data/datasets",
                                       initialfile=recent_files[0] if recent_files else None)
         if file is not None:
-            self.open_file(file)
+            self.open_file(file.name)
 
     def open_file(self, file):
         recent_files = [file] + [f for f in self.app.get_preference("recent_files") if f != file]
