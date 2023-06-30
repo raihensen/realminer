@@ -225,7 +225,7 @@ class HeatMapTab(SidebarTab):
 
         toast5 = ToastNotification(
             title="Insights into object and activity relation",
-            message="In this tab, you can see several heatmaps visualising the relation between object types and between objecty types and activities. \n The first heatmap displayes the realation between onject types. It shows for every pair of object types the number of events they share. If you hover over the map, you can also see a list of the corresponding activities and the count.",
+            message="In this tab, you can see several heatmaps visualising the relation between object types and between objecty types and activities. \n On the left, you can select between three different heatmaps. The purpose of every heatmap is explained in the tab. Just select one heatmap to start with an explore all of them step by step.",
             position=(400, 250, "ne"),
             bootstyle="dark",
             icon="")
