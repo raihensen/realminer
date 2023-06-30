@@ -5,9 +5,10 @@ logs
 src/static/img/ocpn.png
 src/static/img/heatmap.png
 src/static/img/heatmap.html
+src/static/img/drafts
 src/tmp
 .vscode/
-src/recent_files.json
+src/preferences.json
 
 
 # Created by .ignore support plugin (hsz.mobi)
