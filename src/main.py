@@ -9,6 +9,7 @@ import ttkbootstrap as ttk
 from tkinter import messagebox
 from view.constants import *
 from view.widgets.spinner import Spinner
+from controller.tasks import *
 from cefpython3 import cefpython as cef
 import json
 
@@ -95,6 +96,8 @@ class App:
             w.destroy()
 
     def _initialize_after_imports(self):
+        """ Called from the main thread. Waits for the background imports to be finished,
+        then launches the main window."""
         global Model, View, Controller
         if not self.imports_finished:
             self.window.after(IMPORT_WATCH_DELAY, self._initialize_after_imports)
@@ -119,6 +122,9 @@ class App:
         self.view = View(self, self.controller, window=self.window)
         self.controller.view = self.view
         self.controller.init_view()
+
+        # Run pre-computations
+        # self.controller.run_task(TASK_PRE_COMPUTATIONS, callback=None)
 
     @staticmethod
     def load_preferences() -> dict:
