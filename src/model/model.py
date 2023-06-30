@@ -46,7 +46,7 @@ class Model:
     def init_ocel(self, dataset, backend=BACKEND_PM4PY):
         event_log_constructor = OCEL_CONSTRUCTORS[backend]
         logger.info(f"Loading OCEL from file ({backend}) ...")
-        ocel = event_log_constructor(**dataset)
+        ocel = event_log_constructor(self, **dataset)
         if len(self._ocels) == 0:
             self.original_ocel = ocel
         self._ocels.append(ocel)
@@ -205,7 +205,6 @@ class Model:
     @final
     def compute_opera(self, agg: Union[List[str], str, None] = None) -> Optional[Dict[str, Dict[str, pd.DataFrame]]]:
         dfs = self._execute_ocel_method("_compute_opera", agg)
-        self._ocels[0]._update_opera_diagnostic(dfs)
         return dfs
 
     @final

@@ -22,7 +22,8 @@ class OCEL(ABC):
     active_ot = None
 
     @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, model, **kwargs):
+        self.model = model
         if "ocel" not in kwargs:
             logger.info(f"OCEL instantiation with params {kwargs}")
 
@@ -100,8 +101,8 @@ class DummyEventLog(OCEL):
     Dummy class with static responses, used for faster UI development
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(ocel_type="dummy", **kwargs)
+    def __init__(self, model, **kwargs):
+        super().__init__(model, ocel_type="dummy", **kwargs)
 
     def _get_object_types(self):
         return ["order", "item", "package", "delivery", "invoice"]

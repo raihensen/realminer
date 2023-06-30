@@ -17,8 +17,8 @@ class Pm4pyEventLog(OCEL):
     Event log wrapper using the pm4py module
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(ocel_type="pm4py", **kwargs)
+    def __init__(self, model, **kwargs):
+        super().__init__(model, ocel_type="pm4py", **kwargs)
 
         if "ocel" in kwargs and isinstance(kwargs["ocel"], Pm4pyEventLogObject):
             self.ocel = kwargs["ocel"]
@@ -114,16 +114,12 @@ class Pm4pyEventLog(OCEL):
         number_matrix = matrix.applymap(len)
         return number_matrix, hovertext
 
-
-    def _update_opera_diagnostic(self, dfs):
-        self.opera_diagnostic = dfs
-
     def _compute_heatmap_pooling(self) -> pd.DataFrame:
-        dfs = self.opera_diagnostic       
+        dfs = self.model.compute_opera()
         return dfs
     
     def _compute_heatmap_lagging(self) -> pd.DataFrame:
-        dfs = self.opera_diagnostic
+        dfs = self.model.compute_opera()
         return dfs
 
     def __hash__(self):
