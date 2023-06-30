@@ -251,10 +251,13 @@ class HeatMapTab(SidebarTab):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['pooling_time'][self.measurement]
         number_matrix.fillna(0, inplace=True)
+        tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
         fig = go.Figure()
-        fig.add_trace(go.Heatmap(z=number_matrix,
+        heatmap = go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns),
-                                 y=list(number_matrix._stat_axis)))
+                                 y=list(number_matrix._stat_axis))
+        self.format_heatmap_time_intervals(heatmap, tmin, tmax)
+        fig.add_trace(heatmap)
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
@@ -263,13 +266,53 @@ class HeatMapTab(SidebarTab):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['lagging_time'][self.measurement]
         number_matrix.fillna(0, inplace=True)
+        tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
         fig = go.Figure()
-        fig.add_trace(go.Heatmap(z=number_matrix,
+        heatmap = go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns),
-                                 y=list(number_matrix._stat_axis)))
+                                 y=list(number_matrix._stat_axis))
+        self.format_heatmap_time_intervals(heatmap, tmin, tmax)
+        fig.add_trace(heatmap)
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
+
+    @staticmethod
+    def time_formatter(t) -> str:
+        if t >= 60 * 60 * 24 * 365:
+            return f'{t // (60 * 60 * 24 * 365):.0f}y'
+        elif t >= 60 * 60 * 24:
+            return f'{t // (60 * 60 * 24):.0f}d'
+        elif t >= 60 * 60:
+            return f'{t // (60 * 60):.0f}h'
+        elif t >= 60:
+            return f'0:{t // 60:.0f}'
+        elif t > 0:
+            return f'{t:.0f}s'
+        else:
+            return "0"
+
+    @staticmethod
+    def format_heatmap_time_intervals(heatmap, tmin, tmax):
+        # Define the custom formatting function for colorbar ticks
+
+        tick_values = [tmin, tmax]
+        tick_labels = [HeatMapTab.time_formatter(t) for t in (tmin, tmax)]
+
+        # Set the custom tick values and labels for the colorbar
+        heatmap.colorbar.tickvals = tick_values
+        heatmap.colorbar.ticktext = tick_labels
+
+        # Set the custom formatter for the colorbar ticks
+        # heatmap.colorbar.tickformat = time_formatter
+        # heatmap.colorbar.tickformat = ".1f"
+        # heatmap.colorbar.tickformatstops = [
+        #     dict(dtickrange=[None, 60], valueformat=".1f", textformat="s"),
+        #     dict(dtickrange=[60, 60 * 60], valueformat=".1f", textformat="s"),
+        #     dict(dtickrange=[60 * 60, 60 * 60 * 24], valueformat=".1f", textformat="s"),
+        #     dict(dtickrange=[60 * 60 * 24, 60 * 60 * 24 * 365], valueformat=".1f", textformat="s"),
+        #     dict(dtickrange=[60 * 60 * 24 * 365, None], valueformat=".1f", textformat="s")
+        # ]
 
 
 class VariantsTab(SidebarTab):
@@ -394,7 +437,7 @@ class View:
         if not self.app.get_preference("show_demo_popups"):
             return
         logger.info(f"Demo message: {title}")
-        toast = Toast(title=title, message=message, bootstyle=bootstyle, icon=None)
+        toast = Toast(title=title, message=message, bootstyle=bootstyle, icon="")
         toast.show_toast()
 
     def init_object_types(self, object_types, counts, model, colors=None):

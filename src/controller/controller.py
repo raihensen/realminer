@@ -24,7 +24,14 @@ class Controller:
         self.view.init_activities(activities=self.model.original_ocel.activities,
                                   model=self.model)
         self.view.init_ocel_df(model=self.model)
-        
+
+    def pre_computations(self):
+        """ Run as task: This function computes several statistics / visualizations on the model in the background,
+        as soon as the window is ready. This way, the cached results are already available when requesting them later."""
+        logger.info("Start pre-computations...")
+        _ = self.model.compute_opera()
+        # ...
+        logger.info("Pre-computations finished.")
 
     def compute_cases(self):
         # run as task
