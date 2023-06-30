@@ -125,6 +125,8 @@ class HeatMapTab(SidebarTab):
                          sidebar_min_width=SIDEBAR_MIN_WIDTH)
         self.display_label = ttk.Label(self.interior)
         self.imgview = None
+        self.measurement = "mean"
+        self.kpi_matrix = None
 
         # Prepare heatmap types
         for heatmap_type in HEATMAP_TYPES.values():
@@ -153,17 +155,49 @@ class HeatMapTab(SidebarTab):
         button_frame = ttk.Frame(master=self.heatmap_selection)
         button_frame.pack(side=BOTTOM, pady=10)
 
-        choose_min = tk.Button(button_frame, text="Min", command=None)
+        choose_min = tk.Button(button_frame, text="Min", command=self.select_min_measure)
         choose_min.pack(side=LEFT, padx=10, pady=10, fill=X)
-        choose_mean = tk.Button(button_frame, text="Mean", command=None) 
+        choose_mean = tk.Button(button_frame, text="Mean", command=self.select_mean_measure) 
         choose_mean.pack(side=LEFT, padx=10, pady=10, fill=X)
-        choose_max = tk.Button(button_frame, text="Max", command=None) 
+        choose_max = tk.Button(button_frame, text="Max", command=self.select_max_measure) 
         choose_max.pack(side=LEFT, padx=10, pady=10, fill=X)
 
         # Init heatmap frame with default heatmap (object interactions)
         key, heatmap_type = self.get_selected_heatmap_type()
         self.frame = HeatmapFrame(self.interior, key=key, heatmap_type=heatmap_type)
         self.frame.pack(fill=BOTH, expand=YES)
+
+    def select_min_measure(self):
+        self.measurement = "mean"
+        key, heatmap_type = self.get_selected_heatmap_type()
+        if key == "lagging_metrics":
+            self.display_heatmap_lagging(self.kpi_matrix)
+        elif key == "pooling_metrics":
+             self.display_heatmap_pooling(self.kpi_matrix)
+        else:
+            return
+            
+
+    def select_mean_measure(self):
+        self.measurement = "mean"
+        key, heatmap_type = self.get_selected_heatmap_type()
+        if key == "lagging_metrics":
+            self.display_heatmap_lagging(self.kpi_matrix)
+        elif key == "pooling_metrics":
+            self.display_heatmap_pooling(self.kpi_matrix)
+        else:
+            return
+
+    def select_max_measure(self):
+        self.measurement = "max"
+        key, heatmap_type = self.get_selected_heatmap_type()
+        if key == "lagging_metrics":
+             self.display_heatmap_lagging(self.kpi_matrix)
+        elif key == "pooling_metrics":
+             self.display_heatmap_pooling(self.kpi_matrix)
+        else:
+            return
+
 
     def on_open(self):
         # Compute OPerA KPIs. Argument `agg` can be changed to any of 'min', 'max' or 'mean'.
@@ -204,6 +238,9 @@ class HeatMapTab(SidebarTab):
             print("Could not reload to show heatmap, browser is None")
 
     def display_heatmap_pooling(self, number_matrix):
+        self.kpi_matrix = number_matrix
+        number_matrix = number_matrix['pooling_time'][self.measurement]
+        number_matrix.fillna(0, inplace=True)
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns),
@@ -213,6 +250,9 @@ class HeatMapTab(SidebarTab):
         self.refresh_heatmap_display()
 
     def display_heatmap_lagging(self, number_matrix):
+        self.kpi_matrix = number_matrix
+        number_matrix = number_matrix['lagging_time'][self.measurement]
+        number_matrix.fillna(0, inplace=True)
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns),

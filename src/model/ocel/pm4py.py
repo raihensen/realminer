@@ -118,17 +118,13 @@ class Pm4pyEventLog(OCEL):
     def _update_opera_diagnostic(self, dfs):
         self.opera_diagnostic = dfs
 
-    def _compute_heatmap_pooling(self, dpi=150) -> pd.DataFrame:
-        dfs = self.opera_diagnostic
-        number_matrix = dfs['pooling_time']['mean']
-        number_matrix.fillna(0, inplace=True)
-        return number_matrix
+    def _compute_heatmap_pooling(self) -> pd.DataFrame:
+        dfs = self.opera_diagnostic       
+        return dfs
     
-    def _compute_heatmap_lagging(self, dpi=150) -> pd.DataFrame:
+    def _compute_heatmap_lagging(self) -> pd.DataFrame:
         dfs = self.opera_diagnostic
-        number_matrix = dfs['lagging_time']['mean']
-        number_matrix.fillna(0, inplace=True)
-        return number_matrix
+        return dfs
 
     def __hash__(self):
         # TODO test/fix this
