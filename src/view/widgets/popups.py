@@ -19,5 +19,6 @@ class Toast(ToastNotification):
             y = int(Toast.window.winfo_y() + .5 * Toast.window.winfo_height() - .5 * expected_size[1])
             position = (x, y, 'ne')
 
+        icon='\u26CF'
         super().__init__(title=title, message=message, position=position, bootstyle=bootstyle, icon=icon)
         self.enabled = True
