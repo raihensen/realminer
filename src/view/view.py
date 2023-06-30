@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 
 # from view.components.scrollable_frame import VerticalScrolledFrame
 from view.constants import *
+from view.utils import ResizeTracker
 from view.components.accordion import Accordion
 from view.widgets.object_types import ObjectTypeWidget
 from view.widgets.activities import ActivityWidget
@@ -19,11 +20,8 @@ from view.widgets.heatmap import HeatmapFrame, HeatmapType, HEATMAP_HTML_FILE
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
+from view.widgets.popups import Toast
 
-if os.getlogin() == "RH":
-    MAXIMIZED = True
-else:
-    MAXIMIZED = False
 SIDEBAR_WIDTH_RATIO = 0.2
 SIDEBAR_MIN_WIDTH = 150
 TOOLBAR_HEIGHT = 40
@@ -93,6 +91,12 @@ class FilterTab(SidebarTab):
         if self.table_widget is not None:
             self.table_widget.update_table()
 
+        view().show_toast(
+            title="Welcome to REAL MINER",
+            message="By importing your event log, you have already done the first step. Let this notifications guide you through the discovery of your process. \n If you do not need any instruction, you can disable them in the welcome screen. \n You are currently in the filter and settings tab. In this tab, you can filter your event log by object types and activities. You can decide what is important for you. If you are not so sure about your log for now, you can also see it in this tab in the displayed table. For a more graphical overwiew you can open the Variants Tab next.",
+            bootstyle="dark"
+        )
+
     def init_table(self, model):
         self.table_widget = TableViewWidget(self.interior, model)
         self.refresh_table_button = tk.Button(self.interior, text="Refresh Table",
@@ -108,6 +112,12 @@ class PetriNetTab(Tab):
 
     def on_open(self):
         view().controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
+
+        view().show_toast(
+            title="Process model discovery",
+            message="In this tab, you can see the process model for your process. It consists of all activities of your process and is able to replay every trace. With this, you should already have a good overview of your process. It is now time to dive deeper in the analysis of your process in the heatmap tab.",
+            bootstyle='dark'
+        )
 
     def display_petri_net(self, path):
         if self.imgview is not None:
@@ -151,15 +161,15 @@ class HeatMapTab(SidebarTab):
                                     text=heatmap_type.title,
                                     command=self.generate_heatmap)
             radio.pack(side=LEFT, fill=X)
-        
+
         button_frame = ttk.Frame(master=self.heatmap_selection)
         button_frame.pack(side=BOTTOM, pady=10)
 
         choose_min = tk.Button(button_frame, text="Min", command=self.select_min_measure)
         choose_min.pack(side=LEFT, padx=10, pady=10, fill=X)
-        choose_mean = tk.Button(button_frame, text="Mean", command=self.select_mean_measure) 
+        choose_mean = tk.Button(button_frame, text="Mean", command=self.select_mean_measure)
         choose_mean.pack(side=LEFT, padx=10, pady=10, fill=X)
-        choose_max = tk.Button(button_frame, text="Max", command=self.select_max_measure) 
+        choose_max = tk.Button(button_frame, text="Max", command=self.select_max_measure)
         choose_max.pack(side=LEFT, padx=10, pady=10, fill=X)
 
         # Init heatmap frame with default heatmap (object interactions)
@@ -173,10 +183,9 @@ class HeatMapTab(SidebarTab):
         if key == "lagging_metrics":
             self.display_heatmap_lagging(self.kpi_matrix)
         elif key == "pooling_metrics":
-             self.display_heatmap_pooling(self.kpi_matrix)
+            self.display_heatmap_pooling(self.kpi_matrix)
         else:
             return
-            
 
     def select_mean_measure(self):
         self.measurement = "mean"
@@ -192,22 +201,23 @@ class HeatMapTab(SidebarTab):
         self.measurement = "max"
         key, heatmap_type = self.get_selected_heatmap_type()
         if key == "lagging_metrics":
-             self.display_heatmap_lagging(self.kpi_matrix)
+            self.display_heatmap_lagging(self.kpi_matrix)
         elif key == "pooling_metrics":
-             self.display_heatmap_pooling(self.kpi_matrix)
+            self.display_heatmap_pooling(self.kpi_matrix)
         else:
             return
 
-
     def on_open(self):
         # Compute OPerA KPIs. Argument `agg` can be changed to any of 'min', 'max' or 'mean'.
-        view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
+        # view().controller.run_task(key=TASK_OPERA, callback=self.display_opera, agg='mean')
         # Compute selected heatmap
         self.generate_heatmap()
         # view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
 
-    def display_opera(self, kpis):
-        pprint(kpis)
+        view().show_toast(
+            title="Insights into object and activity relation",
+            message="In this tab, you can see several heatmaps visualising the relation between object types and between objecty types and activities. \n On the left, you can select between three different heatmaps. The purpose of every heatmap is explained in the tab. Just select one heatmap to start with an explore all of them step by step.",
+            bootstyle="dark")
 
     def get_selected_heatmap_type(self):
         return list(HEATMAP_TYPES.items())[self.heatmap_selection_var.get()]
@@ -261,8 +271,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        
-    
+
+
 class VariantsTab(SidebarTab):
     def __init__(self, master):
         super().__init__(master=master,
@@ -286,6 +296,11 @@ class VariantsTab(SidebarTab):
 
         # Compute variants in separate thread
         view().controller.run_task(TASK_COMPUTE_VARIANT_FREQUENCIES, callback=self.display_variants)
+
+        view().show_toast(
+            title="Explore Process Executions and Variants",
+            message="In this tab, you can see diferent executions of your process. All variants of executions are listed on the left by their frequency. By selcting them, you can see them in a graphical representation. Once you have discovered different executions of your process, you might also be interested in the whole process. Please click the perti net tab to discover a model of your whole process.",
+            bootstyle='dark')
 
     def display_variants(self, variant_frequencies):
         variant_frequencies = dict(sorted(variant_frequencies.items(), key=lambda item: item[1], reverse=True))
@@ -343,12 +358,24 @@ class View:
 
         # Recycle the welcome screen's window (only one Tk instance per run)
         self.window = window
+        Toast.window = window
         for w in self.window.winfo_children():
             w.destroy()
         self.window.title(f"{WINDOW_TITLE} - {app.file}")
-        if MAXIMIZED:
+        if self.app.get_preference("maximized"):
             self.window.state('zoomed')
+        else:
+            screen_size = (self.window.winfo_screenwidth(), self.window.winfo_screenheight())
+            target_size = (1000, 600)
+            size = (min(screen_size[0], target_size[0]), min(screen_size[1], target_size[1]))
+            if size == screen_size:
+                self.window.state("zoomed")
+            else:
+                self.window.geometry(f"{size[0]}x{size[1]}")
         self.window.resizable(width=True, height=True)
+        self.resize_tracker = ResizeTracker(self.window, self.app)
+        self.resize_tracker.bind_config()
+        self.style.theme_use(self.app.get_preference("theme"))
 
         # Tabs
         self.tab_widget = Tabs(master=self.window)
@@ -364,10 +391,12 @@ class View:
         self.tab4 = VariantsTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab4)
 
-    def show_demo_popup(self, title, message):
-        if self.app.get_preference("show_demo_popups"):
-            logger.info(f"Demo message: {title} -- {message}")
-            # TODO open popup window
+    def show_toast(self, title, message, bootstyle=None):
+        if not self.app.get_preference("show_demo_popups"):
+            return
+        logger.info(f"Demo message: {title}")
+        toast = Toast(title=title, message=message, bootstyle=bootstyle, icon=None)
+        toast.show_toast()
 
     def init_object_types(self, object_types, counts, model, colors=None):
         self.tab1.ot_widget = ObjectTypeWidget(self.tab1.ot_container, self, object_types, counts, model, colors)

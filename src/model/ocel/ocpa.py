@@ -40,8 +40,8 @@ class OcpaEventLog(OCEL):
     Event log wrapper using the ocpa module
     """
 
-    def __init__(self, dataset, **kwargs):
-        super().__init__(ocel_type="ocpa", **kwargs)
+    def __init__(self, model, dataset, **kwargs):
+        super().__init__(model, ocel_type="ocpa", **kwargs)
 
         filename = Path("../data/datasets") / dataset
         logger.info(f"Importing dataset {filename}")

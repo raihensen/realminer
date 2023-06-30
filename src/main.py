@@ -63,10 +63,9 @@ class App:
         self.import_thread.start()
 
         self.window = tk.Tk()
-        self.window_icon = tk.PhotoImage(file='static/img/window_icon.png')
+        self.window_icon = tk.PhotoImage(file='static/img/window_icon_new.png')
         self.window.wm_iconphoto(False, self.window_icon)
         style = ttk.Style()
-        style.theme_use(self.get_preference("theme"))
 
         # welcome screen
         welcome_screen = WelcomeScreen(self, self.window)

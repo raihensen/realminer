@@ -4,10 +4,13 @@ WINDOW_TITLE = "RealMiner"
 PREFERENCES_FILE = "preferences.json"
 
 DEFAULT_PREFERENCES = {
-    "theme": "litera",
+    "theme": "darkly",
     "recent_files": [],
-    "show_demo_popups": True
+    "show_demo_popups": True,
+    "maximized": False
 }
+
+WELCOME_SCREEN_THEME = "litera"
 
 HEAT_MAP_EXPLENATION = """Below, you can select between different types of heatmaps. Those Heatmaps can help you detect pottential bottle necks in your process! 
 Please read carifully the meaning behind each of the heatmaps
