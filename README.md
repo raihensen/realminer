@@ -18,23 +18,27 @@ This app has been developed during the lab *PADS x Celonis* in summer semester 2
 
 ## Installation
 1. Clone the repository:
-    '''bash
+    ```bash
     git clone git@git.rwth-aachen.de:rhensen/pads-x-celonis-ocpm.git
-    '''
-  
+    ```
+
 2. Install the required dependencies:
-    '''bash
-        pip install -r requirements.txt
-    '''
-2. [Optional] Set up the database and configure connection settings in `src\preferences.json'.
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. [Optional] Set up the database and configure connection settings in `src\preferences.json'.
 
 ## Usage
 1. Prepare your process data in the required format.
 2. Change directory to the Src folder:
- - cd src\
-3. Run the application:
- - python main.py
-4. Upload Your Event Log, and follow the Instructions appearing on screen.
+    ```bash
+    cd src\
+    ```
+1. Run the application:
+    ```bash
+    python main.py
+    ```
+2. Upload Your Event Log, and follow the Instructions appearing on screen.
    
 ## Features
 The app solves different problems in the domain of Object-centric Process Mining, including:
