@@ -18,10 +18,15 @@ This app has been developed during the lab *PADS x Celonis* in summer semester 2
 
 ## Installation
 1. Clone the repository:
- - git clone git@git.rwth-aachen.de:rhensen/pads-x-celonis-ocpm.git
+    '''bash
+    git clone git@git.rwth-aachen.de:rhensen/pads-x-celonis-ocpm.git
+    '''
+  
 2. Install the required dependencies:
-   - pip install -r requirements.txt
-3. [Optional] Set up the database and configure connection settings in `src\preferences.json'.
+    '''bash
+        pip install -r requirements.txt
+    '''
+2. [Optional] Set up the database and configure connection settings in `src\preferences.json'.
 
 ## Usage
 1. Prepare your process data in the required format.
@@ -48,8 +53,10 @@ The app solves different problems in the domain of Object-centric Process Mining
 ### Example 1: Analyzing Purchase Order Process
 1. Prepare the purchase order data in jsonocel format.
 2. Run the application:
-    - python main.py
-3. Analyze the process variants, identify trends, and assess performance metrics.
+    ```bash
+    python main.py
+    ``` 
+4. Analyze the process variants, identify trends, and assess performance metrics.
 
 ## License
 This project is licensed under the Celonis / RWTH-Aachen Licence.
@@ -58,11 +65,24 @@ This project is licensed under the Celonis / RWTH-Aachen Licence.
 - Thanks to the [`OCPA`](https://github.com/ocpm/ocpa/blob/main/README.md) for inspiration and valuable insights.
 ## Repository Structure
 
-*TODO*
+This repository follows a Model-View-Controller (MVC) architecture and is primarily built using Python. It is designed to provide a process mining application with various widgets specifically developed for the app. The repository structure is organized as follows:
+
+- `data/`: Holds the sample data used for testing and demonstration.
+- `research/`: Includes documentation files and current research.
+- `tests/` : Contains unit tests and test scripts.
+- `drafts/` : Contains .ipynb notebooks to test the different functionalities. 
+- `logs/` : Stores the logs accumelated throughtout the execution of the app.
+- `src/`: Contains the Implementation of the MVC architecture and the widgets/ view-components mentioned above.
+- `src/main.py`: Contains the "entry point" for the application's execution.
+
+The MVC architecture separates the application into three major components: Model, View, and Controller. The Model represents the data and business logic, the View handles the user interface and visualization, and the Controller manages the interactions between the Model and View.
+
+This project leverages Python's flexibility and rich ecosystem of libraries to provide a powerful process mining application. The custom-developed widgets offer additional functionality and enhanced user experience within the app.
+
+Feel free to explore the individual directories for more detailed information about each component.
 
 ## References
 
 [^opera]: Gyunam Park, Jan Niklas Adams, Wil. M. P. van der Aalst (2022). OPerA: Object-Centric Performance Analysis, arXiv:2204.10662.
- - You can download the research paper [here](instructions\OPerA Paper Review.pdf).
   
 [^cases_and_variants]: Jan Niklas Adams, Daniel Schuster, Seth Schmitz, Günther Schuh, Wil M.P. van der Aalst (2022). Defining Cases and Variants for Object-Centric Event Data, Defining Cases and Variants for Object-Centric Event Data, arXiv:2208.03235.
