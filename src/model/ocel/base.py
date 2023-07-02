@@ -60,7 +60,7 @@ class OCEL(ABC):
         """ Returns the variant frequencies """
 
     @abstractmethod
-    def _get_variant_graph(self, variant_id) -> nx.DiGraph:
+    def _get_variant_graph(self, variant_id):
         """ Returns the event-object graph of a given variant """
 
     @abstractmethod
@@ -133,7 +133,7 @@ class DummyEventLog(OCEL):
     def _get_variant_frequencies(self) -> Dict[str, int]:
         return {}
 
-    def _get_variant_graph(self, variant_id) -> nx.DiGraph:
+    def _get_variant_graph(self, variant_id):
         return None
 
     def _compute_petri_net(self):

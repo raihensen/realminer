@@ -6,6 +6,8 @@ from tkfontawesome import icon_to_image as fontawesome
 from PIL import Image, ImageTk
 import os
 from pprint import pprint
+import networkx as nx
+from networkx.drawing.nx_agraph import graphviz_layout, to_agraph
 
 import plotly.graph_objects as go
 
@@ -90,12 +92,7 @@ class FilterTab(SidebarTab):
     def on_open(self):
         if self.table_widget is not None:
             self.table_widget.update_table()
-
-        view().show_toast(
-            title="Welcome to REAL MINER",
-            message="By importing your event log, you have already done the first step. Let this notifications guide you through the discovery of your process. \nIf you do not need any instruction, you can disable them in the welcome screen. \nYou are currently in the filter and settings tab. In this tab, you can filter your event log by object types and activities. You can decide what is important for you. If you are not so sure about your log for now, you can also see it in this tab in the displayed table. For a more graphical overwiew you can open the Variants Tab next.",
-            bootstyle="dark"
-        )
+        view().show_toast(title="Welcome to REAL MINER", message=TAB_EXPLANATION_FILTERS_SETTINGS, bootstyle="dark")
 
     def init_table(self, model):
         self.table_widget = TableViewWidget(self.interior, model)
@@ -112,12 +109,7 @@ class PetriNetTab(Tab):
 
     def on_open(self):
         view().controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
-
-        view().show_toast(
-            title="Process model discovery",
-            message="In this tab, you can see the process model for your process. It consists of all activities of your process and is able to replay every trace. With this, you should already have a good overview of your process. It is now time to dive deeper in the analysis of your process in the heatmap tab.",
-            bootstyle='dark'
-        )
+        view().show_toast(title="Process model discovery", message=TAB_EXPLANATION_PETRI_NET, bootstyle='dark')
 
     def display_petri_net(self, path):
         if self.imgview is not None:
@@ -216,10 +208,7 @@ class HeatMapTab(SidebarTab):
         self.generate_heatmap()
         # view().controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
 
-        view().show_toast(
-            title="Insights into object and activity relation",
-            message="In this tab, you can see several heatmaps visualising the relation between object types and between objecty types and activities. \nOn the left, you can select between three different heatmaps. The purpose of every heatmap is explained in the tab. Just select one heatmap to start with an explore all of them step by step.",
-            bootstyle="dark")
+        view().show_toast(title="Insights into object and activity relation", message=TAB_EXPLANATION_HEATMAP, bootstyle="dark")
 
     def get_selected_heatmap_type(self):
         return list(HEATMAP_TYPES.items())[self.heatmap_selection_var.get()]
@@ -319,14 +308,9 @@ class HeatMapTab(SidebarTab):
 
     @staticmethod
     def format_heatmap_time_intervals(heatmap, tmin, tmax):
-        # Define the custom formatting function for colorbar ticks
-
-        tick_values = [tmin, tmax]
-        tick_labels = [HeatMapTab.time_formatter(t) for t in (tmin, tmax)]
-
         # Set the custom tick values and labels for the colorbar
-        heatmap.colorbar.tickvals = tick_values
-        heatmap.colorbar.ticktext = tick_labels
+        heatmap.colorbar.tickvals = [tmin, tmax]
+        heatmap.colorbar.ticktext = [HeatMapTab.time_formatter(t) for t in (tmin, tmax)]
 
 
 class VariantsTab(SidebarTab):
@@ -352,11 +336,7 @@ class VariantsTab(SidebarTab):
 
         # Compute variants in separate thread
         view().controller.run_task(TASK_COMPUTE_VARIANT_FREQUENCIES, callback=self.display_variants)
-
-        view().show_toast(
-            title="Explore Process Executions and Variants",
-            message="In this tab, you can see diferent executions of your process. All variants of executions are listed on the left by their frequency. By selcting them, you can see them in a graphical representation. Once you have discovered different executions of your process, you might also be interested in the whole process. Please click the perti net tab to discover a model of your whole process.",
-            bootstyle='dark')
+        view().show_toast(title="Explore Process Executions and Variants", message=TAB_EXPLANATION_VARIANTS, bootstyle='dark')
 
     def display_variants(self, variant_frequencies):
         variant_frequencies = dict(sorted(variant_frequencies.items(), key=lambda item: item[1], reverse=True))
@@ -396,9 +376,30 @@ class VariantsTab(SidebarTab):
 
         self.display_selected_variant()
 
+    def render_variant_graph(self, variant_id) -> str:
+        """ Renders a variant graph, saving it to an image file. """
+        G, ot_counts = view().controller.model.variant_graph(variant_id)
+
+        bg = ttk.Style.instance.colors.bg
+        fg = ttk.Style.instance.colors.fg
+        A = to_agraph(G)
+        A.graph_attr["bgcolor"] = bg
+        A.node_attr["fontcolor"] = fg
+        A.node_attr["color"] = fg
+        A.node_attr["fillcolor"] = bg
+        A.edge_attr["fontcolor"] = fg
+        A.edge_attr["color"] = fg
+        A.graph_attr["rankdir"] = "TB"  # would prefer LR, but edge labels might be long
+        A.node_attr["shape"] = "box"
+        A.layout('dot')
+        path = f"tmp/variant_graph_{variant_id}.png"
+        A.draw(path)
+        return path
+
     def display_selected_variant(self):
         variant_id = self.value_to_variant[self.variant_selection_var.get()]
-        path = view().controller.model.variant_graph(variant_id)
+        path = self.render_variant_graph(variant_id)
+        # path = view().controller.model.variant_graph(variant_id)
 
         if self.imgview is not None:
             self.imgview.canvas.forget()

@@ -199,7 +199,7 @@ class Model:
         return self._execute_ocel_method("_get_variant_frequencies")
 
     @final
-    def variant_graph(self, variant_id) -> nx.DiGraph:
+    def variant_graph(self, variant_id):
         return self._execute_ocel_method("_get_variant_graph", variant_id)
 
     @final

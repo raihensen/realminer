@@ -14,7 +14,7 @@ class Toast(ToastNotification):
         Toast.toasts.append(self)
 
         if position is None and Toast.window is not None:
-            expected_size = (200, 100)
+            expected_size = (250, 200)
             x = int(Toast.window.winfo_x() + .5 * Toast.window.winfo_width() - .5 * expected_size[0])
             y = int(Toast.window.winfo_y() + .5 * Toast.window.winfo_height() - .5 * expected_size[1])
             position = (x, y, 'ne')

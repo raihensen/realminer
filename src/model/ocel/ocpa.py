@@ -127,7 +127,7 @@ class OcpaEventLog(OCEL):
     def _get_variant_frequencies(self) -> Dict[str, int]:
         return dict(zip(self.ocel.variants, self.ocel.variant_frequencies))
 
-    def _get_variant_graph(self, variant_id) -> str:
+    def _get_variant_graph(self, variant_id):
         """
         Computes a variant graph (event-object graph) and saves the output image to a file, returning the path.
         :param variant_id: The variant ID (hash)
@@ -146,10 +146,18 @@ class OcpaEventLog(OCEL):
         for i, node in G.nodes.items():
             node["label"] = log.loc[i, "event_activity"]
         ot_label_connector = "\n" if MULTILINE_GRAPH_LABELS else ", "
+        ot_counts = {}
         for (i, j), edge in G.edges.items():
-            edge_ots = {ot1 for ot1, _ in edge_objects[(i, j)]}
+            edge_ots = {ot for ot, _ in edge_objects[(i, j)]}
             edge_ot_counts = {ot: len([obj for ot1, obj in edge_objects[(i, j)] if ot1 == ot]) for ot in edge_ots}
-            edge["label"] = ot_label_connector.join([f"{count}x {ot}" for ot, count in edge_ot_counts.items()])
+            label_parts = [f"{count}x {ot}" if count > 1 else ot for ot, count in edge_ot_counts.items()]
+            edge["label"] = ot_label_connector.join(label_parts)
+            ot_counts[(i, j)] = edge_ot_counts
+
+        return G, ot_counts
+
+    def _get_variant_graph_path(self, variant_id):
+        G = self._get_variant_graph(variant_id)
 
         A = to_agraph(G)
         A.graph_attr["rankdir"] = "TB"  # would prefer LR, but edge labels might be long
