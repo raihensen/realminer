@@ -300,7 +300,7 @@ class HeatMapTab(SidebarTab):
         elif t >= 60 * 60:
             hours = int(t // (60 * 60))
             minutes = int(t % (60 * 60))
-            return f"{hours}:{minutes.ljust(2, '0')}"
+            return f"{hours}:{str(minutes).ljust(2, '0')}"
         elif t >= 60:
             return f'0:{t / 60:.1f}'
         elif t > 0:
