@@ -147,12 +147,12 @@ class App:
             preferences["recent_files"] = [f for f in preferences["recent_files"] if os.path.exists(f)]
         return preferences
 
-    def get_preference(self, key: str):
+    def get_preference(self, key: str, default=None):
         if key in self.preferences:
             return self.preferences[key]
         if key in DEFAULT_PREFERENCES:
             return DEFAULT_PREFERENCES[key]
-        return None
+        return default
 
     def set_preference(self, key: str, value):
         logger.info(f"Save new preference: {key} := {value}")
