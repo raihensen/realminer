@@ -22,6 +22,7 @@ from view.widgets.heatmap import HeatmapFrame, HeatmapType, HEATMAP_HTML_FILE
 from view.components.tab import Tabs, Tab, SidebarTab
 from view.components.zoomable_frame import AdvancedZoom
 from controller.tasks import *
+from controller.export import Export
 from view.widgets.popups import Toast
 
 SIDEBAR_WIDTH_RATIO = 0.2
@@ -117,6 +118,7 @@ class PetriNetTab(Tab):
             self.imgview.forget()
         self.imgview = AdvancedZoom(self, path=path)
         self.imgview.pack(fill=BOTH, expand=True)
+        view().controller.current_export = Export(view().app, "petrinet", "png", copy_from_path=path, use_dialog=True)
 
 
 class HeatMapTab(SidebarTab):
@@ -441,11 +443,9 @@ class View:
         self.resize_tracker.bind_config()
         self.style.theme_use(self.app.get_preference("theme"))
 
-        # Tabs
+        # Init tabs
         self.tab_widget = Tabs(master=self.window)
         self.tab_widget.pack(side=TOP, fill=BOTH, expand=True)
-
-        # create a new frame
         self.tab1 = FilterTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab1)
         self.tab4 = VariantsTab(self.tab_widget)
@@ -454,6 +454,12 @@ class View:
         self.tab_widget.add_tab(self.tab2)
         self.tab3 = HeatMapTab(self.tab_widget)
         self.tab_widget.add_tab(self.tab3)
+
+        # Init key events
+        self.window.bind("<Control-s>", self.trigger_export)
+
+    def trigger_export(self, event):
+        self.controller.trigger_export()
 
     def show_toast(self, title, message, bootstyle=None):
         if not self.app.get_preference("show_demo_popups"):

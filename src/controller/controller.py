@@ -15,6 +15,7 @@ class Controller:
         self.tasks = {}
         self.TASKS = {}
         init_tasks(self)
+        self.current_export = None
 
     def init_view(self):
         self.view.init_object_types(object_types=self.model.original_ocel.object_types,
@@ -69,6 +70,11 @@ class Controller:
         # start task
         task.start()
 
-    def test_action(self):
-        self.view.test_set_label(self.model.object_types)
+    def trigger_export(self):
+        if self.current_export is None:
+            logger.info("Nothing to be exported.")
+            return False
 
+        logger.info("Export triggered")
+        self.current_export.prepare_path()
+        self.current_export.execute()
