@@ -10,6 +10,7 @@ from tkinter import messagebox
 from view.constants import *
 from view.widgets.spinner import Spinner
 from controller.tasks import *
+from controller.export import Export
 from cefpython3 import cefpython as cef
 import json
 
@@ -51,13 +52,18 @@ logger.addHandler(file_handler)
 
 class App:
     def __init__(self):
+        # Both static and instance-level access to preferences
+        self.get_preference = self._instance_get_preference
+        self.set_preference = self._instance_set_preference
+        Export.app = self
+
         self.imports_finished = False
         self.model = None
         self.view = None
         self.controller = None
         self.file = None
 
-        self.preferences = self.load_preferences()
+        self._preferences = self.load_preferences()
 
         # Start background imports
         self.import_thread = Thread(target=self.delayed_import)
@@ -71,6 +77,7 @@ class App:
         # welcome screen
         welcome_screen = WelcomeScreen(self, self.window)
 
+    def start(self):
         self.window.mainloop()
         cef.Shutdown()
 
@@ -147,18 +154,26 @@ class App:
             preferences["recent_files"] = [f for f in preferences["recent_files"] if os.path.exists(f)]
         return preferences
 
-    def get_preference(self, key: str, default=None):
-        if key in self.preferences:
-            return self.preferences[key]
+    @staticmethod
+    def get_preference(key: str, default=None):
+        return App.instance.get_preference(key, default)
+
+    @staticmethod
+    def set_preference(key: str, value):
+        App.instance.set_preference(key, value)
+
+    def _instance_get_preference(self, key: str, default=None):
+        if key in self._preferences:
+            return self._preferences[key]
         if key in DEFAULT_PREFERENCES:
             return DEFAULT_PREFERENCES[key]
         return default
 
-    def set_preference(self, key: str, value):
+    def _instance_set_preference(self, key: str, value):
         logger.info(f"Save new preference: {key} := {value}")
-        self.preferences[key] = value
+        self._preferences[key] = value
         with open(PREFERENCES_FILE, "w") as file:
-            json.dump(self.preferences, file, indent=2)
+            json.dump(self._preferences, file, indent=2)
 
     def __del__(self):
         logging.info('Destructor called, app deleted.')
@@ -167,5 +182,7 @@ class App:
 if __name__ == "__main__":
     logger.info("Program started")
     app = App()
+    App.instance = app
+    app.start()
     del app
     logger.info("Program exited")

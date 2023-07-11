@@ -118,7 +118,7 @@ class PetriNetTab(Tab):
             self.imgview.forget()
         self.imgview = AdvancedZoom(self, path=path)
         self.imgview.pack(fill=BOTH, expand=True)
-        view().controller.current_export = Export(view().app, "petrinet", "png", copy_from_path=path, use_dialog=True)
+        view().controller.current_export = Export("petrinet", "png", copy_from_path=path, use_dialog=True)
 
 
 class HeatMapTab(SidebarTab):
