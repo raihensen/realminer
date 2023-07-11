@@ -1,13 +1,20 @@
 
+import os
+
 WINDOW_TITLE = "RealMiner"
 
-PREFERENCES_FILE = "preferences.json"
+SIDEBAR_WIDTH_RATIO = 0.2
+SIDEBAR_MIN_WIDTH = 150
 
+GRAPHVIZ_RENDER_DPI = 300
+
+PREFERENCES_FILE = "preferences.json"
 DEFAULT_PREFERENCES = {
     "theme": "darkly",
     "recent_files": [],
     "show_demo_popups": True,
-    "maximized": False
+    "maximized": False,
+    "export_path": os.path.expanduser("~")
 }
 
 WELCOME_SCREEN_THEME = "litera"

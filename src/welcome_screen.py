@@ -56,8 +56,9 @@ class WelcomeScreen:
         row_import.pack(side=TOP, fill=X, pady=15)
 
         recent_files = self.app.get_preference("recent_files")
+        self.has_recent_files = len(recent_files) > 0
 
-        if recent_files:
+        if self.has_recent_files:
 
             # ttk.Label(master=row_file, image=ICON_RECENT).pack(side=LEFT, padx=20)
 
@@ -100,12 +101,17 @@ class WelcomeScreen:
                                                bootstyle="round-toggle")
         checkbox_demo_popups.pack(side=LEFT, padx=10)
 
+        # Key bindings
+        self.window.bind("<Return>", lambda _: self.open_selected_recent_file())
+
     def update_demo_popups_checkbox(self):
+
         state = bool(self.checkbox_demo_popups_var.get())
         self.app.set_preference("show_demo_popups", state)
 
     def open_selected_recent_file(self):
-        self.open_file(self.var_recent_file.get())
+        if self.has_recent_files:
+            self.open_file(self.var_recent_file.get())
 
     def open_file_dialog(self):
         recent_files = self.app.get_preference("recent_files")
@@ -116,6 +122,7 @@ class WelcomeScreen:
             self.open_file(file.name)
 
     def open_file(self, file):
+        self.window.unbind("<Return>")
         recent_files = [file] + [f for f in self.app.get_preference("recent_files") if f != file]
         self.app.set_preference("recent_files", recent_files)
         self.app.initialize(file)

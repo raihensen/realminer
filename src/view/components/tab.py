@@ -42,8 +42,9 @@ class Tabs(ttk.Frame):
 
 
 class Tab(ttk.Frame):
-    def __init__(self, master: Tabs, title: str, icon=None, **kwargs):
+    def __init__(self, master: Tabs, view, title: str, icon=None, **kwargs):
         super().__init__(master=master.notebook, **kwargs)
+        self.view = view
         self.title = title
         self.icon = icon
 
@@ -55,8 +56,8 @@ class Tab(ttk.Frame):
 
 
 class SidebarTab(Tab):
-    def __init__(self, master, title, sidebar_width_ratio, sidebar_min_width, **kwargs):
-        super().__init__(master=master, title=title, **kwargs)
+    def __init__(self, master, view, title, sidebar_width_ratio, sidebar_min_width, **kwargs):
+        super().__init__(master=master, view=view, title=title, **kwargs)
         # Main layout
         self.columnconfigure(0, minsize=sidebar_min_width, weight=1)
         self.columnconfigure(1, minsize=sidebar_min_width / sidebar_width_ratio,

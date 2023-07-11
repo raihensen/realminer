@@ -44,13 +44,17 @@ class Export:
     def prepare_path(self):
         self.cancelled = False
         # get default location and filename
-        directory = Path(Export.app.get_preference("export_path", os.path.expanduser("~")))
+        directory = Path(Export.app.get_preference("export_path"))
         filename = f"export-{datetime.now().strftime('%Y%m%d-%H%M%S')}-{self.name}.{self.ext}"
 
         if self.use_dialog:
-            self.path = filedialog.asksaveasfilename(initialdir=str(directory), initialfile=filename)
-            if self.path is None or not self.path:
+            path = filedialog.asksaveasfilename(initialdir=str(directory), initialfile=filename)
+            if path is None or not path:
                 self.cancelled = True
+            else:
+                self.path = Path(path)
+                directory = self.path.resolve().parent
+                Export.app.set_preference("export_path", str(directory))
         else:
             self.path = directory / filename
 
