@@ -17,7 +17,7 @@ class PetriNetTab(Tab):
         self.imgview = None
 
     def on_open(self):
-        self.view.controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net)
+        self.view.controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net, bgcolor=ttk.Style.instance.colors.bg)
         self.view.show_toast(title="Process model discovery", message=TAB_EXPLANATION_PETRI_NET, bootstyle='dark')
 
     def display_petri_net(self, path):

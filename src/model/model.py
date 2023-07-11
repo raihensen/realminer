@@ -208,8 +208,8 @@ class Model:
         return dfs
 
     @final
-    def compute_petri_net(self) -> List[str]:
-        return self._execute_ocel_method("_compute_petri_net")
+    def compute_petri_net(self, bgcolor: str) -> List[str]:
+        return self._execute_ocel_method("_compute_petri_net", bgcolor)
 
     @final
     def compute_heatmap(self):

@@ -4,6 +4,7 @@ import pm4py
 import logging
 
 from pm4py.ocel import OCEL as Pm4pyEventLogObject
+from pm4py.algo.discovery.ocel.ocpn.variants.wo_annotation import Parameters as OcpnParameters
 from model.ocel.base import OCEL
 from pathlib import Path
 import pandas as pd
@@ -66,15 +67,19 @@ class Pm4pyEventLog(OCEL):
     def _get_variant_graph(self, variant_id):
         return None  # Not supported, use ocpa
 
-    def _compute_petri_net(self):
+    def _compute_petri_net(self, bgcolor="white"):
         logger.info("Beggining the discovery of a petri net using pm4py")
         ocpn = pm4py.discover_oc_petri_net(self.ocel)
+        # ocpn is dict:
+        #  "petri_nets": dict[ot -> PetriNet]
+        #  "double_arcs_on_activity": dict[ot -> dict[act -> bool]]
+        #  ... (originally dict containing the ocdfg)
         filename = 'static/img/ocpn.png'
-        pm4py.save_vis_ocpn(ocpn, filename)
+        pm4py.save_vis_ocpn(ocpn=ocpn, file_path=filename, bgcolor=bgcolor)
         logger.info(f"Petri net saved to {filename}")
         return filename
     
-    def _compute_heatmap(self, dpi=150):
+    def _compute_heatmap(self):
         df = self.ocel.relations
         collect = pd.DataFrame([],index=[],columns=['Events'])
 
