@@ -2,6 +2,8 @@
 from threading import Thread
 import logging
 
+from view.widgets.spinner import Spinner
+
 logger = logging.getLogger("app_logger")
 
 CALLBACK_WATCH_DELAY = 100  # Loop duration [ms] when waiting for task termination, then invoking the callback
@@ -21,22 +23,23 @@ TASK_OPERA = "opera"
 def init_tasks(controller):
     controller.TASKS = {
         TASK_PRE_COMPUTATIONS: {"func": controller.pre_computations},
-        TASK_DISCOVER_PETRI_NET: {"func": controller.render_petri_net},
-        TASK_HEATMAP_OT: {"func": controller.model.compute_heatmap},
-        TASK_HEATMAP_POOLING: {"func": controller.model.compute_heatmap_pooling},
-        TASK_HEATMAP_LAGGING: {"func": controller.model.compute_heatmap_lagging},
-        TASK_COMPUTE_CASES: {"func": controller.compute_cases},
-        TASK_COMPUTE_VARIANTS: {"func": controller.compute_variants},
-        TASK_COMPUTE_VARIANT_FREQUENCIES: {"func": controller.compute_variant_frequencies},
-        TASK_OPERA: {"func": controller.compute_opera}
+        TASK_DISCOVER_PETRI_NET: {"func": controller.render_petri_net, "text": "Discovering petri net"},
+        TASK_HEATMAP_OT: {"func": controller.model.compute_heatmap, "text": "Computing heatmap"},
+        TASK_HEATMAP_POOLING: {"func": controller.model.compute_heatmap_pooling, "text": "Computing performance metrics"},
+        TASK_HEATMAP_LAGGING: {"func": controller.model.compute_heatmap_lagging, "text": "Computing performance metrics"},
+        TASK_COMPUTE_CASES: {"func": controller.compute_cases, "text": "Computing cases and variants"},
+        TASK_COMPUTE_VARIANTS: {"func": controller.compute_variants, "text": "Computing cases and variants"},
+        TASK_COMPUTE_VARIANT_FREQUENCIES: {"func": controller.compute_variant_frequencies, "text": "Computing variant frequencies"},
+        TASK_OPERA: {"func": controller.compute_opera, "text": "Computing performance metrics"}
     }
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 class Task(Thread):
     instance_counter = 0
+    window = None
 
-    def __init__(self, window, key, func, callback, **kwargs):
+    def __init__(self, window, key, func, callback, text=None, **kwargs):
         super().__init__()
         Task.instance_counter += 1
         self.id = f"{Task.instance_counter}_{key}"
@@ -45,9 +48,11 @@ class Task(Thread):
         self.func = func
         self.params = kwargs
         self.callback = callback
+        self.text = text
         self.running = False
         self.response = None
         self.killed = False
+        self.spinner = None
 
     def has_callback(self):
         return self.callback is not None and callable(self.callback)
@@ -56,11 +61,27 @@ class Task(Thread):
         self.running = True  # (might already have been set to true)
         logger.info(f"Run task '{self.id}'")
 
+        # Show spinner
+        self.show_spinner()
+
         # Execute task
         self.response = self.func(**self.params, **kwargs)
         # Task finished
         self.running = False
         logger.info(f"Task '{self.id}' finished")
+
+        # Remove spinner
+        self.spinner.stop()
+        self.spinner.place_forget()
+        self.spinner = None
+
+    def show_spinner(self):
+        # Creates a spinner inside the window with a description of the task
+        if self.spinner is not None:
+            self.spinner.set_text(self.text)
+        else:
+            self.spinner = Spinner(Task.window, text=f"{self.text} ...")
+            self.spinner.overlay()
 
     def watch(self):
         """

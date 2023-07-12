@@ -5,26 +5,55 @@ SPINNER_DELAY = 20
 SPINNER_ANGLE_STEP = 7.5
 WIDTH = 200
 HEIGHT = 200
+TEXT_HEIGHT = 50
 RADIUS = 20
 CIRCLE_RADIUS = 3
 
 
 class Spinner(tk.Canvas):
-    def __init__(self, master: tk.Tk):
-        master.geometry(f"{WIDTH}x{HEIGHT}")
+    def __init__(self, master: tk.Tk, text: str = None, width=WIDTH, height=HEIGHT):
+
+        self.width = width
+        self.height = height
+        self.text = text
+        self.stopped = False
 
         # Create a Canvas widget
-        super().__init__(master, width=WIDTH, height=HEIGHT, bg="white")
+        self.canvas_height = self.height + (0 if text is None else TEXT_HEIGHT)
+        super().__init__(master, width=self.width, height=self.canvas_height)
+        self.configure(bg="white")
 
         # Start the spinner animation
         self.animate_spinner(angle=0)
 
+    def fill(self):
+        self.master.geometry(f"{self.width}x{self.canvas_height}")
+        return self.pack()
+
+    def overlay(self):
+        return self.place(x=self.master.winfo_width() / 2 - self.width / 2,
+                          y=self.master.winfo_height() / 2 - self.height / 2)
+
+    def set_text(self, text: str = None):
+        if (text is None) != (self.text is None):
+            self.canvas_height = self.height + (0 if text is None else TEXT_HEIGHT)
+            self.config(height=self.canvas_height)
+        self.text = text
+
+    def stop(self):
+        self.stopped = True
+
     def animate_spinner(self, angle):
+        if self.stopped:
+            return
         # Clear the canvas
         self.delete("all")
+        # Write text
+        if self.text is not None:
+            self.create_text(self.width / 2, self.height + TEXT_HEIGHT / 2, text=self.text)
 
         num_circles = 12
-        x, y = WIDTH / 2, HEIGHT / 2
+        x, y = self.width / 2, self.height / 2
 
         # Calculate the angle between each small circle
         angle_increment = 360 / num_circles

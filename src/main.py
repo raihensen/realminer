@@ -70,6 +70,7 @@ class App:
         self.import_thread.start()
 
         self.window = tk.Tk()
+        Task.window = self.window
         self.window_icon = tk.PhotoImage(file='static/img/window_icon_new.png')
         self.window.wm_iconphoto(False, self.window_icon)
         style = ttk.Style()
@@ -95,7 +96,7 @@ class App:
             logger.info("Waiting for background imports ...")
             # Spinner animation
             self._clear_window()
-            Spinner(self.window).pack()
+            Spinner(self.window, text="Loading application ...").fill()
         self._initialize_after_imports()
 
     def _clear_window(self):
