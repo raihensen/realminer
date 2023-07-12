@@ -82,6 +82,9 @@ class VariantsTab(SidebarTab):
         bg = ttk.Style.instance.colors.bg
         fg = ttk.Style.instance.colors.fg
         A = to_agraph(G)
+        A.graph_attr["fontname"] = GRAPH_FONT
+        A.node_attr["fontname"] = GRAPH_FONT
+        A.edge_attr["fontname"] = GRAPH_FONT
         A.graph_attr["bgcolor"] = bg
         A.node_attr["fontcolor"] = fg
         A.node_attr["color"] = fg

@@ -34,6 +34,16 @@ class Controller:
         # ...
         logger.info("Pre-computations finished.")
 
+    def render_petri_net(self, renderer):
+        # run as task
+        # Call discovery (within Model)
+        ocpn = self.model.compute_petri_net()
+        # Call performance metrics (within Model)
+        opera_kpis = self.model.compute_opera()
+        # Call renderer (within View)
+        path = renderer(ocpn, opera_kpis["lagging_time"], opera_kpis["pooling_time"])
+        return path
+
     def compute_cases(self):
         # run as task
         return self.model.cases

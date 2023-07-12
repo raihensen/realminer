@@ -21,7 +21,7 @@ TASK_OPERA = "opera"
 def init_tasks(controller):
     controller.TASKS = {
         TASK_PRE_COMPUTATIONS: {"func": controller.pre_computations},
-        TASK_DISCOVER_PETRI_NET: {"func": controller.model.compute_petri_net},
+        TASK_DISCOVER_PETRI_NET: {"func": controller.render_petri_net},
         TASK_HEATMAP_OT: {"func": controller.model.compute_heatmap},
         TASK_HEATMAP_POOLING: {"func": controller.model.compute_heatmap_pooling},
         TASK_HEATMAP_LAGGING: {"func": controller.model.compute_heatmap_lagging},

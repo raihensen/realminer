@@ -1,7 +1,9 @@
+import time
 from typing import Dict, List, Union, Optional
 
 import pm4py
 import logging
+import timeit
 
 from pm4py.ocel import OCEL as Pm4pyEventLogObject
 from pm4py.algo.discovery.ocel.ocpn.variants.wo_annotation import Parameters as OcpnParameters
@@ -11,6 +13,22 @@ import pandas as pd
 import collections
 
 logger = logging.getLogger("app_logger")
+
+
+# https://stackoverflow.com/a/24812460
+def _template_func(setup, func):
+    """Create a timer function. Used if the "statement" is a callable."""
+    def inner(_it, _timer, _func=func):
+        setup()
+        _t0 = _timer()
+        for _i in _it:
+            retval = _func()
+        _t1 = _timer()
+        return _t1 - _t0, retval
+    return inner
+
+
+timeit._template_func = _template_func
 
 
 class Pm4pyEventLog(OCEL):
@@ -69,15 +87,13 @@ class Pm4pyEventLog(OCEL):
 
     def _compute_petri_net(self, bgcolor="white"):
         logger.info("Beggining the discovery of a petri net using pm4py")
+
+        t0 = time.time()
         ocpn = pm4py.discover_oc_petri_net(self.ocel)
-        # ocpn is dict:
-        #  "petri_nets": dict[ot -> PetriNet]
-        #  "double_arcs_on_activity": dict[ot -> dict[act -> bool]]
-        #  ... (originally dict containing the ocdfg)
-        filename = 'static/img/ocpn.png'
-        pm4py.save_vis_ocpn(ocpn=ocpn, file_path=filename, bgcolor=bgcolor)
-        logger.info(f"Petri net saved to {filename}")
-        return filename
+        t1 = time.time()
+        discovery_time = t1 - t0
+        logger.info(f"Discovery time: {discovery_time}")
+        return ocpn
     
     def _compute_heatmap(self):
         df = self.ocel.relations

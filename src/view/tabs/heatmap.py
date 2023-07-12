@@ -9,6 +9,7 @@ from controller.tasks import *
 from controller.export import Export
 from view.widgets.heatmap import HeatmapFrame, HeatmapType, HEATMAP_HTML_FILE
 import plotly.graph_objects as go
+from view import utils
 
 
 HEATMAP_TYPES = {
@@ -155,7 +156,7 @@ class HeatMapTab(SidebarTab):
         for x in matrix._stat_axis:
             hovertext.append(list())
             for y in matrix.columns:
-                s = f"In activity: {x}<br>Pooling the objects of type:  {y}<br>needs: " + HeatMapTab.time_formatter(matrix[y][x])
+                s = f"In activity: {x}<br>Pooling the objects of type:  {y}<br>needs: " + utils.time_formatter(matrix[y][x])
                 hovertext[-1].append(s)
 
         fig = go.Figure()
@@ -181,7 +182,7 @@ class HeatMapTab(SidebarTab):
         for x in matrix._stat_axis:
             hovertext.append(list())
             for y in matrix.columns:
-                s = f"In activity: {x}<br>the first object of object type:  {y}<br>gets delayed by: " + HeatMapTab.time_formatter(matrix[y][x])
+                s = f"In activity: {x}<br>the first object of object type:  {y}<br>gets delayed by: " + utils.time_formatter(matrix[y][x])
                 hovertext[-1].append(s)
 
         fig = go.Figure()
@@ -197,26 +198,7 @@ class HeatMapTab(SidebarTab):
         self.refresh_heatmap_display()
 
     @staticmethod
-    def time_formatter(t) -> str:
-        if t >= 60 * 60 * 24 * 365:
-            return f'{t / (60 * 60 * 24 * 365):.1f}y'
-        elif t >= 60 * 60 * 24:
-            return f'{t / (60 * 60 * 24):.1f}d'
-        elif t >= 60 * 60:
-            hours = int(t // (60 * 60))
-            minutes = str(int((t // 60) % 60)).ljust(2, '0')
-            return f"{hours}:{minutes}h"
-        elif t >= 60:
-            minutes = str(int(t // 60)).ljust(2, '0')
-            seconds = str(int(t % 60)).ljust(2, '0')
-            return f'0:{minutes}:{seconds}'
-        elif t > 0:
-            return f'{t:.1f}s'
-        else:
-            return "0d"
-
-    @staticmethod
     def format_heatmap_time_intervals(heatmap, tmin, tmax):
         # Set the custom tick values and labels for the colorbar
         heatmap.colorbar.tickvals = [tmin, tmax]
-        heatmap.colorbar.ticktext = [HeatMapTab.time_formatter(t) for t in (tmin, tmax)]
+        heatmap.colorbar.ticktext = [utils.time_formatter(t) for t in (tmin, tmax)]
