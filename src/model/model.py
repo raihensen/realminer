@@ -3,13 +3,16 @@ import os
 from typing import final, List, Dict, Union, Optional
 from builtins import property
 from pathlib import Path
+from datetime import datetime
 import pandas as pd
 import networkx as nx
+import tkinter.filedialog as filedialog
 
 from model.ocel.base import OCEL, DummyEventLog
 from model.ocel.ocpa import OcpaEventLog, OCPA_DEFAULT_SETTINGS
 from model.ocel.pm4py import Pm4pyEventLog
 from model.constants import *
+from controller.export import Export
 import pm4py
 
 OCEL_CONSTRUCTORS = {
@@ -121,6 +124,22 @@ class Model:
                        )
         os.remove(target_path)
         return True
+
+    def export_json_ocel_to_file(self):
+        ocel_to_export = self._ocels[0]
+
+        # get default location and filename
+        directory = Path(Export.app.get_preference("export_path"))
+        filename = f"export-{datetime.now().strftime('%Y%m%d-%H%M%S')}-ocel.jsonocel"
+        path = filedialog.asksaveasfilename(initialdir=str(directory), initialfile=filename)
+        if path is None or not path:
+            pass
+        else:
+            self.path = Path(path)
+            directory = self.path.resolve().parent
+            Export.app.set_preference("export_path", str(directory))
+
+        ocel_to_export.export_json_ocel(path)
 
     def _execute_ocel_method(self, method_name, *args):
         """

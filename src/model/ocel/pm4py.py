@@ -147,6 +147,7 @@ class Pm4pyEventLog(OCEL):
         return [hash_df(self.ocel.events), hash_df(self.ocel.relations), hash_df(self.ocel.objects)]
 
     def export_json_ocel(self, target_path):
+        # pm4py.write_ocel(ocel, path)
         pm4py.objects.ocel.exporter.jsonocel.exporter.apply(self.ocel, target_path)
 
     def _get_extended_table(self):

@@ -48,7 +48,7 @@ class FilterTab(SidebarTab):
         theme_menubutton["menu"] = theme_menu
         # Table
         self.table_widget = None
-        self.refresh_table_button = None
+        self.export_table_button = None
 
     def update_demo_popups_checkbox(self):
         state = bool(self.checkbox_demo_popups_var.get())
@@ -59,8 +59,9 @@ class FilterTab(SidebarTab):
             self.table_widget.update_table()
         self.view.show_toast(title="Welcome to REAL MINER", message=TAB_EXPLANATION_FILTERS_SETTINGS, bootstyle="dark")
 
+
     def init_table(self, model):
         self.table_widget = TableViewWidget(self.interior, model)
-        self.refresh_table_button = tk.Button(self.interior, text="Refresh Table",
-                                              command=self.table_widget.update_table)
-        self.refresh_table_button.pack(side=BOTTOM, padx=10, pady=10, fill=X)
+        self.export_table_button = tk.Button(self.interior, text="Export as jsonocel",
+                                              command=self.table_widget.model.export_json_ocel_to_file)
+        self.export_table_button.pack(side=BOTTOM, padx=10, pady=10, fill=X)
