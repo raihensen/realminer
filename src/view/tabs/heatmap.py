@@ -137,6 +137,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
+        self.view.controller.current_export = Export("heatmap", "html", copy_from_path=HEATMAP_HTML_FILE, use_dialog=True)
+        
 
     def refresh_heatmap_display(self):
         browser = self.frame.get_browser()
@@ -170,6 +172,7 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
+        self.view.controller.current_export = Export("heatmap", "html", copy_from_path=HEATMAP_HTML_FILE, use_dialog=True)
 
     def display_heatmap_lagging(self, number_matrix):
         self.kpi_matrix = number_matrix
@@ -196,6 +199,7 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
+        self.view.controller.current_export = Export("heatmap", "html", copy_from_path=HEATMAP_HTML_FILE, use_dialog=True)
 
     @staticmethod
     def format_heatmap_time_intervals(heatmap, tmin, tmax):
