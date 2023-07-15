@@ -102,6 +102,7 @@ class VariantsTab(SidebarTab):
     def display_selected_variant(self):
         variant_id = self.value_to_variant[self.variant_selection_var.get()]
         path = self.render_variant_graph(variant_id)
+        self.view.controller.current_export = Export("varient_graph", "png", copy_from_path=path, use_dialog=True)
         # path = self.view.controller.model.variant_graph(variant_id)
 
         if self.imgview is not None:
