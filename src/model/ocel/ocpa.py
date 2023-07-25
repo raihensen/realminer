@@ -1,23 +1,18 @@
 import logging
+from pathlib import Path
 from typing import Dict, List, Union, Optional
 
-from model.ocel.base import OCEL
-
-from ocpa.objects.log.ocel import OCEL as OcpaEventLogObject
-from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
-from ocpa.algo.util.process_executions.factory import CONN_COMP, LEAD_TYPE
-from ocpa.algo.util.variants.factory import ONE_PHASE, TWO_PHASE
-from ocpa.algo.enhancement.token_replay_based_performance import algorithm as performance_factory
-from ocpa.algo.discovery.ocpn import algorithm as ocpn_discovery_factory
-from ocpa.visualization.oc_petri_net import factory as ocpn_viz_factory
-
-import networkx as nx
-from networkx.drawing.nx_agraph import graphviz_layout, to_agraph
-
-import pandas as pd
 import numpy as np
-from pathlib import Path
-from pprint import pprint
+import pandas as pd
+from networkx.drawing.nx_agraph import to_agraph
+import pygraphviz
+from ocpa.algo.discovery.ocpn import algorithm as ocpn_discovery_factory
+from ocpa.algo.enhancement.token_replay_based_performance import algorithm as performance_factory
+from ocpa.algo.util.process_executions.factory import LEAD_TYPE
+from ocpa.algo.util.variants.factory import TWO_PHASE
+from ocpa.objects.log.importer.ocel import factory as ocel_import_factory
+
+from model.ocel.base import OCEL
 
 OCPA_DEFAULT_SETTINGS = {
     "execution_extraction": LEAD_TYPE,

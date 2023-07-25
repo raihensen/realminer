@@ -125,6 +125,9 @@ class Model:
         os.remove(target_path)
         return True
 
+    def export_json_ocel(self, path):
+        self._ocels[0].export_json_ocel(path)
+
     def export_json_ocel_to_file(self):
         ocel_to_export = self._ocels[0]
 

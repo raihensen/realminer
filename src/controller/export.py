@@ -9,8 +9,6 @@ from pathlib import Path
 logger = logging.getLogger("app_logger")
 
 
-# TODO integrate and test
-
 class Export:
     app = None
 
@@ -41,6 +39,8 @@ class Export:
         self.path = None
         self.cancelled = False
 
+        logger.info(f"Initialized exportable with name '{self.name}' (.{self.ext})")
+
     def prepare_path(self):
         self.cancelled = False
         # get default location and filename
@@ -61,14 +61,14 @@ class Export:
     def execute(self):
         success = False
         if not self.cancelled and self.path is not None:
-            if self.write_to_file:
+            if self.write_to_file is not None:
                 with open(self.path, mode="w", encoding="utf-8") as f:
                     self.write_to_file(f)
                 success = True
-            elif self.write_to_path:
+            elif self.write_to_path is not None:
                 self.write_to_path(self.path)
                 success = True
-            elif self.copy_from_path:
+            elif self.copy_from_path is not None:
                 if os.path.exists(self.copy_from_path):
                     shutil.copy2(self.copy_from_path, self.path)
                     success = True

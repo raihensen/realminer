@@ -171,6 +171,8 @@ class App:
         return default
 
     def _instance_set_preference(self, key: str, value):
+        if self.get_preference(key) == value:
+            return
         logger.info(f"Save new preference: {key} := {value}")
         self._preferences[key] = value
         with open(PREFERENCES_FILE, "w") as file:

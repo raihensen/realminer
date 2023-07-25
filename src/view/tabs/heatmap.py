@@ -1,16 +1,15 @@
-
-import logging
 import tkinter as tk
+
+import plotly.graph_objects as go
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from view.constants import *
-from view.components.tab import Tabs, Tab, SidebarTab
-from controller.tasks import *
-from controller.export import Export
-from view.widgets.heatmap import HeatmapFrame, HeatmapType, HEATMAP_HTML_FILE
-import plotly.graph_objects as go
-from view import utils
 
+from controller.export import Export
+from controller.tasks import *
+from view import utils
+from view.components.tab import SidebarTab
+from view.constants import *
+from view.widgets.heatmap import HeatmapFrame, HeatmapType, HEATMAP_HTML_FILE
 
 HEATMAP_TYPES = {
     "object_interactions": HeatmapType(title="Object Interactions",
@@ -114,7 +113,8 @@ class HeatMapTab(SidebarTab):
         self.generate_heatmap()
         # self.view.controller.run_task(key=TASK_HEATMAP_OT, callback=self.display_heatmap_ot)
 
-        self.view.show_toast(title="Insights into object and activity relation", message=TAB_EXPLANATION_HEATMAP, bootstyle="dark")
+        self.view.show_toast(title="Insights into object and activity relation", message=TAB_EXPLANATION_HEATMAP,
+                             bootstyle="dark")
 
     def get_selected_heatmap_type(self):
         return list(HEATMAP_TYPES.items())[self.heatmap_selection_var.get()]
@@ -138,8 +138,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        self.view.controller.current_export = Export("heatmap", "html", copy_from_path=HEATMAP_HTML_FILE, use_dialog=True)
-        
+        self.view.controller.current_export = Export("heatmap_object_types", "html", copy_from_path=HEATMAP_HTML_FILE,
+                                                     use_dialog=True)
 
     def refresh_heatmap_display(self):
         browser = self.frame.get_browser()
@@ -178,7 +178,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        self.view.controller.current_export = Export("heatmap", "html", copy_from_path=HEATMAP_HTML_FILE, use_dialog=True)
+        self.view.controller.current_export = Export("heatmap_pooling", "html", copy_from_path=HEATMAP_HTML_FILE,
+                                                     use_dialog=True)
 
     def display_heatmap_lagging(self, number_matrix):
         self.kpi_matrix = number_matrix
@@ -210,7 +211,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        self.view.controller.current_export = Export("heatmap", "html", copy_from_path=HEATMAP_HTML_FILE, use_dialog=True)
+        self.view.controller.current_export = Export("heatmap_lagging", "html", copy_from_path=HEATMAP_HTML_FILE,
+                                                     use_dialog=True)
 
     @staticmethod
     def format_heatmap_time_intervals(heatmap, tmin, tmax):

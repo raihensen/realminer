@@ -22,12 +22,15 @@ class FilterTab(SidebarTab):
         # Sidebar contents
         acc = Accordion(self.sidebar, title_height=50, bootstyle=SECONDARY)
         acc.pack(side=TOP, fill=X, expand=True)
+
         # Object types
         self.ot_container = acc.add_chord(title='Object types', expanded=True)
         self.ot_widget = None
+
         # Activities
         self.act_container = acc.add_chord(title='Activities')
         self.act_widget = None
+
         # Checkbox for disabling demo popups
         self.checkbox_demo_popups_var = tk.IntVar(value=int(self.view.app.get_preference("show_demo_popups")))
         self.checkbox_demo_popups = ttk.Checkbutton(master=self.sidebar,
@@ -36,6 +39,7 @@ class FilterTab(SidebarTab):
                                                     variable=self.checkbox_demo_popups_var,
                                                     bootstyle="round-toggle")
         self.checkbox_demo_popups.pack(side=BOTTOM, fill=X, padx=10, pady=10)
+
         # Theme selection
         theme_menubutton = ttk.Menubutton(master=self.sidebar, text="Change theme", bootstyle=SECONDARY)
         theme_menubutton.pack(side=BOTTOM, padx=10, pady=10, fill=X)
@@ -59,9 +63,8 @@ class FilterTab(SidebarTab):
             self.table_widget.update_table()
         self.view.show_toast(title="Welcome to REAL MINER", message=TAB_EXPLANATION_FILTERS_SETTINGS, bootstyle="dark")
 
-
     def init_table(self, model):
-        self.table_widget = TableViewWidget(self.interior, model)
+        self.table_widget = TableViewWidget(self.interior, self.view.controller, model)
         self.export_table_button = tk.Button(self.interior, text="Export as jsonocel",
-                                              command=self.table_widget.model.export_json_ocel_to_file)
+                                             command=self.view.trigger_export)
         self.export_table_button.pack(side=BOTTOM, padx=10, pady=10, fill=X)
