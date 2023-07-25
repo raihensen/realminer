@@ -22,6 +22,7 @@ class VariantsTab(SidebarTab):
         self.stats_label = None
         self.variant_selection = None
         self.imgview = None
+        self.btn_export = None
         self.label_to_variant = {}
         self.value_to_variant = {}
         self.variant_selection_var = tk.IntVar()
@@ -107,5 +108,8 @@ class VariantsTab(SidebarTab):
         if self.imgview is not None:
             self.imgview.canvas.forget()
             self.imgview.forget()
+            self.btn_export.forget()
         self.imgview = AdvancedZoom(self.main, path=path)
         self.imgview.pack(fill=BOTH, expand=True)
+        self.btn_export = ttk.Button(master=self, text="Export image", command=self.view.trigger_export)
+        self.btn_export.place(relx=.9925, rely=.985, anchor=SE)

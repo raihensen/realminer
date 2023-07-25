@@ -76,6 +76,9 @@ class HeatMapTab(SidebarTab):
         self.frame = HeatmapFrame(self.interior, key=key, heatmap_type=heatmap_type)
         self.frame.pack(fill=BOTH, expand=YES)
 
+        # Init export button (place when heatmap is shown)
+        self.btn_export = ttk.Button(master=self, text="Export heatmap", command=self.view.trigger_export)
+
     def select_min_measure(self):
         self.measurement = "mean"
         key, heatmap_type = self.get_selected_heatmap_type()
@@ -128,6 +131,8 @@ class HeatMapTab(SidebarTab):
 
     def display_heatmap_ot(self, args):
         number_matrix, activities = args
+
+        self.btn_export.forget()
         fig = go.Figure()
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns.levels[0]),
@@ -142,6 +147,7 @@ class HeatMapTab(SidebarTab):
                                                 copy_from_path=HEATMAP_HTML_FILE, use_dialog=True))
 
     def refresh_heatmap_display(self):
+        self.btn_export.place(relx=.9925, rely=.985, anchor=SE)
         browser = self.frame.get_browser()
         if browser is not None:
             browser.Reload()

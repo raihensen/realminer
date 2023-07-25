@@ -1,6 +1,5 @@
 
 import logging
-import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from view.constants import *
@@ -9,11 +8,8 @@ from controller.tasks import *
 from controller.export import Export
 from view.components.zoomable_frame import AdvancedZoom
 from view import utils
-import pm4py
 import time
-import pm4py.visualization.ocel.ocpn.visualizer as petrinet_visualizer
 from pm4py.visualization.ocel.ocpn.variants.wo_decoration import *
-# import uuid
 from typing import Optional, Dict, Any, Tuple
 import pandas as pd
 
@@ -23,6 +19,7 @@ class PetriNetTab(Tab):
         super().__init__(master=master, view=view, title="Petri Net")
         self.display_label = ttk.Label(self)
         self.imgview = None
+        self.btn_export = None
 
     def on_open(self):
         self.view.controller.run_task(key=TASK_DISCOVER_PETRI_NET, callback=self.display_petri_net, renderer=self.render_petri_net)
@@ -32,22 +29,23 @@ class PetriNetTab(Tab):
         if self.imgview is not None:
             self.imgview.canvas.forget()
             self.imgview.forget()
+            self.btn_export.forget()
         self.imgview = AdvancedZoom(self, path=path)
         self.imgview.pack(fill=BOTH, expand=True)
         self.view.controller.init_export(Export("petrinet", "png", copy_from_path=path, use_dialog=True))
+        self.btn_export = ttk.Button(master=self, text="Export image", command=self.view.trigger_export)
+        self.btn_export.place(relx=.9925, rely=.985, anchor=SE)
 
     def render_petri_net(self, ocpn, lagging_times: pd.DataFrame, pooling_times: pd.DataFrame):
         """
         Renders an object-centric petri net (ocpn) to an image file.
         Based on pm4py's visualization method (https://github.com/pm4py/pm4py-core/blob/release/pm4py/visualization/ocel/ocpn/variants/wo_decoration.py)
-        Reference paper: van der Aalst, Wil MP, and Alessandro Berti. "Discovering object-centric Petri nets." Fundamenta informaticae 175.1-4 (2020): 1-40.
+        Reference paper: van der Aalst, Wil and Berti, Alessandro. "Discovering object-centric Petri nets." Fundamenta informaticae 175.1-4 (2020): 1-40.
         :param ocpn: An object-centric petri net, as discovered by pm4py's discovery algorithm
         :return: The path of the rendered image
         """
-        # bgcolor = ttk.Style.instance.colors.bg
 
         t0 = time.time()
-        # A = petrinet_visualizer.apply(ocpn)
         A, maps = self.advanced_visualizer(ocpn, lagging_times, pooling_times, agg='mean')
         t1 = time.time()
         visualization_time = t1 - t0
@@ -101,6 +99,8 @@ class PetriNetTab(Tab):
         ---------------
         viz
             Graphviz digraph
+        maps
+            Dict containing information on the petri net elements
         """
         if parameters is None:
             parameters = {}
