@@ -9,6 +9,7 @@ from controller.tasks import *
 from controller.export import Export
 from view.components.accordion import Accordion
 from view.widgets.table_view import TableViewWidget
+import functools
 
 
 class FilterTab(SidebarTab):
@@ -65,6 +66,13 @@ class FilterTab(SidebarTab):
 
     def init_table(self, model):
         self.table_widget = TableViewWidget(self.interior, self.view.controller, model)
-        self.export_table_button = tk.Button(self.interior, text="Export as jsonocel",
-                                             command=self.view.trigger_export)
-        self.export_table_button.pack(side=BOTTOM, padx=10, pady=10, fill=X)
+        button_row = ttk.Frame(master=self.interior)
+        button_row.pack(side=BOTTOM, fill=X)
+        export_jsonocel_button = ttk.Button(master=button_row,
+                                            text="Export (.jsonocel)",
+                                            command=functools.partial(self.view.trigger_export, "event_log_jsonocel"))
+        export_jsonocel_button.pack(side=RIGHT, padx=10, pady=10)
+        export_csv_button = ttk.Button(master=button_row,
+                                       text="Export (.csv)",
+                                       command=functools.partial(self.view.trigger_export, "event_log_csv"))
+        export_csv_button.pack(side=RIGHT, padx=10, pady=10)

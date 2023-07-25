@@ -127,7 +127,6 @@ class DummyEventLog(OCEL):
         return list(zip(range(sum(freqs)), sum((x * [i] for i, x in enumerate(sorted(freqs, reverse=True))), [])))
 
     def _get_variants(self) -> Dict[int, int]:
-        # TODO decide how to represent a variant
         return {i: i for i in range(7)}
 
     def _get_variant_frequencies(self) -> Dict[str, int]:

@@ -52,12 +52,8 @@ class ObjectTypeWidget(ttk.Frame):
 class ObjectTypeListWidget(DndList):
     def __init__(self, master, object_types, counts, colors=None, on_swap=None, **kwargs):
         super().__init__(master, on_swap=on_swap, **kwargs)
-
-        # TODO random color assignment, use nice color palette
         if colors is None:
             colors = {ot: ot_to_color(ot) for ot in object_types}
-            # r = lambda: random.randint(0, 255)
-            # colors = {ot: '#{:02x}{:02x}{:02x}'.format(r(), r(), r()) for ot in object_types}
 
         for ot in object_types:
             self.add_item(item=ot, child=ObjectTypeEntryWidget(master=self,

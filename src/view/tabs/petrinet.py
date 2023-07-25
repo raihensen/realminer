@@ -34,7 +34,7 @@ class PetriNetTab(Tab):
             self.imgview.forget()
         self.imgview = AdvancedZoom(self, path=path)
         self.imgview.pack(fill=BOTH, expand=True)
-        self.view.controller.current_export = Export("petrinet", "png", copy_from_path=path, use_dialog=True)
+        self.view.controller.init_export(Export("petrinet", "png", copy_from_path=path, use_dialog=True))
 
     def render_petri_net(self, ocpn, lagging_times: pd.DataFrame, pooling_times: pd.DataFrame):
         """

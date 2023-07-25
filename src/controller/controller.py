@@ -3,6 +3,7 @@ import logging
 from view.view import View
 from typing import Dict, List, Union, Optional
 from controller.tasks import *
+from controller.export import Export
 
 logger = logging.getLogger("app_logger")
 
@@ -15,7 +16,7 @@ class Controller:
         self.tasks = {}
         self.TASKS = {}
         init_tasks(self)
-        self.current_export = None
+        self.current_exports = []  # Usually only the latest export (last element) is used
 
     def init_view(self):
         self.view.init_object_types(object_types=self.model.original_ocel.object_types,
@@ -80,11 +81,33 @@ class Controller:
         # start task
         task.start()
 
-    def trigger_export(self):
-        if self.current_export is None:
+    def init_export(self, export: Export):
+        """
+        Adds an Export object to the list of available exports
+        :param export:
+        :return:
+        """
+        self.current_exports.append(export)
+
+    def trigger_export(self, name: Optional[str] = None) -> bool:
+        """
+        Triggers the export function of the latest Export added to the list self.current_exports.
+        :param name: Filter the export list for a certain name, take the latest matching Export instance.
+        :return: The latest (matching) Export object
+        """
+        if not self.current_exports:
             logger.info("Nothing to be exported.")
             return False
 
-        logger.info("Export triggered")
-        self.current_export.prepare_path()
-        self.current_export.execute()
+        if name is not None:
+            matching_exports = [e for e in self.current_exports if e.name == name]
+            if not matching_exports:
+                logger.info(f"No export available with the name '{name}'")
+                return False
+            export = matching_exports[-1]
+        else:
+            export = self.current_exports[-1]
+
+        logger.info(f"Export '{export.name}' triggered")
+        export.prepare_path()
+        return export.execute()

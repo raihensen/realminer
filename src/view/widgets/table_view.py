@@ -44,9 +44,10 @@ class TableViewWidget:
         logger.info("Updating table according to update ocel...")
         self.ocel_df = self.model.extended_table
 
-        self.controller.current_export = Export("event_log", "jsonocel",
-                                                write_to_path=self.controller.model.export_json_ocel,
-                                                use_dialog=True)
+        self.controller.init_export(Export("event_log_jsonocel", "jsonocel",
+                                           write_to_path=self.controller.model.export_json_ocel, use_dialog=True))
+        self.controller.init_export(Export("event_log_csv", "csv",
+                                           write_to_path=self.controller.model.export_csv, use_dialog=True))
         columns = self.get_columns()
         row_data = self.get_rows()
 

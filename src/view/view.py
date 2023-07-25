@@ -67,10 +67,10 @@ class View:
         self.tab_widget.add_tab(self.tab3)
 
         # Init key events
-        self.window.bind("<Control-s>", self.trigger_export)
+        self.window.bind("<Control-s>", lambda *args: self.trigger_export())
 
-    def trigger_export(self, *args):
-        self.controller.trigger_export()
+    def trigger_export(self, name=None):
+        self.controller.trigger_export(name)
 
     def show_toast(self, title, message, bootstyle=None):
         if not self.app.get_preference("show_demo_popups"):
@@ -92,9 +92,6 @@ class View:
 
     def on_filter(self):
         self.tab1.table_widget.update_table()
-        # self.controller.current_export = Export("event_log", "jsonocel",
-        #                                         write_to_path=self.controller.model.export_json_ocel,
-        #                                         use_dialog=True)
 
     def change_theme(self, theme):
         logger.info(f"Change to theme '{theme}'")

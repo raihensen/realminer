@@ -75,7 +75,6 @@ class Accordion(ttk.Frame):
         self.style = {k: kwargs.get(k, default) for k, default in DEFAULT_STYLE.items()}
         self.columnconfigure(0, weight=1)
 
-        # TODO get bootstyle text color
         fg = ttk.Style.instance.colors.selectfg
         self.icon_expanded = get_icon("caret-down", fg, self.style['font_size'])
         self.icon_collapsed = get_icon("caret-right", fg, self.style['font_size'])

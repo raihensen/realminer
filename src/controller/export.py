@@ -58,7 +58,7 @@ class Export:
         else:
             self.path = directory / filename
 
-    def execute(self):
+    def execute(self) -> bool:
         success = False
         if not self.cancelled and self.path is not None:
             if self.write_to_file is not None:

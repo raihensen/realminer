@@ -31,8 +31,7 @@ class VariantsTab(SidebarTab):
             if w is not None:
                 w.forget()
 
-        # Check if computing variants makes sense (https://ilya-fradlin.atlassian.net/browse/CO-28)
-        # TODO
+        # TODO FUTURE Check if computing variants makes sense (https://ilya-fradlin.atlassian.net/browse/CO-28)
 
         # Compute variants in separate thread
         self.view.controller.run_task(TASK_COMPUTE_VARIANT_FREQUENCIES, callback=self.display_variants)
@@ -103,8 +102,7 @@ class VariantsTab(SidebarTab):
     def display_selected_variant(self):
         variant_id = self.value_to_variant[self.variant_selection_var.get()]
         path = self.render_variant_graph(variant_id)
-        self.view.controller.current_export = Export("variant_graph", "png", copy_from_path=path, use_dialog=True)
-        # path = self.view.controller.model.variant_graph(variant_id)
+        self.view.controller.init_export(Export("variant_graph", "png", copy_from_path=path, use_dialog=True))
 
         if self.imgview is not None:
             self.imgview.canvas.forget()

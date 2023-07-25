@@ -129,17 +129,17 @@ class HeatMapTab(SidebarTab):
     def display_heatmap_ot(self, args):
         number_matrix, activities = args
         fig = go.Figure()
-        # TODO add margin to fig
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns.levels[0]),
                                  y=list(number_matrix.columns.levels[0]),
                                  hoverinfo='text',
                                  text=activities))
+        fig.update_layout(margin_b=200, margin_r=120)
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        self.view.controller.current_export = Export("heatmap_object_types", "html", copy_from_path=HEATMAP_HTML_FILE,
-                                                     use_dialog=True)
+        self.view.controller.init_export(Export("heatmap_object_types", "html",
+                                                copy_from_path=HEATMAP_HTML_FILE, use_dialog=True))
 
     def refresh_heatmap_display(self):
         browser = self.frame.get_browser()
@@ -178,8 +178,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        self.view.controller.current_export = Export("heatmap_pooling", "html", copy_from_path=HEATMAP_HTML_FILE,
-                                                     use_dialog=True)
+        self.view.controller.init_export(Export("heatmap_pooling", "html",
+                                                copy_from_path=HEATMAP_HTML_FILE, use_dialog=True))
 
     def display_heatmap_lagging(self, number_matrix):
         self.kpi_matrix = number_matrix
@@ -211,8 +211,8 @@ class HeatMapTab(SidebarTab):
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
-        self.view.controller.current_export = Export("heatmap_lagging", "html", copy_from_path=HEATMAP_HTML_FILE,
-                                                     use_dialog=True)
+        self.view.controller.init_export(Export("heatmap_lagging", "html",
+                                                copy_from_path=HEATMAP_HTML_FILE, use_dialog=True))
 
     @staticmethod
     def format_heatmap_time_intervals(heatmap, tmin, tmax):

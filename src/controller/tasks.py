@@ -90,7 +90,6 @@ class Task(Thread):
         """
         if self.killed:
             # callback will not be invoked
-            # TODO might include possibility to pass a second callback called when task is killed
             return
         elif not self.running:  # task has finished
             if self.has_callback():
