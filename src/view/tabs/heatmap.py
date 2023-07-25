@@ -129,6 +129,7 @@ class HeatMapTab(SidebarTab):
     def display_heatmap_ot(self, args):
         number_matrix, activities = args
         fig = go.Figure()
+        # TODO add margin to fig
         fig.add_trace(go.Heatmap(z=number_matrix,
                                  x=list(number_matrix.columns.levels[0]),
                                  y=list(number_matrix.columns.levels[0]),
@@ -150,15 +151,19 @@ class HeatMapTab(SidebarTab):
     def display_heatmap_pooling(self, number_matrix):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['pooling_time'][self.measurement]
-        number_matrix.fillna(0, inplace=True)
-        tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
+        number_matrix.fillna(-1 * 24 * 60 * 60, inplace=True)
+        tmin, tmax = max(0, number_matrix.min().min()), number_matrix.max().max()
 
         matrix = number_matrix
         hovertext = list()
         for x in matrix._stat_axis:
             hovertext.append(list())
             for y in matrix.columns:
-                s = f"In activity: {x}<br>Pooling the objects of type:  {y}<br>needs: " + utils.time_formatter(matrix[y][x])
+                time_str = utils.time_formatter(matrix[y][x])
+                if time_str is not None:
+                    s = f"Before executing '{x}'<br>the objects of type '{y}'<br>take {time_str} for pooling"
+                else:
+                    s = f"The object type '{y}'<br>is not related to '{x}'"
                 hovertext[-1].append(s)
 
         fig = go.Figure()
@@ -177,15 +182,19 @@ class HeatMapTab(SidebarTab):
     def display_heatmap_lagging(self, number_matrix):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['lagging_time'][self.measurement]
-        number_matrix.fillna(0, inplace=True)
-        tmin, tmax = number_matrix.min().min(), number_matrix.max().max()
+        number_matrix.fillna(-1 * 24 * 60 * 60, inplace=True)
+        tmin, tmax = max(0, number_matrix.min().min()), number_matrix.max().max()
 
         matrix = number_matrix
         hovertext = list()
         for x in matrix._stat_axis:
             hovertext.append(list())
             for y in matrix.columns:
-                s = f"In activity: {x}<br>the first object of object type:  {y}<br>gets delayed by: " + utils.time_formatter(matrix[y][x])
+                time_str = utils.time_formatter(matrix[y][x])
+                if time_str is not None:
+                    s = f"The last object of type '{y}'<br>delays the activity '{x}'<br>by " + time_str
+                else:
+                    s = f"The object type '{y}'<br>is not related to '{x}'"
                 hovertext[-1].append(s)
 
         fig = go.Figure()

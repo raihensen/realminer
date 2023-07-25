@@ -1,6 +1,9 @@
+import pandas as pd
 
 
 def time_formatter(t) -> str:
+    if pd.isna(t) or t < 0:
+        return None
     if t >= 60 * 60 * 24 * 365:
         return f'{t / (60 * 60 * 24 * 365):.1f}y'
     elif t >= 60 * 60 * 24:
