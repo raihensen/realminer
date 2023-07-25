@@ -174,6 +174,7 @@ class HeatMapTab(SidebarTab):
                              text=hovertext)
         self.format_heatmap_time_intervals(heatmap, tmin, tmax)
         fig.add_trace(heatmap)
+        fig.update_layout(margin_b=200, margin_r=120)
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
@@ -205,6 +206,7 @@ class HeatMapTab(SidebarTab):
                              text=hovertext)
         self.format_heatmap_time_intervals(heatmap, tmin, tmax)
         fig.add_trace(heatmap)
+        fig.update_layout(margin_b=200, margin_r=120)
         fig.write_html(HEATMAP_HTML_FILE)
         # refresh browser
         self.refresh_heatmap_display()
