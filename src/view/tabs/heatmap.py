@@ -151,8 +151,8 @@ class HeatMapTab(SidebarTab):
     def display_heatmap_pooling(self, number_matrix):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['pooling_time'][self.measurement]
-        number_matrix.fillna(-1 * 24 * 60 * 60, inplace=True)
         tmin, tmax = max(0, number_matrix.min().min()), number_matrix.max().max()
+        number_matrix.fillna(max(0 - .2 * (tmax - tmin), -1), inplace=True)
 
         matrix = number_matrix
         hovertext = list()
@@ -182,8 +182,8 @@ class HeatMapTab(SidebarTab):
     def display_heatmap_lagging(self, number_matrix):
         self.kpi_matrix = number_matrix
         number_matrix = number_matrix['lagging_time'][self.measurement]
-        number_matrix.fillna(-1 * 24 * 60 * 60, inplace=True)
         tmin, tmax = max(0, number_matrix.min().min()), number_matrix.max().max()
+        number_matrix.fillna(min(0 - .2 * (tmax - tmin), -1), inplace=True)
 
         matrix = number_matrix
         hovertext = list()
