@@ -49,6 +49,7 @@ class FilterTab(SidebarTab):
         for theme in ttk.style.STANDARD_THEMES:
             theme_menu.add_radiobutton(label=theme,
                                        variable=theme_var,
+                                       value=theme,
                                        command=lambda t=theme: self.view.change_theme(t))
         theme_menubutton["menu"] = theme_menu
         # Table

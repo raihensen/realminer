@@ -8,8 +8,8 @@ from view.components.tab import Tabs, Tab, SidebarTab
 from controller.tasks import *
 from controller.export import Export
 from view.components.zoomable_frame import AdvancedZoom
-from networkx.drawing.nx_agraph import to_agraph
-import pygraphviz
+import networkx as nx
+import graphviz
 
 
 class VariantsTab(SidebarTab):
@@ -76,13 +76,26 @@ class VariantsTab(SidebarTab):
 
         self.display_selected_variant()
 
+    def nx_to_graphviz(self, G: nx.DiGraph) -> graphviz.Digraph:
+        gv = graphviz.Digraph(format="png")
+
+        # Add nodes and edges to the Graphviz graph
+        for v, node in G.nodes.items():
+            gv.node(str(v), label=node.get("label", ""))  # Convert node label to string
+
+        for (u, v), edge in G.edges.items():
+            gv.edge(str(u), str(v), label=edge.get("label", ""))  # Convert node labels to strings
+
+        return gv
+
     def render_variant_graph(self, variant_id) -> str:
         """ Renders a variant graph, saving it to an image file. """
         G, ot_counts = self.view.controller.model.variant_graph(variant_id)
 
         bg = ttk.Style.instance.colors.bg
         fg = ttk.Style.instance.colors.fg
-        A = to_agraph(G)
+
+        A = self.nx_to_graphviz(G)
         A.graph_attr["fontname"] = GRAPH_FONT
         A.node_attr["fontname"] = GRAPH_FONT
         A.edge_attr["fontname"] = GRAPH_FONT
@@ -94,11 +107,10 @@ class VariantsTab(SidebarTab):
         A.edge_attr["color"] = fg
         A.graph_attr["rankdir"] = "TB"  # would prefer LR, but edge labels might be long
         A.node_attr["shape"] = "box"
-        A.layout('dot')
-        A.graph_attr['dpi'] = GRAPHVIZ_RENDER_DPI
-        path = f"tmp/variant_graph_{variant_id}.png"
-        A.draw(path)
-        return path
+        A.graph_attr['dpi'] = str(GRAPHVIZ_RENDER_DPI)
+        filename = f"tmp/variant_graph_{variant_id}.png"
+        A.render(outfile=filename, view=False)
+        return filename
 
     def display_selected_variant(self):
         variant_id = self.value_to_variant[self.variant_selection_var.get()]
