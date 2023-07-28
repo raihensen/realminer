@@ -4,8 +4,6 @@ from typing import Dict, List, Union, Optional
 
 import numpy as np
 import pandas as pd
-from networkx.drawing.nx_agraph import to_agraph
-import pygraphviz
 from ocpa.algo.discovery.ocpn import algorithm as ocpn_discovery_factory
 from ocpa.algo.enhancement.token_replay_based_performance import algorithm as performance_factory
 from ocpa.algo.util.process_executions.factory import LEAD_TYPE
@@ -150,17 +148,6 @@ class OcpaEventLog(OCEL):
             ot_counts[(i, j)] = edge_ot_counts
 
         return G, ot_counts
-
-    def _get_variant_graph_path(self, variant_id):
-        G = self._get_variant_graph(variant_id)
-
-        A = to_agraph(G)
-        A.graph_attr["rankdir"] = "TB"  # would prefer LR, but edge labels might be long
-        A.node_attr["shape"] = "box"
-        A.layout('dot')
-        path = f"tmp/variant_graph_{variant_id}.png"
-        A.draw(path)
-        return path
 
     def _compute_petri_net(self):
         return None  # Use pm4py

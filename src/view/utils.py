@@ -45,7 +45,8 @@ class ResizeTracker:
         if event.widget != self.window:
             return
         maximized = self.is_maximized()
-        if self.width == event.width and self.height == event.height and self.maximized == maximized:
+        # if self.width == event.width and self.height == event.height and self.maximized == maximized:
+        if self.maximized == maximized:
             return
 
         if maximized != self.maximized:
