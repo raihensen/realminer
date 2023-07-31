@@ -2,7 +2,7 @@
 FROM python:3.7-slim
 
 # Set the working directory in the container
-WORKDIR /src
+WORKDIR /app
 
 # Install graphviz
 RUN apt-get update \
@@ -23,4 +23,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Specify the command to run your application (modify if needed)
-CMD ["python", "main.py"]
+CMD ["python", "src/main.py"]
