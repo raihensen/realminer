@@ -14,6 +14,7 @@ logger = logging.getLogger("app_logger")
 
 HEATMAP_HTML_FILE = "tmp/heatmap.html"
 IMAGE_EXT = ".png" if tk.TkVersion > 8.5 else ".gif"
+CEF_BROWSER_TITLE = "realminer_heatmap_browser"
 
 
 class HeatmapType:
@@ -114,7 +115,7 @@ class BrowserFrame(tk.Frame):
         window_info = cef.WindowInfo()
         rect = [0, 0, self.winfo_width(), self.winfo_height()]
         window_info.SetAsChild(self.get_window_handle(), rect)
-        self.browser = cef.CreateBrowserSync(window_info, url=f"file:///{HEATMAP_HTML_FILE}")
+        self.browser = cef.CreateBrowserSync(window_info, url=f"file:///{HEATMAP_HTML_FILE}", window_title=CEF_BROWSER_TITLE)
         assert self.browser, "Browser could not be initialized"
         self.browser.SetClientHandler(LoadHandler(self))
         self.browser.SetClientHandler(FocusHandler(self))
@@ -140,10 +141,23 @@ class BrowserFrame(tk.Frame):
             self.browser.NotifyMoveOrResizeStarted()
 
     def on_mainframe_configure(self, width, height):
+        # Get the window object using its handle
         if self.browser:
-            ctypes.windll.user32.SetWindowPos(
-                self.browser.GetWindowHandle(), 0,
-                0, 0, width, height, 0x0002)
+            # window_handle = self.browser.GetWindowHandle()
+            # target_window = (gw.getWindowsWithTitle(CEF_BROWSER_TITLE) + [None])[0]
+            # target_window = next((window for window in all_windows if window._hWnd == window_handle), None)
+            # target_window = gw.getWindow(handle=self.browser.GetWindowHandle())
+            # target_window = None
+            # if target_window is not None:
+            #     logger.info("cefpython browser window:", target_window)
+            #     target_window.resizeTo(width, height)
+            # else:
+            #     logger.warning("cefpython browser window not found - could not resize")
+            if os.name == 'nt':
+                logger.info(f"Running on windows - resize browser window to {width}x{height}")
+                ctypes.windll.user32.SetWindowPos(self.browser.GetWindowHandle(), 0, 0, 0, width, height, 0x0002)
+            else:
+                logger.warning("Cannot resize browser window (currently only possible on Windows OS)")
             self.browser.NotifyMoveOrResizeStarted()
 
     def on_focus_in(self, _):

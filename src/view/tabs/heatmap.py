@@ -169,7 +169,7 @@ class HeatMapTab(SidebarTab):
                 if time_str is not None:
                     s = f"Before executing '{x}'<br>the objects of type '{y}'<br>take {time_str} for pooling"
                 else:
-                    s = f"The object type '{y}'<br>is not related to '{x}'"
+                    s = f"No two objects of '{y}'<br>are related to '{x}' at once."
                 hovertext[-1].append(s)
 
         fig = go.Figure()
