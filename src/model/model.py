@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import final, List, Dict, Union, Optional
+from typing import List, Dict, Union, Optional
 from builtins import property
 from pathlib import Path
 from datetime import datetime
@@ -189,67 +189,53 @@ class Model:
         raise NotImplementedError("The model's event log(s) do not support the requested method.")
 
     @property
-    @final
     def object_types(self) -> List[str]:
         return self._execute_ocel_method("_get_object_types")
 
     @property
-    @final
     def object_type_counts(self) -> List[str]:
         return self._execute_ocel_method("_get_object_type_counts")
 
     @property
-    @final
     def activities(self) -> List[str]:
         return self._execute_ocel_method("_get_activities")
 
     @property
-    @final
     def ot_activities(self) -> List[str]:
         return self._execute_ocel_method("_get_ot_activities")
 
     @property
-    @final
     def cases(self) -> List[str]:
         return self._execute_ocel_method("_get_cases")
 
     @property
-    @final
     def variants(self) -> List[str]:
         return self._execute_ocel_method("_get_variants")
 
     @property
-    @final
     def variant_frequencies(self) -> Dict[str, int]:
         return self._execute_ocel_method("_get_variant_frequencies")
 
-    @final
     def variant_graph(self, variant_id):
         return self._execute_ocel_method("_get_variant_graph", variant_id)
 
-    @final
     def compute_opera(self, agg: Union[List[str], str, None] = None) -> Optional[Dict[str, Dict[str, pd.DataFrame]]]:
         dfs = self._execute_ocel_method("_compute_opera", agg)
         return dfs
 
-    @final
     def compute_petri_net(self):
         return self._execute_ocel_method("_compute_petri_net")
 
-    @final
     def compute_heatmap(self):
         return self._execute_ocel_method("_compute_heatmap")
 
-    @final
     @property
     def extended_table(self):
         return self._execute_ocel_method("_get_extended_table")
 
-    @final
     def compute_heatmap_pooling(self):
         return self._execute_ocel_method("_compute_heatmap_pooling")
     
-    @final
     def compute_heatmap_lagging(self):
         return self._execute_ocel_method("_compute_heatmap_lagging")
     

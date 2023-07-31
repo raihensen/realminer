@@ -1,6 +1,5 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import final
 from builtins import property
 from pprint import pprint
 from pathlib import Path
@@ -76,22 +75,18 @@ class OCEL(ABC):
         """Returns the event log as a pandas DataFrame"""
 
     @property
-    @final
     def object_types(self) -> List[str]:
         return self._get_object_types()
 
     @property
-    @final
     def object_type_counts(self) -> List[str]:
         return self._get_object_type_counts()
 
     @property
-    @final
     def activities(self) -> List[str]:
         return self._get_activities()
 
     @property
-    @final
     def ot_activities(self) -> List[str]:
         return self._get_ot_activities()
 
