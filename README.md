@@ -6,13 +6,12 @@ A powerful tool for analyzing and visualizing object-centric process data.
 This app has been developed during the lab *PADS x Celonis*, offered by the [Chair of Process and Data Science (PADS)](https://pads.rwth-aachen.de) at RWTH Aachen University, in cooperation with [celonis](https://celonis.com), in summer semester 2023.
 
 ## Table of Contents
-- [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
 - [Examples](#examples)
-  - [Example 1: Analyzing Purchase Order Process](#example-1-analyzing-purchase-order-process)
-- [License](#license)
+  - Example 1: Analyzing Purchase Order Process
+  - Example 2: Analyzing a P2P process
 - [Acknowledgements](#acknowledgements)
 - [Repository Structure](#repository-structure)
 - [References](#references)
